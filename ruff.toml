@@ -1,0 +1,80 @@
+line-length = 120
+target-version = "py312"
+
+show-fixes = true
+include = ["*.py"]
+
+[lint]
+fixable = ["ALL"]
+ignore = ["COM812", "ISC001", "PLR2004"]
+select = [
+    # Pyflakes
+    "F",
+    # Pycodestyle
+    "E",
+    "W",
+    # isort
+    "I",
+    # pep8-naming
+    "N",
+    # flake8 - async, bandit, bugbear, builtins, commas, comprehensions
+    "ASYNC",
+    "S",
+    "B",
+    "A",
+    "COM",
+    "C4",
+    # flake8 - implicit-str-concat, import-conventions, logging-format, print, pyi, pytest-style
+    "ISC",
+    "ICN",
+    "G",
+    "T20",
+    "PYI",
+    "PT",
+    # flake8 - quotes, return, self, simplify, tidy-imports
+    "Q",
+    "Q000",
+    "Q003",
+    "RET",
+    "SLF",
+    "SIM",
+    "TID",
+    # Pylint
+    "PL",
+]
+[format]
+quote-style = "double"
+
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".idea",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+[lint.flake8-quotes]
+docstring-quotes = "double"
+
