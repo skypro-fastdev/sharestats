@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Статистика студента {{ student_id }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
+</head>
+<body>
+<div class="container">
+    <div class="achievement-block">
+        <img class="achievement-image" src="{{ url_for('data', path=achievement_image) }}" alt="Достижение">
+    </div>
+    <div class="stats-block">
+        <h1>Мой прогресс:</h1>
+        <ul>
+            {% for item in results %}
+                <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="stats-block">
+        <h1>Я уже умею:</h1>
+        <ul>
+            {% for skill in skills %}
+                <li>{{ skill }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+</body>
+</html>

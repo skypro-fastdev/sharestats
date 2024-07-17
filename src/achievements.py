@@ -59,7 +59,7 @@ class NightOwlAchievement(AchievementBase):
         return homework_total > 3 and homework_night / homework_total > 0.5
 
     def describe(self, stats: dict[str, int | str]) -> str:
-        return "100% моих домашек\nсданы вовремя"
+        return "Большинство моих домашек\nсданы ночью"
 
 
 class SunshineAchievement(AchievementBase):
