@@ -2,13 +2,15 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Статистика студента {{ student_id }}</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
 </head>
 <body>
 <div class="container">
     <div class="achievement-block">
-        <img class="achievement-image" src="{{ url_for('data', path=achievement_image) }}" alt="Достижение">
+        <img class="achievement-image" src="{{ url_for('data', path=achievement_image) }}" alt="Достижение"
+             id="achievementImage">
     </div>
     <div class="stats-block">
         <h1>Мой прогресс:</h1>
@@ -18,13 +20,17 @@
             {% endfor %}
         </ul>
     </div>
-    <div class="stats-block">
+    <div class="skills-block">
         <h1>Я уже умею:</h1>
         <ul>
             {% for skill in skills %}
                 <li>{{ skill }}</li>
             {% endfor %}
         </ul>
+    </div>
+    <div class="download-block">
+        <a href="{{ url_for('data', path=achievement_image) }}" download="achievement.png" class="download-button">
+            Скачать картинку для сторис</a>
     </div>
 </div>
 </body>

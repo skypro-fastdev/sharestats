@@ -23,6 +23,11 @@ def get_image_relative_path(path: str) -> str:
     return str(relative_path)
 
 
+def get_achievement_logo_relative_path(achievement: Achievement) -> str:
+    path = str(IMAGES_PATH / f"logo_{achievement.picture}")
+    return get_image_relative_path(path)
+
+
 def get_centered_x(draw, text, font, img_width):
     bbox = draw.textbbox((0, 0), text, font=font)
     text_width = bbox[2] - bbox[0]
@@ -144,13 +149,13 @@ def get_student_skills(student: Student) -> list:
         skills = [f"Профессия: {prof} {student_program}, курсовых: {courses_total}"]
 
         for row in skills_data:
-            program, courses = int(row[1]), int(row[2])
+            program, courses, skills_received = int(row[1]), int(row[2]), row[3]
 
             if student_program and courses_completed and student_program == program and courses_completed == courses:
-                if "/" in row[3]:
-                    skills.extend(row[3].split(" / "))
+                if "/" in skills_received:
+                    skills.extend(skills_received.split(" / "))
                 else:
-                    skills.append(row[3])
+                    skills.append(skills_received)
                 return skills
         skills.append("... Пока что нет навыков ...")
         return skills

@@ -33,8 +33,28 @@ body {
     margin-bottom: 20px;
 }
 
-.stats-block:last-child {
+.skills-block {
     margin-bottom: 0;
+}
+
+.download-block {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.download-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.download-button:hover {
+    background-color: #45a049;
 }
 
 h1 {
@@ -52,4 +72,94 @@ li {
     margin-bottom: 10px;
     color: #555;
     font-size: 16px;
+}
+
+li:last-child {
+    margin-bottom: 0;
+}
+
+.container-share {
+    max-width: 350px;
+    margin: 0 auto;
+    background-color: #6F59EE;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+}
+
+.logo {
+    display: block;
+    margin: 0 auto 10px;
+    width: 150px;
+}
+
+.achievement {
+    display: grid;
+    place-items: center;
+    position: relative;
+    text-align: center;
+    justify-content: center;
+}
+
+.achievement-logo {
+    max-width: 100%;
+}
+
+.name-badge {
+    position: absolute;
+    margin-top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #393749;
+    color: white;
+    padding: 10px 20px;
+    font-size: 20px;
+    border-radius: 10px;
+    white-space: nowrap;
+    z-index: 1;
+}
+
+.status {
+    font-size: 32px;
+    color: white;
+    margin: 15px;
+}
+
+.status-description {
+    background-color: #8174e3;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.invitation {
+    color: white;
+    text-align: left;
+}
+
+.signup-form {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.signup-form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-weight: bold;
+}
+
+.signup-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #a3ff57;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
 }
