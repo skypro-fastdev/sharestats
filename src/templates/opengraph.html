@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="{{ description }}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:site_name" content="Skypro"/>
+    <meta property="og:title" content="Достижение - {{ title }}"/>
+    <meta property="og:locale" content="ru_RU">
+    <meta property="og:description" content="{{ description }}">
+    <meta property="og:url" content="{{ url_for('data', path=achievement_image) }}"/>
+    <meta property="og:type" content="image/png">
+    <meta property="og:image" content="{{ url_for('data', path=achievement_image) }}"/>
+    <meta property="vk:image" content="{{ url_for('data', path=achievement_image) }}"/>
+    <meta property="og:image:width" content="360"/>
+    <meta property="og:image:height" content="720"/>
+    <title>Opengraph картинка для шэринга</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
+</head>
+<body>
+    <img class="achievement-image" src="{{ url_for('data', path=achievement_image) }}" alt="Достижение">
+</body>
+</html>

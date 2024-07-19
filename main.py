@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from src.config import setup_cors
+from src.config import settings, setup_middlewares
 from src.web.routes import router
 
-app = FastAPI()
+app = FastAPI(debug=settings.debug)
 
-setup_cors(app)
+setup_middlewares(app)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/data", StaticFiles(directory="data"), name="data")

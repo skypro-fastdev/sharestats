@@ -25,6 +25,32 @@ async def index():
     return JSONResponse(status_code=status.HTTP_200_OK, content={"status": "ok"})
 
 
+@router.get("/opengraph/{student_id}")
+async def opengraph_image(request: Request, student_id: int):
+    stats = get_user_stats(student_id)  # берём данные из Google Sheet
+
+    if not stats:
+        return PlainTextResponse(f"Студент с id {student_id} не найден", 404)
+
+    student = Student(id=student_id, statistics=stats)
+
+    achievements = check_achievements(student)
+    # Выбираем случайное достижение если их несколько, иначе достижение первое "newby"
+    achievement = choice(achievements[1:]) if len(achievements) > 1 else achievements[0]  # noqa: S311
+
+    path_to_image = generate_image(achievement)
+    return templates.TemplateResponse(
+        "opengraph.html",
+        {
+            "request": request,
+            "student_id": student_id,
+            "title": achievement.title,
+            "description": achievement.description,
+            "achievement_image": path_to_image,
+        },
+    )
+
+
 @router.get("/generate/{student_id}")
 async def generate(request: Request, student_id: int):
     stats = get_user_stats(student_id)  # берём данные из Google Sheet

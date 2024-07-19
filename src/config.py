@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from google.oauth2.service_account import Credentials
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -27,7 +28,7 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
-def setup_cors(app):
+def setup_middlewares(app):
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.origins,
@@ -35,6 +36,7 @@ def setup_cors(app):
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.origins)
 
 
 def get_creds():
