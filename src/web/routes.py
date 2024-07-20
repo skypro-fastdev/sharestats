@@ -1,10 +1,14 @@
 from random import choice
 
+from aiogram.enums import ParseMode
+from aiogram.types import FSInputFile
 from fastapi import APIRouter, Form, status
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.templating import Jinja2Templates
 
+from src.bot.client import bot
+from src.config import settings
 from src.models import Student
 from src.utils import (
     check_achievements,
@@ -67,6 +71,18 @@ async def generate(request: Request, student_id: int):
     path_to_image = generate_image(achievement)
     results = get_student_results(student)
     skills = get_student_skills(student)
+
+    image_to_channel = FSInputFile(f"data/{path_to_image}")
+    results_text = "\n".join(f"- {result}" for result in results)
+    skills_text = "\n".join(f"- {skill}" for skill in skills[1:])
+
+    # Отправляем изображение в телеграм-канал Skypro Sharestats
+    await bot.send_photo(settings.CHANNEL_ID, photo=image_to_channel)
+
+    # Создаем сообщение с Markdown разметкой
+    message_to_channel = f"*Прогресс студента {student_id}:*\n" f"{results_text}\n\n" f"*Уже умеет:*\n" f"{skills_text}"
+    # Отправляем сообщение с Markdown
+    await bot.send_message(settings.CHANNEL_ID, message_to_channel, parse_mode=ParseMode.MARKDOWN)
 
     return templates.TemplateResponse(
         "stats.html",

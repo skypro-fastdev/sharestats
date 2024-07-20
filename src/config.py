@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     DEBUG: str
     SHEET_ID_TEST: str
     ORIGINS: str
+    TG_TOKEN: str
+    CHANNEL_ID: str
 
     @property
     def debug(self) -> bool:
