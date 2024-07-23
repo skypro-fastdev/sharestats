@@ -6,7 +6,7 @@ include = ["*.py"]
 
 [lint]
 fixable = ["ALL"]
-ignore = ["COM812", "ISC001", "PLR2004"]
+ignore = ["COM812", "ISC001", "PLR2004", "SIM117", "S311", "B008"]
 select = [
     # Pyflakes
     "F",

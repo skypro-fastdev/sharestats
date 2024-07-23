@@ -2,9 +2,13 @@ import os
 from pathlib import Path
 from typing import Any
 
+from aiogram.enums import ParseMode
+from aiogram.types import FSInputFile
 from loguru import logger
 
-from src.dependencies import achievements, sheet_loader
+from src.bot.client import bot
+from src.config import settings
+from src.dependencies import achievements, sheet_loader, stats_loader
 from src.models import Achievement, Student
 
 IMAGES_PATH = Path(__file__).parent.parent / "data" / "images"
@@ -68,16 +72,20 @@ def generate_image(achievement: Achievement) -> str:
     return get_image_relative_path(image_path)
 
 
-def get_user_stats(student_id: int) -> dict[str, Any]:
-    """Получаем статистику временно из Google Sheet"""
-    students_data = sheet_loader.get_all_rows()
-    headers = students_data[0]  # получаем заголовки из первой строки таблицы
+async def get_user_stats(student_id: int) -> dict[str, Any]:
+    """Получаем статистику студента"""
+    if str(student_id).startswith("999"):
+        """ Получаем статистику из Google Sheet """
+        students_data = sheet_loader.get_all_rows()
+        headers = students_data[0]  # получаем заголовки из первой строки таблицы
 
-    for row in students_data[1:]:  # начинаем с второй строки, пропуская заголовки
-        if row[0] == str(student_id):
-            row_values = [int(value) if value.isdigit() else value for value in row]
-            return dict(zip(headers, row_values, strict=False))
-    return {}  # возвращаем пустой словарь, если студент не найден
+        for row in students_data[1:]:  # начинаем с второй строки, пропуская заголовки
+            if row[0] == str(student_id):
+                row_values = [int(value) if value.isdigit() else value for value in row]
+                return dict(zip(headers, row_values, strict=False))
+        return {}  # возвращаем пустой словарь, если студент не найден
+
+    return await stats_loader.get_stats(student_id)
 
 
 def check_achievements(student: Student) -> list[Achievement]:
@@ -126,7 +134,7 @@ def get_student_results(student: Student) -> list:
 
 
 def get_student_skills(student: Student) -> list:
-    """Получаем навыки студента в зависимости от программы и курса из таблицы skills"""
+    """Получаем навыки студента в зависимости от программы и курса"""
     try:
         skills_data = sheet_loader.get_all_rows(worksheet_name="skills")[1:]
 
@@ -162,3 +170,16 @@ def get_student_skills(student: Student) -> list:
     except Exception as e:
         logger.error(f"Ошибка при получении навыков из таблицы skills: {e}")
         return ["Ошибка при загрузке данных из таблицы!"]
+
+
+async def send_telegram_updates(student_id: int, image_path: str, results: list, skills: list):
+    """Отправка изображения и сообщения в телеграм-канал Skypro Sharestats"""
+    image_to_channel = FSInputFile(f"data/{image_path}")
+    results_text = "\n".join(f"- {result}" for result in results)
+    skills_text = "\n".join(f"- {skill}" for skill in skills[1:])
+
+    await bot.send_photo(settings.CHANNEL_ID, photo=image_to_channel)
+
+    # Создаем сообщение с Markdown разметкой
+    message_to_channel = f"*Прогресс студента {student_id}:*\n{results_text}\n\n*Уже умеет:*\n{skills_text}"
+    await bot.send_message(settings.CHANNEL_ID, message_to_channel, parse_mode=ParseMode.MARKDOWN)

@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     ORIGINS: str
     TG_TOKEN: str
     CHANNEL_ID: str
+    LOAD_STATS_HOST: str
+    LOAD_STATS_TOKEN: str
 
     @property
     def debug(self) -> bool:
