@@ -1,10 +1,11 @@
+from datetime import datetime
 from random import choice
 
 from fastapi import HTTPException
 from pydantic import ValidationError
 
-from src.models import Student
-from src.utils import check_achievements, generate_image, get_user_stats
+from src.models import ProfessionEnum, Student
+from src.utils import async_generate_image, check_achievements, get_user_stats
 
 
 class StudentHandler:
@@ -20,10 +21,17 @@ class StudentHandler:
             raise HTTPException(status_code=404, detail=f"Студент с id {self.student_id} не найден")
 
         try:
+            profession_str = stats.get("profession", "NA")
+            profession_enum = ProfessionEnum.from_str(profession_str)
+
+            started_at = datetime.strptime(stats.get("started_at"), "%d.%m.%Y").date()
+
             self.student = Student(
                 id=self.student_id,
                 first_name=stats.get("first_name", "Name"),
                 last_name=stats.get("last_name", "Surname"),
+                profession=profession_enum,
+                started_at=started_at,
                 statistics=stats,
             )
         except ValidationError as e:
@@ -35,8 +43,9 @@ class StudentHandler:
     def get_random_achievement(self):
         return choice(self.achievements[1:]) if len(self.achievements) > 1 else self.achievements[0]
 
-    def gen_image(self):
-        return generate_image(self.achievement)
+    async def gen_image(self, platform: str) -> dict:
+        """Generate image with achievement"""
+        return await async_generate_image(self.achievement, platform)
 
 
 async def get_student_handler(student_id: int) -> StudentHandler:

@@ -3,36 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skypro - Приглашение на консультацию</title>
+    <title>Достижение - {{ title }}</title>
+
+    <!-- OpenGraph metadata -->
+    <meta name="description" content="{{ description }}"/>
+    <meta property="og:site_name" content="Skypro"/>
+    <meta property="og:title" content="Достижение - {{ title }}"/>
+    <meta property="og:description" content="{{ description }}">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ru_RU">
+    <meta property="og:url" content="{{ url_for('opengraph', student_id=student_id) }}"/>
+    <meta property="og:image" content="{{ url_for('data', path=achievement_image) }}"/>
+    <meta property="og:image:width" content="{{ image_width }}"/>
+    <meta property="og:image:height" content="{{ image_height }}"/>
+
+    <!-- Twitter Card metadata -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Достижение - {{ title }}">
+    <meta name="twitter:description" content="{{ description }}">
+    <meta name="twitter:image" content="{{ url_for('data', path=achievement_image) }}">
+
+    <!-- VK metadata -->
+    <meta property="vk:image" content="{{ url_for('data', path=achievement_image) }}"/>
+
     <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
 </head>
 <body>
-<div class="container-share">
-    <header>
-        <img src="{{ url_for('data', path=logo_image) }}" alt="Skypro logo" class="logo">
-    </header>
-    <main>
-        <div class="achievement">
-            <img class="achievement-logo" src="{{ url_for('data', path=achievement_image) }}" alt="Достижение">
-        </div>
-        <div class="name-badge">
-            <span>{{ full_name }}</span>
-        </div>
-        <h1 class="status">{{ title }}</h1>
-        <p class="status-description">
-            {{ description }}
-        </p>
-        <div class="invitation">
-            <p>Для друзей {{ full_name }} доступна бесплатная карьерная консультация в Sky.pro.</p>
-            <p>Запишитесь прямо сейчас, найдите себя и получайте крутые результаты как {{ first_name }}.</p>
-        </div>
-        <form class="signup-form" action="/sent" method="post">
-            <label>
-                <input type="tel" placeholder="Телефон" name="phone" required>
-            </label>
-            <button type="submit">Записаться</button>
-        </form>
-    </main>
-</div>
+<img class="achievement-image" src="{{ url_for('data', path=achievement_image) }}" alt="Достижение">
 </body>
 </html>

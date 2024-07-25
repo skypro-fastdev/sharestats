@@ -1,6 +1,6 @@
 body {
     font-family: Roboto, sans-serif;
-    background-color: #f0f0f0;
+    background-color: #000000;
     margin: 0;
     padding: 20px;
     display: flex;
@@ -37,7 +37,7 @@ body {
     margin-bottom: 0;
 }
 
-.download-block {
+.button-block {
     display: flex;
     justify-content: center;
     margin-bottom: 10px;
@@ -50,7 +50,7 @@ body {
     color: white;
     text-decoration: none;
     border-radius: 5px;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .download-button:hover {
@@ -82,6 +82,7 @@ li:last-child {
     max-width: 350px;
     margin: 0 auto;
     background-color: #6F59EE;
+    color: white;
     border-radius: 20px;
     padding: 20px;
     text-align: center;
@@ -99,6 +100,7 @@ li:last-child {
     position: relative;
     text-align: center;
     justify-content: center;
+    margin-top: -60px;
 }
 
 .achievement-logo {
@@ -107,14 +109,14 @@ li:last-child {
 
 .name-badge {
     position: absolute;
-    margin-top: -40px;
+    margin-top: -80px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #393749;
+    background-color: #444257;
     color: white;
     padding: 10px 20px;
     font-size: 20px;
-    border-radius: 10px;
+    border-radius: 20px;
     white-space: nowrap;
     z-index: 1;
 }
@@ -122,7 +124,8 @@ li:last-child {
 .status {
     font-size: 32px;
     color: white;
-    margin: 15px;
+    margin-top: -20px;
+    margin-bottom: 5px;
 }
 
 .status-description {
@@ -162,4 +165,172 @@ li:last-child {
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
+}
+
+.share-button {
+    background-color: #bbec30;
+    border: none;
+    color: #000000;
+    width: 100%;
+    padding: 15px 30px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+.get-container {
+    background-color: #8174e3;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.share-summary {
+    cursor: pointer;
+    padding: 10px;
+    background-color: #bbec30;
+    color: #000000;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.how-to-get {
+    cursor: pointer;
+    padding: 10px;
+    background-color: #312960;
+    border-radius: 5px;
+}
+
+.description {
+    background-color: #8174e3;
+    color: white;
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.percents {
+    margin: 0;
+    font-size: 90px;
+    font-weight: bolder;
+}
+
+.container_images {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 150px;
+    position: relative;
+    margin-top: 10px;
+    margin-bottom: -60px;
+}
+
+.image-wrapper {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.image-wrapper img {
+    max-width: 100%;
+    height: 100%;
+}
+
+.calendar {
+    margin: 0 0 0 -20%;
+}
+
+.arrow {
+    margin: 35% 0 0 40%;
+}
+
+.stats-container {
+    padding: 10px;
+    text-align: center;
+    margin-top: -20px;
+}
+
+.stats-header {
+    font-size: 28px;
+    font-weight: bolder;
+}
+
+.stats-details {
+    display: flex;
+    justify-content: space-between;
+}
+
+.stat-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-lives {
+    font-size: 24px;
+}
+
+.stat-label {
+    font-size: 20px;
+}
+
+.copy-icon {
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.copy-icon svg {
+    vertical-align: middle;
+}
+
+.share-options {
+    margin-top: 10px;
+}
+
+.share-item {
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.share-item summary {
+    background-color: #6F59EE;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.share-content {
+    background-color: #6F59EE;
+    padding: 10px;
+    text-align: left;
+    overflow-wrap: break-word;
+}
+
+.save-button {
+    background-color: #32CD32;
+    color: #000000;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.copy-icon {
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.copy-icon svg {
+    vertical-align: middle;
+}
+
+a {
+    color: #32CD32;
 }

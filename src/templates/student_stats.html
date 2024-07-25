@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skypro - Моя статистика</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function () {
+                alert('Ссылка скопирована!');
+            }, function (err) {
+                console.error('Не удалось скопировать текст: ', err);
+            });
+        }
+    </script>
+</head>
+<body>
+<div class="container-share">
+    <header>
+        <img src="{{ url_for('data', path="images/skypro.png") }}" alt="Skypro logo" class="logo">
+    </header>
+    <main>
+        <div class="achievement">
+            <img class="achievement-logo" src="{{ url_for('data', path=achievement_logo) }}" alt="Достижение">
+        </div>
+        <div class="name-badge">
+            <span>Мой стиль обучения:</span>
+        </div>
+        <h1 class="status">{{ title }}</h1>
+        <p class="description">{{ description }}</p>
+        <div class="button-block">
+            <button class="share-button" onclick="location.href='#share'">Поделиться в соцсетях</button>
+        </div>
+        <p class="percents">{{ percent_of_lessons_completed }}%</p>
+        <p style="font-size: 28px; margin: 0;">курса <strong>{{ profession }}</strong> пройдено</p>
+        <div class="container_images">
+            <div class="image-wrapper">
+                <img src="{{ url_for('data', path="images/calendar.png") }}" alt="" class="calendar">
+            </div>
+            <div class="image-wrapper">
+                <img src="{{ url_for('data', path="images/arrows.png") }}" alt="" class="arrow">
+            </div>
+        </div>
+        <p class="stats-header">Я учусь уже {{ days_since_start }}</p>
+        <p class="stat-lives"><strong>{{ lessons_completed }}</strong> уроков пройдено</p>
+        <p class="stat-lives"><strong>{{ courseworks_completed }}</strong> курсовых сдано</p>
+        <div class="container_images">
+            <div class="image-wrapper">
+                <img src="{{ url_for('data', path="images/ellipse.png") }}" alt="">
+            </div>
+            <div class="image-wrapper">
+                <img src="{{ url_for('data', path="images/books.png") }}" alt="">
+            </div>
+        </div>
+        <div class="stats-container">
+            <p class="stats-header">Я уже умею:</p>
+            <ul>
+                {% for skill in skills %}
+                    <li style="font-size: 18px; color: RGBA(255, 255, 255, 0.8);">{{ skill }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <img src="{{ url_for('data', path="images/lives.png") }}" alt="">
+        <div class="stats-container">
+            <p class="stats-header">Просмотры лайвов:</p>
+            <div class="stats-details">
+                <div class="stat-item">
+                    <span class="stat-lives"><strong>{{ lives_visited }}</strong></span>
+                    <span class="stat-label">в эфире</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-lives"><strong>{{ lives_watched_in_record }}</strong></span>
+                    <span class="stat-label"> в записи</span>
+                </div>
+            </div>
+            <br>
+        </div>
+        <img src="{{ url_for('data', path="images/schedule.png") }}" alt="">
+        <div class="stats-container">
+            <p class="stats-header">Мой график:</p>
+            <p class="stat-label">{{ homework_morning }} утром</p>
+            <p class="stat-label">{{ homework_night }} ночью</p>
+            <p class="stat-label">{{ homework_weekend }} на выходных</p>
+            <p class="stat-label">{{ homework_intime }} в последний момент</p>
+        </div>
+        <div class="stats-container">
+            <img src="{{ url_for('data', path="images/ask.png") }}" alt="">
+            <p class="stat-label">{{ questions_number }} наставникам</p>
+        </div>
+        <div class="get-container">
+            <p style="font-size: 18px;">Это было круто!<br>Поделись красивой статистикой в соцсетях,
+                выиграй мерч, индивидуальные занятия с наставниками и <strong>получи 15000 ₽</strong></p>
+            <details>
+                <summary class="how-to-get">Узнать как всё это получить</summary>
+                <p style="font-size: 18px; margin-top: 10px;">Поделись статистикой в ВК, Телеграме (сторис или личный
+                    канал),
+                    Нельзяграме и прими участие в розыгрыше призов.<br><br>
+                    Если посмотрев твою статистику, твои друзья и знакомые придут учиться,
+                    ты получишь 15 000 Р за каждого</p>
+            </details>
+            <details id="share">
+                <summary class="share-summary">Поделиться в соцсетях</summary>
+                <div class="share-options">
+                    <details class="share-item">
+                        <summary>Пост в ВК</summary>
+                        <div class="share-content">
+                            <p>Скопируйте ссылку, опубликуйте у себя на странице. Красивая карточка появится сама</p>
+                            <p>{{ url_for('share', student_id=student_id) }}?share_to=vk_post
+                                <span class="copy-icon" onclick="copyToClipboard('{{ url_for('share', student_id=student_id) }}?share_to=vk_post')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                                      <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                                    </svg>
+                                </span>
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="share-item">
+                        <summary>Истории в ВК</summary>
+                        <div class="share-content">
+                            <p>Сохраните карточку с итогами</p>
+                            <a href="{{ url_for('get_image', student_id=student_id) }}?share_to=vk_stories" class="save-button" download>Сохранить</a>
+                            <p>Сделайте новую историю и загрузите карточку. Добавьте ссылку на {{ url_for('share', student_id=student_id) }}?share_to=vk_stories
+                                <span class="copy-icon" onclick="copyToClipboard('{{ url_for('share', student_id=student_id) }}?share_to=vk_stories')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                                      <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                                    </svg>
+                                </span>
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="share-item">
+                        <summary>Ваш телеграм канал</summary>
+                        <div class="share-content">
+                            <p>Скопируйте текст, опубликуйте у себя в канале. Красивая карточка появится сама</p>
+                            <p>Сейчас я учусь в Skypro на профессии {{ profession }}. Сегодня хочу поделиться с вами статистикой
+                                {{ url_for('share', student_id=student_id) }}?share_to=tg_post
+                                <span class="copy-icon"
+                                      onclick="copyToClipboard('Сейчас я учусь в Skypro на профессии {{ profession }}. Сегодня хочу поделиться с вами статистикой {{ url_for("share", student_id=student_id) }}?share_to=tg_post')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                                      <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                                    </svg>
+                                </span>
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="share-item">
+                        <summary>История в Нельзяграме</summary>
+                        <div class="share-content">
+                            <p>Сохраните карточку с итогами</p>
+                            <a href="{{ url_for('get_image', student_id=student_id) }}?share_to=nelzyagram" class="save-button" download>Сохранить</a>
+                            <p>Создайте новую историю</p>
+                            <p>Добавьте наклейку-ссылку на {{ url_for('share', student_id=student_id) }}?share_to=nelzyagram
+                                <span class="copy-icon" onclick="copyToClipboard('{{ request.url_for('share', student_id=student_id) }}?share_to=nelzyagram')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                                      <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                                    </svg>
+                                </span>
+                            </p>
+                        </div>
+                    </details>
+
+                     <details class="share-item">
+                        <summary>Телеграм сторис (нужен премиум)</summary>
+                        <div class="share-content">
+                            <p>Перейдите по <a href="{{ url_for('tg', student_id=student_id) }}">этой ссылке</a> в канал, где опубликована история с вашей статистикой. Репостните её</p>
+                        </div>
+                    </details>
+                </div>
+            </details>
+        </div>
+    </main>
+</div>
+</body>
+</html>

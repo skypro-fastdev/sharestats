@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     CHANNEL_ID: str
     LOAD_STATS_HOST: str
     LOAD_STATS_TOKEN: str
+    YANDEX_S3_KEY_ID: str
+    YANDEX_S3_SECRET_KEY: str
+    YANDEX_S3_BUCKET: str
 
     @property
     def debug(self) -> bool:
