@@ -160,7 +160,7 @@ class QuestionCatAchievement(AchievementBase):
         return questions_number > 7
 
     def describe(self, prof: str) -> str:
-        return f"Я задаю вопросы, как только что-то не понятно в {prof}"
+        return f"Я задаю вопросы, как только что-то не понятно по {prof}"
 
 
 class ResponsiveAchievement(AchievementBase):

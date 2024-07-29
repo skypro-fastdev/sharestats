@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -5,17 +6,20 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from google.oauth2.service_account import Credentials
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-env_file = Path(__file__).parent.parent / ".env"
+IS_HEROKU = "DYNO" in os.environ
+
+env_file = Path(__file__).parent.parent / ".env" if not IS_HEROKU else None
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=env_file, extra="ignore")
 
-    CREDENTIALS_PATH: str
-    DEBUG: str
+    CREDENTIALS_PATH: str = ""
+    DEBUG: str = "False"
     SHEET_ID_TEST: str
     ORIGINS: str
     TG_TOKEN: str
+    TG_CHANNEL: str = "https://t.me/skypro_sharingstats"
     CHANNEL_ID: str
     LOAD_STATS_HOST: str
     LOAD_STATS_TOKEN: str

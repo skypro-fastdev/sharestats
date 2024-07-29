@@ -6,11 +6,13 @@ from loguru import logger
 
 from src.bot.client import bot
 from src.config import settings, setup_middlewares
+from src.dependencies import load_cache
 from src.web.routes import router
 
 
 @asynccontextmanager
 async def _lifespan(app: FastAPI):
+    load_cache()
     await bot.delete_webhook(drop_pending_updates=True)
     logger.info("Bot has been started.")
     yield

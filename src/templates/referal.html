@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Стиль обучения {{ student_id }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
+    <script type="text/javascript"> (function (m, e, t, r, i, k, a) {
+        m[i] = m[i] || function () {
+            (m[i].a = m[i].a || []).push(arguments)
+        };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+            if (document.scripts[j].src === r) {
+                return;
+            }
+        }
+        k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+    })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+    ym(97943495, "init", {clickmap: true, trackLinks: true, accurateTrackBounce: true, webvisor: true});
+    </script>
+</head>
+<body>
+<div class="container-share">
+    <div class="header">
+        <div>
+            <img src="{{ url_for('data', path="images/skypro.png") }}" alt="Skypro logo" class="logo-header">
+        </div>
+        <div class="name">Маша М.</div>
+    </div>
+    <main>
+        <div class="achievement-ref">
+            <img class="achievement-logo" src="{{ url_for('data', path=achievement_logo) }}" alt="Достижение">
+        </div>
+        <p class="description-up">{{ description }}</p>
+        <p class="description-down">Аналитик смотрит на цифры и помогает бизнесу принимать быстрые и правильные решения.<br>Средняя
+            ЗП в России: 120 000.<br>Вакансий в этом году: 18500.</p>
+        <div class="stats-container">
+            <p class="stats-header">Я учусь в Skypro<br>и уже умею:</p>
+            <ul>
+                {% for skill in skills %}
+                    <li style="font-size: 18px; color: RGBA(255, 255, 255, 0.8);">
+                        <img src="{{ url_for('data', path="images/arrow.png") }}" alt=""> {{ skill }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <details>
+            <summary class="what-is-skypro">Что такое Skypro?</summary>
+            <p style="font-size: 18px; margin-top: 10px;">Обучение IT-профессиям с нуля с гарантией новой работы.У нас
+                можно освоить востребованную профессию, независимо от прошлого опыта, образования и навыков.</p>
+        </details>
+        <p class="stats-header">Я профи в {{ profession_dative }} уже на {{ percent_of_lessons_completed }}%</p>
+        <img src="{{ url_for('data', path="images/calendar.png") }}" alt="" class="image-class">
+        <p class="stats-header">Учусь уже {{ days_since_start }}</p>
+        <p class="stat-lives"><strong>{{ lessons_completed }}</strong> уроков пройдено</p>
+        <p class="stat-lives"><strong>{{ courseworks_completed }}</strong> курсовых сдано</p>
+        <div class="info-box">
+            <p>Хотите тоже попробовать себя в Аналитике данных? Друзья Маша Миллер могут учиться за 1500₽ за первый
+                месяц.</p>
+            <div class="feature">
+                <img src="{{ url_for('data', path="images/arrow.png") }}" alt="">
+                <span>Доступ к топовому контенту</span>
+            </div>
+            <div class="feature">
+                <img src="{{ url_for('data', path="images/arrow.png") }}" alt="">
+                <span>Интересные задания</span>
+            </div>
+            <div class="feature">
+                <img src="{{ url_for('data', path="images/arrow.png") }}" alt="">
+                <span>Проверка домашек наставниками</span>
+            </div>
+
+            <details class="go-details">
+                <summary class="go-summary">Покажите подробности!</summary>
+                <p>Мы готовы добавить вас в ближайшую группу обучения. Просто оставьте номер, мы позвоним и все
+                    расскажем.</p>
+                <div class="phone-input">
+                    <input type="tel" placeholder="+ (___) ___ __ __">
+                    <button class="go-button">Погнали!</button>
+                </div>
+            </details>
+        </div>
+
+    </main>
+</div>
+</body>
+</html>

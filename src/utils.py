@@ -5,18 +5,19 @@ from functools import partial
 from pathlib import Path
 from typing import Any
 
-from aiogram.enums import ParseMode
 from aiogram.types import FSInputFile
 from fastapi import HTTPException
 from loguru import logger
+from PIL import Image, ImageDraw, ImageFont
 
 from src.bot.client import bot
 from src.config import settings
-from src.dependencies import achievements, sheet_loader, stats_loader
+from src.dependencies import achievements, data_cache, stats_loader
 from src.models import Achievement, Student
 
 IMAGES_PATH = Path(__file__).parent.parent / "data" / "images"
-FONT_PATH = Path(__file__).parent.parent / "static" / "fonts" / "Roboto-Bold.ttf"
+FONT_TITLE_PATH = Path(__file__).parent.parent / "static" / "fonts" / "stratosskyeng-bold.otf"
+FONT_DESCR_PATH = Path(__file__).parent.parent / "static" / "fonts" / "stratosskyeng-regular.otf"
 
 
 def get_image_path(achievement: Achievement, prefix: str) -> str:
@@ -64,6 +65,7 @@ def get_platform_params(name: str) -> dict:
         "template": "template_1200x630.png",
         "prefix": "1200x630",
         "title_font_size": 74,
+        "title_box_max_width": 680,
         "x_title": 40,
         "y_title": 224,
         "desc_font_size": 41,
@@ -79,6 +81,7 @@ def get_platform_params(name: str) -> dict:
         "template": "template_1080x1920.png",
         "prefix": "1080x1920",
         "title_font_size": 104,
+        "title_box_max_width": 1000,
         "x_title": 540,
         "y_title": 1120,
         "desc_font_size": 70,
@@ -124,10 +127,20 @@ def draw_wrapped_text(draw, text, font, max_width, x, y, align=None):  # noqa PL
         y += char_height + 1
 
 
+def get_fitting_font(draw, text, font_path, initial_size, max_width):
+    font_size = initial_size
+    font = ImageFont.truetype(font_path, font_size)
+    while font_size > 50:
+        text_width = draw.textlength(text, font=font)
+        if text_width <= max_width:
+            break
+        font_size -= 1
+        font = ImageFont.truetype(font_path, font_size)
+    return font
+
+
 def generate_image(achievement: Achievement, platform: str) -> dict:
     """Генерируем картинку с достижением"""
-    from PIL import Image, ImageDraw, ImageFont
-
     params = get_platform_params(platform)
     prefix = params["prefix"]
 
@@ -144,12 +157,17 @@ def generate_image(achievement: Achievement, platform: str) -> dict:
     # Вставляем лого achievement на изображении
     base_image.paste(achievement_img, (achievement_x, achievement_y), achievement_img)
 
-    font_title = ImageFont.truetype(FONT_PATH, params["title_font_size"])
-    font_description = ImageFont.truetype(FONT_PATH, params["desc_font_size"])
+    # font_title = ImageFont.truetype(FONT_PATH, params["title_font_size"])
+    font_description = ImageFont.truetype(FONT_DESCR_PATH, params["desc_font_size"])
 
     draw = ImageDraw.Draw(base_image)
 
     width, height = params["size"]
+
+    # Рассчитываем размеры для шрифта title чтобы влезал на картинку
+    font_title = get_fitting_font(
+        draw, achievement.title, FONT_TITLE_PATH, params["title_font_size"], params["title_box_max_width"]
+    )
 
     if params["size"] == (1080, 1920):
         params["x_title"] = get_centered_x(draw, achievement.title, font_title, width)
@@ -199,17 +217,8 @@ async def find_or_generate_image(achievement: Achievement, platform: str) -> str
 
 async def get_user_stats(student_id: int) -> dict[str, Any]:
     """Получаем статистику студента"""
-    if str(student_id).startswith("999"):
-        """ Получаем статистику из Google Sheet """
-        students_data = sheet_loader.get_all_rows()
-        headers = students_data[0]  # получаем заголовки из первой строки таблицы
-
-        for row in students_data[1:]:  # начинаем с второй строки, пропуская заголовки
-            if row[0] == str(student_id):
-                row_values = [int(value) if value.isdigit() else value for value in row]
-                return dict(zip(headers, row_values, strict=False))
-        return {}  # возвращаем пустой словарь, если студент не найден
-
+    if str(student_id).startswith("999"):  # моковые данные для тестов
+        return data_cache.stats.get(student_id, {})
     return await stats_loader.get_stats(student_id)
 
 
@@ -226,37 +235,6 @@ def check_achievements(student: Student) -> list[Achievement]:
         logger.error(f"Ошибка при проверке достижений: {e}")
         achieved.append(achievements[0])
     return achieved
-
-
-def get_student_results(student: Student) -> list:
-    """Получаем результаты студента"""
-    stats = student.statistics
-
-    def safe_get(key):
-        return stats.get(key) if stats.get(key) is not None else "?"
-
-    lessons_in_program = safe_get("lessons_in_program")
-    lessons_completed = safe_get("lessons_completed")
-
-    if isinstance(lessons_in_program, int) and isinstance(lessons_completed, int):
-        percent_of_lessons_completed = round((lessons_completed / lessons_in_program) * 100)
-    else:
-        percent_of_lessons_completed = "? "
-
-    courseworks_in_program = safe_get("courseworks_in_program")
-    courseworks_completed = safe_get("courseworks_completed")
-
-    lives_total = safe_get("lives_total")
-    lives_visited = safe_get("lives_visited")
-
-    return [
-        f"{percent_of_lessons_completed}% уроков пройдено",
-        f"{lessons_completed} / {lessons_in_program} уроков пройдено",
-        f"{courseworks_completed} / {courseworks_in_program} курсовых сдано",
-        f"{safe_get("questions_number")} вопросов задано",
-        f"{lives_visited} / {lives_total} лайвов посещено",
-        f"{safe_get("lives_watched_in_record")} лайвов просмотрено в записи",
-    ]
 
 
 def plural_variant(n: int, type_: str) -> str:
@@ -308,59 +286,36 @@ def get_stats(student: Student) -> dict:
 def get_student_skills(student: Student) -> list:
     """Получаем навыки студента в зависимости от программы и курса"""
     try:
-        skills_data = sheet_loader.get_all_rows(worksheet_name="skills")[1:]
-
-        if not skills_data:
-            logger.error("Ошибка: нет данных по навыкам в таблице skills!")
-            return ["... Нет данных по навыкам в таблице skills ..."]
+        skills_data = data_cache.skills
+        courses_data = data_cache.courses
 
         student_program = student.statistics.get("program")
         courses_completed = student.statistics.get("courseworks_completed")
 
-        courses_data = sheet_loader.get_all_rows(worksheet_name="courses")[1:]
-
-        if not courses_data:
-            logger.error("Ошибка: нет данных по программам в таблице courses!")
-            return ["... Нет данных по программам в таблице courses ..."]
-
-        prof = [r[0] for r in courses_data if student_program == int(r[1])][0]
-        courses_total = [int(r[2]) for r in courses_data if student_program == int(r[1])][0]
+        prof = courses_data[student_program]["profession"]
+        courses_total = courses_data[student_program]["courses_total"]
 
         skills = [f"Профессия: {prof} {student_program}, курсовых: {courses_total}"]
 
-        for row in skills_data:
-            program, courses, skills_received = int(row[1]), int(row[2]), row[3]
+        skills_to_extend = skills_data.get(student_program, {}).get(courses_completed, [])
 
-            if student_program and courses_completed and student_program == program and courses_completed == courses:
-                if "/" in skills_received:
-                    skills.extend(skills_received.split(" / "))
-                else:
-                    skills.append(skills_received)
-                return skills
-        skills.append("... Пока что нет навыков ...")
+        if not skills_to_extend:
+            skills.append("... Пока что нет навыков ...")
+            return skills
+
+        if "/" in skills_to_extend:
+            skills.extend(skills_to_extend.split(" / "))
+        else:
+            skills.append(skills_to_extend)
         return skills
     except Exception as e:
-        logger.error(f"Ошибка при получении навыков из таблицы skills: {e}")
+        logger.error(f"Error getting skills: {e}")
         return ["Ошибка при загрузке данных из таблицы!"]
 
 
-# DEPRECATED
-async def send_test_telegram_updates(student_id: int, image_path: str, results: list, skills: list):
-    """Отправка изображения и сообщения в телеграм-канал Skypro Sharestats"""
-    image_to_channel = FSInputFile(f"data/{image_path}")
-    results_text = "\n".join(f"- {result}" for result in results)
-    skills_text = "\n".join(f"- {skill}" for skill in skills[1:])
-
-    await bot.send_photo(settings.CHANNEL_ID, photo=image_to_channel)
-
-    # Создаем сообщение с Markdown разметкой
-    message_to_channel = f"*Прогресс студента {student_id}:*\n{results_text}\n\n*Уже умеет:*\n{skills_text}"
-    await bot.send_message(settings.CHANNEL_ID, message_to_channel, parse_mode=ParseMode.MARKDOWN)
-
-
-async def send_telegram_updates(full_image_url: str, image_path: str):
+async def send_telegram_updates(referal_url: str, image_path: str):
     """Отправка изображения в телеграм-канал Skypro Sharestats"""
     image_to_channel = FSInputFile(f"data/{image_path}")
 
     await bot.send_photo(settings.CHANNEL_ID, photo=image_to_channel)
-    await bot.send_message(settings.CHANNEL_ID, full_image_url)
+    await bot.send_message(settings.CHANNEL_ID, referal_url)
