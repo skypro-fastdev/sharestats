@@ -6,10 +6,13 @@ from src.classes.data_cache import DataCache
 from src.classes.s3 import S3Client
 from src.classes.sheet_loader import SheetLoader
 from src.classes.stats_loader import StatsLoader
-from src.config import settings
+from src.config import IS_HEROKU, get_creds, settings
 
 # Google Client
-gclient = gspread.service_account(filename=settings.CREDENTIALS_PATH)
+if IS_HEROKU:
+    gclient = gspread.authorize(credentials=get_creds())
+else:
+    gclient = gspread.service_account(filename=settings.CREDENTIALS_PATH)
 
 # Loader from Google Sheet
 sheet_loader = SheetLoader(gclient, settings.SHEET_ID_TEST)

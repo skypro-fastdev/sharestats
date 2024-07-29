@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from loguru import logger
 
 from src.bot.client import bot
-from src.config import settings, setup_middlewares
+from src.config import IS_HEROKU, settings, setup_middlewares
 from src.dependencies import load_cache
 from src.web.routes import router
 
@@ -26,7 +26,10 @@ setup_middlewares(app)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/data", StaticFiles(directory="data"), name="data")
 
-app.include_router(router)
+if IS_HEROKU:
+    app.include_router(router, prefix="/share")
+else:
+    app.include_router(router)
 
 if __name__ == "__main__":
     import uvicorn

@@ -85,7 +85,7 @@ async def get_image(
     return RedirectResponse(full_image_url, status_code=status.HTTP_302_FOUND)
 
 
-@router.get("/share/{student_id}", name="share")
+@router.get("/id/{student_id}", name="share")
 async def share(request: Request, share_to: str, handler: StudentHandler = Depends(get_student_handler)):
     if not share_to:
         image_data = await handler.gen_image(platform="vk_post")

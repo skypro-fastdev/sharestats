@@ -1,3 +1,5 @@
+import base64
+import json
 import os
 from pathlib import Path
 
@@ -15,6 +17,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=env_file, extra="ignore")
 
     CREDENTIALS_PATH: str = ""
+    CREDENTIALS_DATA: bytes = b""
     DEBUG: str = "False"
     SHEET_ID_TEST: str
     ORIGINS: str
@@ -51,7 +54,15 @@ def setup_middlewares(app):
 
 
 def get_creds():
-    creds = Credentials.from_service_account_file(settings.CREDENTIALS_PATH)
+    if IS_HEROKU:
+        if "CREDENTIALS_DATA" not in os.environ:
+            raise ValueError("CREDENTIALS_DATA environment variable is not set")
+        creds_json = base64.b64decode(os.environ["CREDENTIALS_DATA"]).decode("utf-8")
+        creds_dict = json.loads(creds_json)
+        creds = Credentials.from_service_account_info(creds_dict)
+    else:
+        creds = Credentials.from_service_account_file(settings.CREDENTIALS_PATH)
+
     return creds.with_scopes(
         [
             "https://spreadsheets.google.com/feeds",
