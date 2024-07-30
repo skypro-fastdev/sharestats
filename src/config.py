@@ -29,6 +29,12 @@ class Settings(BaseSettings):
     YANDEX_S3_KEY_ID: str
     YANDEX_S3_SECRET_KEY: str
     YANDEX_S3_BUCKET: str
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_NAME: str
+    DB_HOST: str = "localhost"
+    DB_PORT: int = 5432
+    DATABASE_URL: str = ""
 
     @property
     def debug(self) -> bool:
@@ -37,6 +43,12 @@ class Settings(BaseSettings):
     @property
     def origins(self) -> list[str]:
         return self.ORIGINS.split(",")
+
+    @property
+    def get_db_url(self) -> str:
+        if IS_HEROKU:
+            return self.DATABASE_URL
+        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
 
 settings = Settings()

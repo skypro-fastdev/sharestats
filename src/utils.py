@@ -58,49 +58,43 @@ def resize_image(image, target_height):
     return image.resize((target_width, target_height), Resampling.LANCZOS)
 
 
-def get_platform_params(name: str) -> dict:
+def get_platform_params(orientation: str = "horizontal") -> dict:
     """Получаем шаблон и размеры исходя из платформы для шеринга данных"""
-    vkpost_twitter = {
-        "size": (1200, 630),
-        "template": "template_1200x630.png",
-        "prefix": "1200x630",
-        "title_font_size": 74,
-        "title_box_max_width": 680,
-        "x_title": 40,
-        "y_title": 224,
-        "desc_font_size": 41,
-        "x_desc": 42,
-        "y_desc": 330,
-        "desc_box_max_width": 620,
-        "logo_height": 600,
-        "x_logo": 650,
-        "y_logo": 15,
+    properties = {
+        "horizontal": {
+            "size": (1200, 630),
+            "template": "template_1200x630.png",
+            "prefix": "1200x630",
+            "title_font_size": 74,
+            "title_box_max_width": 680,
+            "x_title": 40,
+            "y_title": 224,
+            "desc_font_size": 41,
+            "x_desc": 42,
+            "y_desc": 330,
+            "desc_box_max_width": 620,
+            "logo_height": 600,
+            "x_logo": 650,
+            "y_logo": 15,
+        },
+        "vertical": {
+            "size": (1080, 1920),
+            "template": "template_1080x1920.png",
+            "prefix": "1080x1920",
+            "title_font_size": 104,
+            "title_box_max_width": 1000,
+            "x_title": 540,
+            "y_title": 1120,
+            "desc_font_size": 70,
+            "x_desc": 65,
+            "y_desc": 1260,
+            "desc_box_max_width": 950,
+            "logo_height": 820,
+            "x_logo": 140,
+            "y_logo": 200,
+        },
     }
-    telegram_instagram_vkstories = {
-        "size": (1080, 1920),
-        "template": "template_1080x1920.png",
-        "prefix": "1080x1920",
-        "title_font_size": 104,
-        "title_box_max_width": 1000,
-        "x_title": 540,
-        "y_title": 1120,
-        "desc_font_size": 70,
-        "x_desc": 65,
-        "y_desc": 1260,
-        "desc_box_max_width": 950,
-        "logo_height": 820,
-        "x_logo": 140,
-        "y_logo": 200,
-    }
-    platform_params = {
-        "telegram": telegram_instagram_vkstories,
-        "nelzyagram": telegram_instagram_vkstories,
-        "vk_stories": telegram_instagram_vkstories,
-        "vk_post": vkpost_twitter,
-        "twitter": vkpost_twitter,
-        "tg_post": vkpost_twitter,
-    }
-    return platform_params.get(name, telegram_instagram_vkstories)
+    return properties[orientation]
 
 
 def draw_wrapped_text(draw, text, font, max_width, x, y, align=None):  # noqa PLR0913
@@ -139,9 +133,9 @@ def get_fitting_font(draw, text, font_path, initial_size, max_width):
     return font
 
 
-def generate_image(achievement: Achievement, platform: str) -> dict:
+def generate_image(achievement: Achievement, orientation: str) -> dict:
     """Генерируем картинку с достижением"""
-    params = get_platform_params(platform)
+    params = get_platform_params(orientation)
     prefix = params["prefix"]
 
     image_path = get_image_path(achievement, prefix=prefix)
@@ -194,13 +188,13 @@ def generate_image(achievement: Achievement, platform: str) -> dict:
     return {"path": get_image_relative_path(image_path), "width": width, "height": height}
 
 
-async def async_generate_image(achievement: Achievement, platform: str) -> dict:
+async def async_generate_image(achievement: Achievement, orientation: str) -> dict:
     loop = asyncio.get_running_loop()
-    return await loop.run_in_executor(None, partial(generate_image, achievement, platform))
+    return await loop.run_in_executor(None, partial(generate_image, achievement, orientation))
 
 
-async def find_or_generate_image(achievement: Achievement, platform: str) -> str:
-    params = get_platform_params(platform)
+async def find_or_generate_image(achievement: Achievement, orientation: str) -> str:
+    params = get_platform_params(orientation)
     prefix = params["prefix"]
     image_path = get_image_path(achievement, prefix=prefix)
 
@@ -208,7 +202,7 @@ async def find_or_generate_image(achievement: Achievement, platform: str) -> str
         return get_image_relative_path(image_path)
 
     try:
-        image_data = await async_generate_image(achievement, platform)
+        image_data = await async_generate_image(achievement, orientation)
         image_path = image_data["path"]
         return str(image_path)
     except Exception as e:
@@ -287,15 +281,15 @@ def get_student_skills(student: Student) -> list:
     """Получаем навыки студента в зависимости от программы и курса"""
     try:
         skills_data = data_cache.skills
-        courses_data = data_cache.courses
+        # courses_data = data_cache.courses
 
         student_program = student.statistics.get("program")
         courses_completed = student.statistics.get("courseworks_completed")
 
-        prof = courses_data[student_program]["profession"]
-        courses_total = courses_data[student_program]["courses_total"]
+        # prof = courses_data[student_program]["profession"]
+        # courses_total = courses_data[student_program]["courses_total"]
 
-        skills = [f"Профессия: {prof} {student_program}, курсовых: {courses_total}"]
+        skills = []
 
         skills_to_extend = skills_data.get(student_program, {}).get(courses_completed, [])
 

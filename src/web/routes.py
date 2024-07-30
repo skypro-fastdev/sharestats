@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from src.classes.simple_storage import SimpleStorage
 from src.config import settings
+from src.db.crud import StudentCRUD, get_student_crud
 from src.utils import (
+    async_generate_image,
     find_or_generate_image,
     get_achievement_logo_relative_path,
     get_stats,
@@ -13,11 +14,6 @@ from src.utils import (
     send_telegram_updates,
 )
 from src.web.handlers import StudentHandler, get_student_handler
-
-
-def get_simple_storage() -> SimpleStorage:
-    return SimpleStorage()
-
 
 router = APIRouter()
 
@@ -48,21 +44,36 @@ async def stats(
     request: Request,
     student_id: int,
     handler: StudentHandler = Depends(get_student_handler),
-    storage: SimpleStorage = Depends(get_simple_storage),
+    crud: StudentCRUD = Depends(get_student_crud),
 ):
     achievement_logo = get_achievement_logo_relative_path(handler.achievement)
 
     student_stats = get_stats(handler.student)
     skills = get_student_skills(handler.student)
 
-    storage.set(student_id, handler.achievement, handler)
+    db_student = await crud.get_student(student_id)
+
+    if not db_student:
+        db_student = await crud.create_update_student(handler.student)
+    if not db_student:
+        raise HTTPException(status_code=500, detail="Failed to create or update student")
+
+    # Получаем или создаем достижение
+    db_achievement = await crud.get_achievement_by_title_and_profession(
+        handler.achievement.title, handler.achievement.profession
+    )
+    if not db_achievement:
+        db_achievement = await crud.create_achievement(handler.achievement)
+        await crud.add_achievement_to_student(db_student.id, db_achievement.id)
+    if not db_achievement:
+        raise HTTPException(status_code=500, detail="Failed to create achievement")
 
     context = {
         "request": request,
         "student_id": handler.student.id,
         "days_since_start": handler.student.days_since_start,
         "profession": handler.student.profession.value,
-        "skills": skills[1:],  # отсекаем первый элемент, т.к. он для тестов!
+        "skills": skills,
         "title": handler.achievement.title,
         "description": handler.achievement.description,
         "achievement_logo": achievement_logo,
@@ -75,51 +86,73 @@ async def stats(
 
 @router.get("/get_image/{student_id}", name="get_image")
 async def get_image(
-    request: Request, student_id: int, share_to: str, storage: SimpleStorage = Depends(get_simple_storage)
+    request: Request,
+    student_id: int,
+    crud: StudentCRUD = Depends(get_student_crud),
 ):
-    data = storage.get(student_id)
-    achievement = data.get("achievement")
-    image_path = await find_or_generate_image(achievement, platform=share_to)
+    db_achievement = await crud.get_achievement_by_student_id(student_id)
+
+    if not db_achievement:
+        raise HTTPException(status_code=404, detail=f"Достижение для студента с id {student_id} не найдено")
+
+    achievement = db_achievement.to_achievement_model()
+    image_path = await find_or_generate_image(achievement, "vertical")
     full_image_url = str(request.url_for("data", path=image_path))
 
     return RedirectResponse(full_image_url, status_code=status.HTTP_302_FOUND)
 
 
-@router.get("/id/{student_id}", name="share")
-async def share(request: Request, share_to: str, handler: StudentHandler = Depends(get_student_handler)):
-    if not share_to:
-        image_data = await handler.gen_image(platform="vk_post")
-    else:
-        image_data = await handler.gen_image(platform=share_to)
+@router.get("/h/{student_id}", name="share_horizontal")
+@router.get("/v/{student_id}", name="share_vertical")
+async def share(
+    request: Request,
+    student_id: int,
+    # handler: StudentHandler = Depends(get_student_handler),
+    crud: StudentCRUD = Depends(get_student_crud),
+):
+    orientation = "horizontal" if "/h/" in request.url.path else "vertical"
+
+    db_achievement = await crud.get_achievement_by_student_id(student_id)
+
+    if not db_achievement:
+        raise HTTPException(status_code=404, detail=f"Достижение для студента с id {student_id} не найдено")
+
+    achievement = db_achievement.to_achievement_model()
+
+    image_data = await async_generate_image(achievement, orientation)
 
     if is_social_bot(request):
         return templates.TemplateResponse(
             "share.html",
             {
                 "request": request,
-                "student_id": handler.student_id,
-                "title": handler.achievement.title,
-                "description": handler.achievement.description,
+                "student_id": student_id,
+                "title": achievement.title,
+                "description": achievement.description,
                 "achievement_image": image_data["path"],
                 "image_width": image_data["width"],
                 "image_height": image_data["height"],
             },
         )
 
-    return RedirectResponse(
-        request.url_for("referal", student_id=handler.student_id), status_code=status.HTTP_302_FOUND
-    )
+    return RedirectResponse(request.url_for("referal", student_id=student_id), status_code=status.HTTP_302_FOUND)
 
 
 @router.get("/tg/{student_id}", name="tg")
-async def tg(request: Request, student_id: int, storage: SimpleStorage = Depends(get_simple_storage)):
-    data = storage.get(student_id)
-    achievement = data.get("achievement")
-    image_path = await find_or_generate_image(achievement, platform="telegram")
+async def tg(
+    request: Request,
+    student_id: int,
+    crud: StudentCRUD = Depends(get_student_crud),
+):
+    db_achievement = await crud.get_achievement_by_student_id(student_id)
+
+    if not db_achievement:
+        raise HTTPException(status_code=404, detail=f"Достижение для студента с id {student_id} не найдено")
+
+    achievement = db_achievement.to_achievement_model()
+    image_path = await find_or_generate_image(achievement, "vertical")
 
     referal_url = str(request.url_for("referal", student_id=student_id))
-    #
-    # storage.pop(student_id)  # remove student data from storage
 
     await send_telegram_updates(referal_url, image_path)
 
@@ -131,25 +164,39 @@ async def tg(request: Request, student_id: int, storage: SimpleStorage = Depends
 
 
 @router.get("/s/{student_id}", name="referal")
-async def referal(request: Request, student_id: int, storage: SimpleStorage = Depends(get_simple_storage)):
-    data = storage.get(student_id)
-    achievement = data.get("achievement")
-    handler = data.get("handler")
+async def referal(
+    request: Request,
+    student_id: int,
+    crud: StudentCRUD = Depends(get_student_crud),
+):
+    db_achievement = await crud.get_achievement_by_student_id(student_id)
+
+    if not db_achievement:
+        raise HTTPException(status_code=404, detail=f"Достижение для студента с id {student_id} не найдено")
+
+    achievement = db_achievement.to_achievement_model()
+
+    db_student = await crud.get_student(student_id)
+
+    if not db_student:
+        raise HTTPException(status_code=404, detail=f"Студент с id {student_id} не найден")
+
+    student = db_student.to_student()
 
     achievement_logo = get_achievement_logo_relative_path(achievement)
 
-    student_stats = get_stats(handler.student)
-    skills = get_student_skills(handler.student)
+    student_stats = get_stats(student)
+    skills = get_student_skills(student)
 
     context = {
         "request": request,
-        "student_id": handler.student.id,
-        "days_since_start": handler.student.days_since_start,
-        "profession": handler.student.profession.value,
-        "profession_dative": handler.student.profession.dative,
-        "skills": skills[1:],  # отсекаем первый элемент, т.к. он для тестов!
-        "title": handler.achievement.title,
-        "description": handler.achievement.description,
+        "student_id": student.id,
+        "days_since_start": student.days_since_start,
+        "profession": student.profession.value,
+        "profession_dative": student.profession.dative,
+        "skills": skills,
+        "title": achievement.title,
+        "description": achievement.description,
         "achievement_logo": achievement_logo,
     }
     context.update(student_stats)

@@ -69,8 +69,8 @@ class Achievement(BaseModel):
     description: str
     type: AchievementType
     profession: str | None = None
-    get_description: Callable[[dict[str, int | str]], str]  # функция генерации описания по стате в некоторых ачивках
-    conditions: Callable[[dict[str, int | str]], bool]  # функция проверки получения ачивки
+    get_description: Callable[[dict[str, int | str]], str] | None = None
+    conditions: Callable[[dict[str, int | str]], bool] | None = None
     picture: str = ""
 
 
