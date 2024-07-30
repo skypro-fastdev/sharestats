@@ -3,7 +3,7 @@ from fastapi.requests import Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from src.config import settings
+from src.config import IS_HEROKU, settings
 from src.db.crud import StudentCRUD, get_student_crud
 from src.utils import (
     async_generate_image,
@@ -18,6 +18,8 @@ from src.web.handlers import StudentHandler, get_student_handler
 router = APIRouter()
 
 templates = Jinja2Templates(directory="src/templates")
+
+URL = "https://sky.pro" if IS_HEROKU else "http://127.0.0.1:8000"
 
 
 def is_social_bot(request):
@@ -78,6 +80,7 @@ async def stats(
         "description": handler.achievement.description,
         "achievement_logo": achievement_logo,
         "tg_link": settings.TG_CHANNEL,
+        "base_url": URL,
     }
     context.update(student_stats)
 
@@ -132,6 +135,7 @@ async def share(
                 "achievement_image": image_data["path"],
                 "image_width": image_data["width"],
                 "image_height": image_data["height"],
+                "base_url": URL,
             },
         )
 

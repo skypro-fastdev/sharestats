@@ -106,9 +106,9 @@
                         <summary>Пост в ВК</summary>
                         <div class="share-content">
                             <p>Скопируйте ссылку, опубликуйте у себя на странице. Красивая карточка появится сама</p>
-                            <p>{{ url_for('share_horizontal', student_id=student_id) }}
+                            <p>{{ base_url }}/h/{{ student_id }}
                                 <span class="copy-icon"
-                                      onclick="copyToClipboard('{{ url_for('share_horizontal', student_id=student_id) }}')">
+                                      onclick="copyToClipboard('{{ base_url }}/h/{{ student_id }}')">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                          class="bi bi-copy" viewBox="0 0 16 16">
                                       <path fill-rule="evenodd"
@@ -126,9 +126,9 @@
                             <a href="{{ url_for('get_image', student_id=student_id) }}"
                                class="save-button" download>Сохранить</a>
                             <p>Сделайте новую историю и загрузите карточку. Добавьте
-                                ссылку {{ url_for('referal', student_id=student_id) }}
+                                ссылку {{ base_url }}/s/{{ student_id }}
                                 <span class="copy-icon"
-                                      onclick="copyToClipboard('{{ url_for('referal', student_id=student_id) }}')">
+                                      onclick="copyToClipboard('{{ base_url }}/s/{{ student_id }}')">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                          class="bi bi-copy" viewBox="0 0 16 16">
                                       <path fill-rule="evenodd"
@@ -144,10 +144,9 @@
                         <div class="share-content">
                             <p>Скопируйте текст, опубликуйте у себя в канале. Красивая карточка появится сама</p>
                             <p>Сейчас я учусь в Skypro на профессии {{ profession }}. Сегодня хочу поделиться с вами
-                                статистикой
-                                {{ url_for('share_horizontal', student_id=student_id) }}
+                                статистикой {{ base_url }}/h/{{ student_id }}
                                 <span class="copy-icon"
-                                      onclick="copyToClipboard('Сейчас я учусь в Skypro на профессии {{ profession }}. Сегодня хочу поделиться с вами статистикой {{ url_for("share_horizontal", student_id=student_id) }}')">
+                                      onclick="copyToClipboard('Сейчас я учусь в Skypro на профессии {{ profession }}. Сегодня хочу поделиться с вами статистикой {{ base_url }}/h/{{ student_id }}')">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                          class="bi bi-copy" viewBox="0 0 16 16">
                                       <path fill-rule="evenodd"
@@ -165,9 +164,9 @@
                             <a href="{{ url_for('get_image', student_id=student_id) }}"
                                class="save-button" download>Сохранить</a>
                             <p>Создайте новую историю</p>
-                            <p>Добавьте наклейку-ссылку {{ url_for('referal', student_id=student_id) }}
+                            <p>Добавьте наклейку-ссылку {{ base_url }}/s/{{ student_id }}
                                 <span class="copy-icon"
-                                      onclick="copyToClipboard('{{ request.url_for('referal', student_id=student_id) }}')">
+                                      onclick="copyToClipboard('{{ base_url }}/s/{{ student_id }}')">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                          class="bi bi-copy" viewBox="0 0 16 16">
                                       <path fill-rule="evenodd"
@@ -181,7 +180,7 @@
                     <details class="share-item">
                         <summary>Телеграм сторис (нужен премиум)</summary>
                         <div class="share-content">
-                            <p>Перейдите по <a href="{{ url_for('tg', student_id=student_id) }}">этой ссылке</a> в
+                            <p>Перейдите по <a href="{{ base_url }}/tg/{{ student_id }}">этой ссылке</a> в
                                 канал, где опубликована история с вашей статистикой. Репостните её</p>
                         </div>
                     </details>

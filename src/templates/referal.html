@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Стиль обучения {{ student_id }}</title>
+
     <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
+
     <script type="text/javascript"> (function (m, e, t, r, i, k, a) {
         m[i] = m[i] || function () {
             (m[i].a = m[i].a || []).push(arguments)
@@ -24,13 +26,13 @@
 <div class="container-share">
     <div class="header">
         <div>
-            <img src="{{ url_for('data', path="images/skypro.png") }}" alt="Skypro logo" class="logo-header">
+            <img src="{{ url_for('data', path="images/skypro.png") }}" alt="" class="logo-header">
         </div>
         <div class="name">Маша М.</div>
     </div>
     <main>
         <div class="achievement-ref">
-            <img class="achievement-logo" src="{{ url_for('data', path=achievement_logo) }}" alt="Достижение">
+            <img class="achievement-logo" src="{{ url_for('data', path=achievement_logo) }}" alt="">
         </div>
         <p class="description-up">{{ description }}</p>
         <p class="description-down">Аналитик смотрит на цифры и помогает бизнесу принимать быстрые и правильные решения.<br>Средняя
