@@ -19,7 +19,7 @@ router = APIRouter()
 
 templates = Jinja2Templates(directory="src/templates")
 
-URL = "https://sky.pro" if IS_HEROKU else "http://127.0.0.1:8000"
+HOST_URL = "https://sky.pro/share" if IS_HEROKU else "http://127.0.0.1:8000/share"
 
 
 def is_social_bot(request):
@@ -80,7 +80,7 @@ async def stats(
         "description": handler.achievement.description,
         "achievement_logo": achievement_logo,
         "tg_link": settings.TG_CHANNEL,
-        "base_url": URL,
+        "base_url": HOST_URL,
     }
     context.update(student_stats)
 
@@ -135,7 +135,7 @@ async def share(
                 "achievement_image": image_data["path"],
                 "image_width": image_data["width"],
                 "image_height": image_data["height"],
-                "base_url": URL,
+                "base_url": HOST_URL,
             },
         )
 
