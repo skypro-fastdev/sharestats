@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     @property
     def get_db_url(self) -> str:
         if IS_HEROKU:
-            return self.DATABASE_URL
+            return self.DATABASE_URL.replace("postgres:", "postgresql+asyncpg:")
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
 
