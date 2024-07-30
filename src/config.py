@@ -29,9 +29,9 @@ class Settings(BaseSettings):
     YANDEX_S3_KEY_ID: str
     YANDEX_S3_SECRET_KEY: str
     YANDEX_S3_BUCKET: str
-    DB_USER: str | None
-    DB_PASSWORD: str | None
-    DB_NAME: str | None
+    DB_USER: str | None = None
+    DB_PASSWORD: str | None = None
+    DB_NAME: str | None = None
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
     DATABASE_URL: str = ""
