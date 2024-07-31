@@ -7,7 +7,6 @@ from pydantic import ValidationError
 
 from src.models import ProfessionEnum, Student
 from src.services.stats import check_achievements, get_user_stats
-from src.utils import async_generate_image
 
 
 class StudentHandler:
@@ -46,10 +45,6 @@ class StudentHandler:
 
     def get_random_achievement(self):
         return choice(self.achievements[1:]) if len(self.achievements) > 1 else self.achievements[0]
-
-    async def gen_image(self, orientation: str) -> dict:
-        """Generate image with achievement"""
-        return await async_generate_image(self.achievement, orientation)
 
 
 async def get_student_handler(student_id: int) -> StudentHandler:

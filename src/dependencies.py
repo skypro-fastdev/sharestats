@@ -27,7 +27,7 @@ stats_loader = StatsLoader(settings.LOAD_STATS_HOST, settings.LOAD_STATS_TOKEN)
 achievements = [AchievementFactory.create_achievement(achievement) for achievement in achievements_collection]
 
 # S3 client
-s3 = S3Client(
+s3_client = S3Client(
     key_id=settings.YANDEX_S3_KEY_ID, secret_key=settings.YANDEX_S3_SECRET_KEY, bucket=settings.YANDEX_S3_BUCKET
 )
 

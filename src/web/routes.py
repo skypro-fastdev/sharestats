@@ -1,19 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.requests import Request
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from loguru import logger
 
 from src.config import IS_HEROKU, settings
 from src.db.crud import StudentCRUD, get_student_crud
+from src.services.images import find_or_generate_image, get_achievement_logo_relative_path
 from src.services.stats import get_stats, get_student_skills
 from src.services.telegram import send_telegram_updates
-from src.utils import (
-    async_generate_image,
-    find_or_generate_image,
-    get_achievement_logo_relative_path,
-    get_image_path,
-)
 from src.web.handlers import StudentHandler, get_student_handler
 
 router = APIRouter()
@@ -49,7 +44,7 @@ async def stats(
     handler: StudentHandler = Depends(get_student_handler),
     crud: StudentCRUD = Depends(get_student_crud),
 ):
-    achievement_logo = get_achievement_logo_relative_path(handler.achievement)
+    achievement_logo = get_achievement_logo_relative_path(handler.achievement)  # changed to image service
 
     student_stats = get_stats(handler.student)
     skills = get_student_skills(handler.student)
@@ -105,10 +100,10 @@ async def get_image(
         raise HTTPException(status_code=404, detail="Изображение для достижения не найдено!")
 
     achievement = db_achievement.to_achievement_model()
-    _ = await find_or_generate_image(achievement, "vertical")
-    image_path = get_image_path(achievement, prefix="1080x1920")
+    image_data = await find_or_generate_image(achievement, "vertical")
+    image_url = image_data["url"]
 
-    return FileResponse(image_path, media_type="image/png", filename=achievement.picture)
+    return RedirectResponse(image_url, status_code=status.HTTP_302_FOUND)
 
 
 @router.get("/h/{student_id}", name="share_horizontal")
@@ -127,7 +122,7 @@ async def share(
 
     achievement = db_achievement.to_achievement_model()
 
-    image_data = await async_generate_image(achievement, orientation)
+    image_data = await find_or_generate_image(achievement, orientation)
 
     if is_social_bot(request):
         return templates.TemplateResponse(
@@ -137,7 +132,7 @@ async def share(
                 "student_id": student_id,
                 "title": achievement.title,
                 "description": achievement.description,
-                "achievement_image": image_data["path"],
+                "achievement_url": image_data["url"],
                 "image_width": image_data["width"],
                 "image_height": image_data["height"],
                 "base_url": HOST_URL,
@@ -163,11 +158,11 @@ async def tg(
         raise HTTPException(status_code=404, detail=f"Достижение для студента с id {student_id} не найдено")
 
     achievement = db_achievement.to_achievement_model()
-    image_path = await find_or_generate_image(achievement, "vertical")
+    image_data = await find_or_generate_image(achievement, "vertical")
 
     referal_url = f"{HOST_URL}/s/{student_id}" if IS_HEROKU else str(request.url_for("referal", student_id=student_id))
 
-    await send_telegram_updates(referal_url, image_path)
+    await send_telegram_updates(referal_url, image_data["url"])
 
     response = RedirectResponse(settings.TG_CHANNEL, status_code=status.HTTP_302_FOUND)
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"

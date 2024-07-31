@@ -13,7 +13,7 @@
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ru_RU">
     <meta property="og:url" content="{{ base_url }}/s/{{ student_id }}"/>
-    <meta property="og:image" content="{{ url_for('data', path=achievement_image) }}"/>
+    <meta property="og:image" content="{{ achievement_url }}"/>
     <meta property="og:image:width" content="{{ image_width }}"/>
     <meta property="og:image:height" content="{{ image_height }}"/>
 
@@ -21,10 +21,10 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Достижение - {{ title }}">
     <meta name="twitter:description" content="{{ description }}">
-    <meta name="twitter:image" content="{{ url_for('data', path=achievement_image) }}">
+    <meta name="twitter:image" content="{{ achievement_url }}">
 
     <!-- VK metadata -->
-    <meta property="vk:image" content="{{ url_for('data', path=achievement_image) }}"/>
+    <meta property="vk:image" content="{{ achievement_url }}"/>
 
     <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
 
@@ -44,6 +44,6 @@
     </script>
 </head>
 <body>
-    <img class="achievement-image" src="{{ url_for('data', path=achievement_image) }}" alt="">
+    <img class="achievement-image" src="{{ achievement_url }}" alt="">
 </body>
 </html>
