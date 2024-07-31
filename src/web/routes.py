@@ -109,7 +109,11 @@ async def get_image(
     image_path = await find_or_generate_image(achievement, "vertical")
     full_image_url = str(request.url_for("data", path=image_path))
 
-    return RedirectResponse(full_image_url, status_code=status.HTTP_302_FOUND)
+    response = RedirectResponse(full_image_url, status_code=status.HTTP_302_FOUND)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 @router.get("/h/{student_id}", name="share_horizontal")
@@ -145,7 +149,11 @@ async def share(
             },
         )
 
-    return RedirectResponse(request.url_for("referal", student_id=student_id), status_code=status.HTTP_302_FOUND)
+    response = RedirectResponse(request.url_for("referal", student_id=student_id), status_code=status.HTTP_302_FOUND)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 @router.get("/tg/{student_id}", name="tg")
