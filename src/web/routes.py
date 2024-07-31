@@ -162,7 +162,7 @@ async def tg(
     achievement = db_achievement.to_achievement_model()
     image_path = await find_or_generate_image(achievement, "vertical")
 
-    referal_url = str(request.url_for("referal", student_id=student_id))
+    referal_url = f"{HOST_URL}/s/{student_id}" if IS_HEROKU else str(request.url_for("referal", student_id=student_id))
 
     await send_telegram_updates(referal_url, image_path)
 
