@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from loguru import logger
 
 from src.config import IS_HEROKU, settings
 from src.db.crud import StudentCRUD, get_student_crud
@@ -54,11 +55,16 @@ async def stats(
     skills = get_student_skills(handler.student)
 
     db_student = await crud.get_student(student_id)
-
-    if not db_student:
-        db_student = await crud.create_update_student(handler.student)
-    if not db_student:
-        raise HTTPException(status_code=500, detail="Failed to create or update student")
+    if db_student:
+        # Если студент существует, обновляем его статистику в БД
+        db_student = await crud.update_student(handler.student)
+        if not db_student:
+            raise HTTPException(status_code=500, detail="Failed to update student statistics in DB")
+    else:
+        # Если студента нет, создаем нового
+        db_student = await crud.create_student(handler.student)
+        if not db_student:
+            raise HTTPException(status_code=500, detail="Failed to create student in DB")
 
     # Получаем или создаем достижение
     db_achievement = await crud.get_achievement_by_title_and_profession(
@@ -66,9 +72,10 @@ async def stats(
     )
     if not db_achievement:
         db_achievement = await crud.create_achievement(handler.achievement)
-        await crud.add_achievement_to_student(db_student.id, db_achievement.id)
     if not db_achievement:
         raise HTTPException(status_code=500, detail="Failed to create achievement")
+
+    await crud.add_achievement_to_student(db_student.id, db_achievement.id)
 
     context = {
         "request": request,
@@ -110,7 +117,6 @@ async def get_image(
 async def share(
     request: Request,
     student_id: int,
-    # handler: StudentHandler = Depends(get_student_handler),
     crud: StudentCRUD = Depends(get_student_crud),
 ):
     orientation = "horizontal" if "/h/" in request.url.path else "vertical"
@@ -206,3 +212,22 @@ async def referal(
     context.update(student_stats)
 
     return templates.TemplateResponse("referal.html", context)
+
+
+# Route just for tests
+@router.get("/change/{student_id}/{change_to}", name="change")
+async def change(
+    request: Request,
+    student_id: int,
+    change_to: int,
+    crud: StudentCRUD = Depends(get_student_crud),
+):
+    db_student = await crud.get_student(student_id)
+    student = db_student.to_student()
+    student_stats = student.statistics
+    student_stats["lessons_completed"] = change_to
+    updated_student = await crud.update_student(student)
+    if updated_student:
+        logger.info(f'Changed "lessons_completed" to {change_to} for student {student_id}')
+
+    return RedirectResponse(request.url_for("referal", student_id=student_id), status_code=status.HTTP_302_FOUND)

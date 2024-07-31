@@ -1,3 +1,5 @@
+import json
+
 from fastapi import Depends
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,9 +14,24 @@ class StudentCRUD:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create_update_student(self, student: Student) -> StudentDB | None:
+    async def create_student(self, student: Student) -> StudentDB | None:
         db_student = StudentDB.from_student(student)
         self.session.add(db_student)
+        try:
+            await self.session.commit()
+            await self.session.refresh(db_student)
+            return db_student
+        except IntegrityError:
+            await self.session.rollback()
+            return None
+
+    async def update_student(self, student: Student) -> StudentDB | None:
+        db_student = await self.get_student(student.id)
+        if not db_student:
+            return None
+
+        db_student.statistics = json.dumps(student.statistics)
+
         try:
             await self.session.commit()
             await self.session.refresh(db_student)
@@ -62,9 +79,15 @@ class StudentCRUD:
         return db_achievement
 
     async def add_achievement_to_student(self, student_id: int, achievement_id: int):
-        student_achievement = StudentAchievement(student_id=student_id, achievement_id=achievement_id)
-        self.session.add(student_achievement)
-        await self.session.commit()
+        existing = await self.session.execute(
+            select(StudentAchievement).where(
+                (StudentAchievement.student_id == student_id) & (StudentAchievement.achievement_id == achievement_id)
+            )
+        )
+        if existing.scalar_one_or_none() is None:
+            student_achievement = StudentAchievement(student_id=student_id, achievement_id=achievement_id)
+            self.session.add(student_achievement)
+            await self.session.commit()
 
 
 def get_student_crud(session: AsyncSession = Depends(get_async_session)) -> StudentCRUD:

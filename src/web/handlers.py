@@ -2,6 +2,7 @@ from datetime import datetime
 from random import choice
 
 from fastapi import HTTPException
+from loguru import logger
 from pydantic import ValidationError
 
 from src.models import ProfessionEnum, Student
@@ -35,6 +36,7 @@ class StudentHandler:
                 statistics=stats,
             )
         except ValidationError as e:
+            logger.error(f"Failed to initialize student handler! student_id: {self.student_id}")
             raise HTTPException(status_code=400, detail=e.errors()) from e
 
         self.achievements = check_achievements(self.student)

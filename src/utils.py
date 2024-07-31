@@ -213,7 +213,8 @@ async def get_user_stats(student_id: int) -> dict[str, Any]:
     """Получаем статистику студента"""
     if str(student_id).startswith("999"):  # моковые данные для тестов
         return data_cache.stats.get(student_id, {})
-    return await stats_loader.get_stats(student_id)
+    stats = await stats_loader.get_stats(student_id)
+    return {k: v for k, v in stats.items() if v is not None}
 
 
 def check_achievements(student: Student) -> list[Achievement]:
@@ -253,7 +254,8 @@ def get_stats(student: Student) -> dict:
     stats = student.statistics
 
     def safe_get(key):
-        return stats.get(key) if stats.get(key) is not None else "?"
+        value = stats.get(key, None)
+        return value if value is not None else "?"
 
     lessons_in_program = safe_get("lessons_in_program")
     lessons_completed = safe_get("lessons_completed")

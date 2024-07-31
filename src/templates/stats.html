@@ -123,7 +123,7 @@
                         <summary>Истории в ВК</summary>
                         <div class="share-content">
                             <p>Сохраните карточку с итогами</p>
-                            <a href="{{ base_url }}/get_image/{{ student_id }}"
+                            <a href="{{ url_for('get_image', student_id=student_id) }}"
                                class="save-button" download>Сохранить</a>
                             <p>Сделайте новую историю и загрузите карточку. Добавьте
                                 ссылку {{ base_url }}/s/{{ student_id }}
@@ -161,7 +161,7 @@
                         <summary>История в Нельзяграме</summary>
                         <div class="share-content">
                             <p>Сохраните карточку с итогами</p>
-                            <a href="{{ base_url }}/get_image/{{ student_id }}"
+                            <a href="{{ url_for('get_image', student_id=student_id) }}"
                                class="save-button" download>Сохранить</a>
                             <p>Создайте новую историю</p>
                             <p>Добавьте наклейку-ссылку {{ base_url }}/s/{{ student_id }}
