@@ -86,7 +86,11 @@ async def stats(
     }
     context.update(student_stats)
 
-    return templates.TemplateResponse("stats.html", context)
+    response = templates.TemplateResponse("stats.html", context)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 @router.get("/get_image/{student_id}", name="get_image")
@@ -123,6 +127,8 @@ async def share(
     achievement = db_achievement.to_achievement_model()
 
     image_data = await find_or_generate_image(achievement, orientation)
+
+    logger.info(f'Image URL: {image_data["url"]}')
 
     if is_social_bot(request):
         return templates.TemplateResponse(
