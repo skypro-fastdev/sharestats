@@ -6,14 +6,13 @@ from loguru import logger
 
 from src.config import IS_HEROKU, settings
 from src.db.crud import StudentCRUD, get_student_crud
+from src.services.stats import get_stats, get_student_skills
+from src.services.telegram import send_telegram_updates
 from src.utils import (
     async_generate_image,
     find_or_generate_image,
     get_achievement_logo_relative_path,
     get_image_path,
-    get_stats,
-    get_student_skills,
-    send_telegram_updates,
 )
 from src.web.handlers import StudentHandler, get_student_handler
 
@@ -103,7 +102,7 @@ async def get_image(
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
     if not db_achievement:
-        raise HTTPException(status_code=404, detail=f"Достижение для студента с id {student_id} не найдено")
+        raise HTTPException(status_code=404, detail="Изображение для достижения не найдено!")
 
     achievement = db_achievement.to_achievement_model()
     _ = await find_or_generate_image(achievement, "vertical")
@@ -145,9 +144,7 @@ async def share(
             },
         )
 
-    response = RedirectResponse(
-        request.url_for("referal", student_id=student_id, orientation=orientation), status_code=status.HTTP_302_FOUND
-    )
+    response = RedirectResponse(request.url_for("referal", student_id=student_id), status_code=status.HTTP_302_FOUND)
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
@@ -188,14 +185,14 @@ async def referal(
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
     if not db_achievement:
-        raise HTTPException(status_code=404, detail=f"Достижение для студента с id {student_id} не найдено")
+        raise HTTPException(status_code=404, detail="Страница достижений не найдена!")
 
     achievement = db_achievement.to_achievement_model()
 
     db_student = await crud.get_student(student_id)
 
     if not db_student:
-        raise HTTPException(status_code=404, detail=f"Студент с id {student_id} не найден")
+        raise HTTPException(status_code=404, detail=f"Студент с id {student_id} не найден!")
 
     student = db_student.to_student()
 

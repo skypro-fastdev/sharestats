@@ -6,7 +6,8 @@ from loguru import logger
 from pydantic import ValidationError
 
 from src.models import ProfessionEnum, Student
-from src.utils import async_generate_image, check_achievements, get_user_stats
+from src.services.stats import check_achievements, get_user_stats
+from src.utils import async_generate_image
 
 
 class StudentHandler:
