@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.requests import Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from loguru import logger
 
@@ -10,6 +10,7 @@ from src.utils import (
     async_generate_image,
     find_or_generate_image,
     get_achievement_logo_relative_path,
+    get_image_path,
     get_stats,
     get_student_skills,
     send_telegram_updates,
@@ -96,7 +97,6 @@ async def stats(
 
 @router.get("/get_image/{student_id}", name="get_image")
 async def get_image(
-    request: Request,
     student_id: int,
     crud: StudentCRUD = Depends(get_student_crud),
 ):
@@ -106,14 +106,10 @@ async def get_image(
         raise HTTPException(status_code=404, detail=f"Достижение для студента с id {student_id} не найдено")
 
     achievement = db_achievement.to_achievement_model()
-    image_path = await find_or_generate_image(achievement, "vertical")
-    full_image_url = str(request.url_for("data", path=image_path))
+    _ = await find_or_generate_image(achievement, "vertical")
+    image_path = get_image_path(achievement, prefix="1080x1920")
 
-    response = RedirectResponse(full_image_url, status_code=status.HTTP_302_FOUND)
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "0"
-    return response
+    return FileResponse(image_path, media_type="image/png", filename=achievement.picture)
 
 
 @router.get("/h/{student_id}", name="share_horizontal")
@@ -149,7 +145,9 @@ async def share(
             },
         )
 
-    response = RedirectResponse(request.url_for("referal", student_id=student_id), status_code=status.HTTP_302_FOUND)
+    response = RedirectResponse(
+        request.url_for("referal", student_id=student_id, orientation=orientation), status_code=status.HTTP_302_FOUND
+    )
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
