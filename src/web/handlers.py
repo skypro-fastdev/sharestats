@@ -26,11 +26,12 @@ class StudentHandler:
             profession_enum = ProfessionEnum.from_str(profession_str)
 
             started_at = datetime.strptime(stats.get("started_at"), "%d.%m.%Y").date()
+            last_name, first_name = stats.get("student_name", "Фамилия Имя").split(" ")
 
             self.student = Student(
                 id=self.student_id,
-                first_name=stats.get("first_name", "Name"),
-                last_name=stats.get("last_name", "Surname"),
+                first_name=first_name,
+                last_name=last_name,
                 profession=profession_enum,
                 started_at=started_at,
                 statistics=stats,
