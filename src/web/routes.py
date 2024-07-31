@@ -201,6 +201,8 @@ async def referal(
     context = {
         "request": request,
         "student_id": student.id,
+        "first_name": student.first_name,
+        "last_name": student.last_name,
         "days_since_start": student.days_since_start,
         "profession": student.profession.value,
         "profession_dative": student.profession.dative,
