@@ -3,6 +3,7 @@ from fastapi.requests import Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from loguru import logger
+from pydantic import BaseModel
 
 from src.config import IS_HEROKU, settings
 from src.db.crud import StudentCRUD, get_student_crud
@@ -128,8 +129,6 @@ async def share(
 
     image_data = await find_or_generate_image(achievement, orientation)
 
-    logger.info(f'Image URL: {image_data["url"]}')
-
     if is_social_bot(request):
         return templates.TemplateResponse(
             "share.html",
@@ -218,6 +217,19 @@ async def referal(
     context.update(student_stats)
 
     return templates.TemplateResponse("referal.html", context)
+
+
+class PhoneSubmission(BaseModel):
+    phone: str
+    student_id: int
+
+
+@router.post("/submit-phone")
+async def submit_phone(submission: PhoneSubmission):
+    try:
+        logger.info(f"Received phone {submission.phone}, ref to student {submission.student_id}")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 # Route just for tests

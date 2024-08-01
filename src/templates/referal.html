@@ -4,23 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Стиль обучения {{ student_id }}</title>
-
     <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/intlTelInput.css') }}">
 
-    <script type="text/javascript"> (function (m, e, t, r, i, k, a) {
-        m[i] = m[i] || function () {
-            (m[i].a = m[i].a || []).push(arguments)
-        };
-        m[i].l = 1 * new Date();
-        for (var j = 0; j < document.scripts.length; j++) {
-            if (document.scripts[j].src === r) {
-                return;
-            }
-        }
-        k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
-    })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-    ym(97943495, "init", {clickmap: true, trackLinks: true, accurateTrackBounce: true, webvisor: true});
-    </script>
+    {% include 'metrica.html' %}
 </head>
 <body>
 <div class="container-share">
@@ -77,13 +64,36 @@
                 <summary class="go-summary">Покажите подробности!</summary>
                 <p>Мы готовы добавить вас в ближайшую группу обучения. Просто оставьте номер, мы позвоним и все
                     расскажем.</p>
-                <div class="phone-input">
-                    <input type="tel" placeholder="+ (___) ___ __ __">
-                    <button class="go-button">Погнали!</button>
-                </div>
+                <form id="phoneForm" class="phone-input">
+                    <input type="hidden" id="studentId" value="{{ student_id }}">
+                    <div class="input-group">
+                        <input type="tel" id="phoneNumber" placeholder="(___) ___ __ __">
+                    </div>
+                    <button type="submit" class="go-button">Погнали!</button>
+                </form>
             </details>
-        </div>
 
+            <div id="successPopup" class="popup">
+                <div class="popup-content">
+                    <img src="{{ url_for('data', path="images/check_mark.png") }}" alt="">
+                    <h2>Готово!</h2>
+                    <p>Мы получили заявку<br> и скоро позвоним!</p>
+                </div>
+            </div>
+        </div>
+        <script src="{{ url_for('static', path='js/intlTelInput.min.js') }}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const input = document.querySelector("#phoneNumber");
+                window.iti = window.intlTelInput(input, {
+                    autoPlaceholder: "polite",
+                    placeholderNumberType: "MOBILE",
+                    nationalMode: false,
+                    utilsScript: "{{ url_for('static', path='js/utils.js') }}"
+                });
+            });
+        </script>
+        <script src="{{ url_for('static', path='js/submit_phone.js') }}"></script>
     </main>
 </div>
 </body>

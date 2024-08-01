@@ -427,14 +427,30 @@ a {
 
 .phone-input {
     display: flex;
-    margin-top: 10px;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
 }
 
-input[type="tel"] {
-    flex-grow: 1;
+.input-group {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.input-group input[type="tel"] {
+    flex: 1;
+    border: 1px solid #ccc;
+    font-size: 16px;
     padding: 10px;
-    border: none;
-    border-radius: 5px 0 0 5px;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.input-group .iti {
+    width: 100%;
 }
 
 .go-button {
@@ -442,7 +458,52 @@ input[type="tel"] {
     color: #322963;
     border: none;
     padding: 10px 20px;
-    border-radius: 0 5px 5px 0;
+    border-radius: 5px;
     cursor: pointer;
-    font-weight: bolder;
+    font-weight: bold;
+    width: fit-content;
+    align-self: center;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.popup-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #924CF6;
+    width: 390px;
+    height: 390px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+}
+
+.popup-content img {
+    width: 90px;
+    height: 90px;
+    margin-bottom: 10px;
+}
+
+.popup-content h2 {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.popup-content p {
+    font-size: 22px;
 }
