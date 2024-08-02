@@ -87,7 +87,8 @@ li:last-child {
 }
 
 .container-share {
-    max-width: 350px;
+    min-width: 360px;
+    width: 360px;
     margin: 0 auto;
     background-color: #924CF6;
     color: white;
@@ -146,7 +147,8 @@ li:last-child {
 
 .achievement-logo {
     max-width: 100%;
-    height: 350px;
+    height: 100%;
+    margin-top: 10px;
 }
 
 .name-badge {

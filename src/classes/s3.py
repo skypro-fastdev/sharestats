@@ -43,3 +43,12 @@ class S3Client:
             except Exception as e:
                 logger.error(f"Failed to delete file {name}: {str(e)}")
                 return False
+
+    async def delete_multiple_files(self, file_names: list[str]) -> dict:
+        async with self.__session.client("s3", endpoint_url=self.url) as s3:
+            objects = [{"Key": name} for name in file_names]
+            try:
+                return await s3.delete_objects(Bucket=self.__bucket, Delete={"Objects": objects})
+            except Exception as e:
+                logger.error(f"Failed to delete multiple files: {str(e)}")
+                return {}

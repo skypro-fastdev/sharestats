@@ -3,10 +3,10 @@ from fastapi.requests import Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from loguru import logger
-from pydantic import BaseModel
 
 from src.config import IS_HEROKU, settings
 from src.db.crud import StudentCRUD, get_student_crud
+from src.models import PhoneSubmission
 from src.services.images import find_or_generate_image, get_achievement_logo_relative_path
 from src.services.stats import get_stats, get_student_skills
 from src.services.telegram import send_telegram_updates
@@ -217,11 +217,6 @@ async def referal(
     context.update(student_stats)
 
     return templates.TemplateResponse("referal.html", context)
-
-
-class PhoneSubmission(BaseModel):
-    phone: str
-    student_id: int
 
 
 @router.post("/submit-phone")

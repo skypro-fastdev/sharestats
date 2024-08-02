@@ -115,3 +115,8 @@ class Student(BaseModel):
         if missing_keys:
             raise ValidationError(f"Не хватает ключей {missing_keys} в статистике студента {data_dict['id']}")
         return data_dict
+
+
+class PhoneSubmission(BaseModel):
+    phone: str
+    student_id: int
