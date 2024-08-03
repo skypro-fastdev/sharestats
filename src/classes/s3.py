@@ -20,7 +20,18 @@ class S3Client:
         async with self.__session.client("s3", endpoint_url=self.url) as s3:
             with BytesIO(file_bytes) as file_obj:
                 logger.info(f"Uploading {name} to S3")
-                await s3.upload_fileobj(file_obj, self.__bucket, name, ExtraArgs={"ACL": "public-read"})
+                await s3.upload_fileobj(
+                    file_obj,
+                    self.__bucket,
+                    name,
+                    ExtraArgs={
+                        "ACL": "public-read",
+                        "ContentType": "image/png",
+                        "CacheControl": "no-cache, no-store, must-revalidate",
+                        "ContentDisposition": 'attachment; filename="{}"'.format(name),
+                        "Expires": "0",
+                    },
+                )
             return self.get_public_url(name)
 
     async def check_file_exists(self, name: str) -> bool:

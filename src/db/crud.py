@@ -3,14 +3,14 @@ import json
 from fastapi import Depends
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import desc, select
+from sqlmodel import desc, func, select
 
 from src.db.models import AchievementDB, StudentAchievement, StudentDB
 from src.db.session import get_async_session
 from src.models import Achievement, Student
 
 
-class StudentCRUD:
+class StudentDBHandler:
     def __init__(self, session: AsyncSession):
         self.session = session
 
@@ -89,6 +89,30 @@ class StudentCRUD:
             self.session.add(student_achievement)
             await self.session.commit()
 
+    async def get_list_of_achievements_received(self) -> list[tuple[str, str, int]]:
+        """Get descending list of achievements received"""
+        # Step 1: Get the IDs grouped by title
+        achievement_subquery = (
+            select(AchievementDB.title, AchievementDB.picture, AchievementDB.id).group_by(
+                AchievementDB.title, AchievementDB.picture, AchievementDB.id
+            )
+        ).subquery()
 
-def get_student_crud(session: AsyncSession = Depends(get_async_session)) -> StudentCRUD:
-    return StudentCRUD(session)
+        # Step 2: Count occurrences in student_achievements based on achievement ID
+        statement = (
+            select(
+                achievement_subquery.c.title,
+                achievement_subquery.c.picture,
+                func.count(StudentAchievement.student_id).label("receive_count"),
+            )
+            .join(StudentAchievement, StudentAchievement.achievement_id == achievement_subquery.c.id)
+            .group_by(achievement_subquery.c.title, achievement_subquery.c.picture)
+            .order_by(func.count(StudentAchievement.student_id).desc())
+        )
+
+        result = await self.session.execute(statement)
+        return result.all()
+
+
+def get_student_crud(session: AsyncSession = Depends(get_async_session)) -> StudentDBHandler:
+    return StudentDBHandler(session)

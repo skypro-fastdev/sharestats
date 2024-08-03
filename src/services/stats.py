@@ -104,3 +104,13 @@ def get_student_skills(student: Student) -> list:
     except Exception as e:
         logger.error(f"Error getting skills: {e}")
         return ["Ошибка при загрузке данных из таблицы!"]
+
+
+async def get_achievements_data(data: list[tuple[str, str, int]]) -> list:
+    achievements_data = []
+    for title, picture, receive_count in data:
+        if title == "Новичок":
+            continue
+        achievement_logo_path = f"images/logo_{picture}"
+        achievements_data.append({"title": title, "receive_count": receive_count, "image_url": achievement_logo_path})
+    return achievements_data

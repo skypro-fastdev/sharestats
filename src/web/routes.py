@@ -5,10 +5,10 @@ from fastapi.templating import Jinja2Templates
 from loguru import logger
 
 from src.config import IS_HEROKU, settings
-from src.db.crud import StudentCRUD, get_student_crud
+from src.db.crud import StudentDBHandler, get_student_crud
 from src.models import PhoneSubmission
 from src.services.images import find_or_generate_image, get_achievement_logo_relative_path
-from src.services.stats import get_stats, get_student_skills
+from src.services.stats import get_achievements_data, get_stats, get_student_skills
 from src.services.telegram import send_telegram_updates
 from src.web.handlers import StudentHandler, get_student_handler
 
@@ -43,7 +43,7 @@ async def stats(
     request: Request,
     student_id: int,
     handler: StudentHandler = Depends(get_student_handler),
-    crud: StudentCRUD = Depends(get_student_crud),
+    crud: StudentDBHandler = Depends(get_student_crud),
 ):
     achievement_logo = get_achievement_logo_relative_path(handler.achievement)  # changed to image service
 
@@ -97,7 +97,7 @@ async def stats(
 @router.get("/get_image/{student_id}", name="get_image")
 async def get_image(
     student_id: int,
-    crud: StudentCRUD = Depends(get_student_crud),
+    crud: StudentDBHandler = Depends(get_student_crud),
 ):
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
@@ -116,7 +116,7 @@ async def get_image(
 async def share(
     request: Request,
     student_id: int,
-    crud: StudentCRUD = Depends(get_student_crud),
+    crud: StudentDBHandler = Depends(get_student_crud),
 ):
     orientation = "horizontal" if "/h/" in request.url.path else "vertical"
 
@@ -155,7 +155,7 @@ async def share(
 async def tg(
     request: Request,
     student_id: int,
-    crud: StudentCRUD = Depends(get_student_crud),
+    crud: StudentDBHandler = Depends(get_student_crud),
 ):
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
@@ -180,7 +180,7 @@ async def tg(
 async def referal(
     request: Request,
     student_id: int,
-    crud: StudentCRUD = Depends(get_student_crud),
+    crud: StudentDBHandler = Depends(get_student_crud),
 ):
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
@@ -227,13 +227,20 @@ async def submit_phone(submission: PhoneSubmission):
         raise HTTPException(status_code=400, detail=str(e)) from e
 
 
+@router.get("/results", name="results")
+async def top_achievements(request: Request, crud: StudentDBHandler = Depends(get_student_crud)):
+    counts_of_received_achievements: list[tuple[str, str, int]] = await crud.get_list_of_achievements_received()
+    achievements = await get_achievements_data(counts_of_received_achievements)
+    return templates.TemplateResponse("results.html", {"request": request, "achievements": achievements})
+
+
 # Route just for tests
 @router.get("/change/{student_id}/{change_to}", name="change")
 async def change(
     request: Request,
     student_id: int,
     change_to: int,
-    crud: StudentCRUD = Depends(get_student_crud),
+    crud: StudentDBHandler = Depends(get_student_crud),
 ):
     db_student = await crud.get_student(student_id)
     student = db_student.to_student()

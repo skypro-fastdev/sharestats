@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Топ полученных достижений</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
+</head>
+<body class="top-body">
+<h1 class="top-h1">Топ полученных достижений</h1>
+<div class="carousel-container">
+    <button class="carousel-btn prev">&lt;</button>
+    <div class="carousel-viewport">
+        <div class="carousel">
+            {% for achievement in achievements %}
+                <div class="carousel-item">
+                    <p>{{ achievement.title }}</p>
+                    <img class="achievement-logo" src="{{ url_for('data', path=achievement.image_url) }}" alt="">
+                    <span class="received_achievements">{{ achievement.receive_count }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <button class="carousel-btn next">&gt;</button>
+</div>
+<script src="{{ url_for('static', path='js/carousel.js') }}"></script>
+</body>
+</html>
