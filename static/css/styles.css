@@ -518,13 +518,14 @@ a {
 
 .top-body {
     font-family: StratosSkyengWeb-Regular, sans-serif;
+    background-size: cover;
     background: radial-gradient(circle at center,
     #3a2f6e 0%,
     #342c65 15%,
     #231e49 30%,
     #141026 45%,
     #000000 60%
-    );
+    ) no-repeat fixed center;
     height: 100vh;
     min-height: 650px;
     min-width: 1080px;

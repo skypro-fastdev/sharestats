@@ -20,6 +20,7 @@ class S3Client:
         async with self.__session.client("s3", endpoint_url=self.url) as s3:
             with BytesIO(file_bytes) as file_obj:
                 logger.info(f"Uploading {name} to S3")
+                filename_to_download = name.split("/")[-1]
                 await s3.upload_fileobj(
                     file_obj,
                     self.__bucket,
@@ -28,7 +29,7 @@ class S3Client:
                         "ACL": "public-read",
                         "ContentType": "image/png",
                         "CacheControl": "no-cache, no-store, must-revalidate",
-                        "ContentDisposition": 'attachment; filename="{}"'.format(name),
+                        "ContentDisposition": 'attachment; filename="{}"'.format(filename_to_download),
                         "Expires": "0",
                     },
                 )
