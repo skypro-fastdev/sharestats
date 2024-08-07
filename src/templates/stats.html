@@ -5,15 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skypro - Моя статистика</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
-    <script>
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(function () {
-                alert('Ссылка скопирована!');
-            }, function (err) {
-                console.error('Не удалось скопировать текст: ', err);
-            });
-        }
-    </script>
+
     {% include 'metrica.html' %}
 </head>
 <body>
@@ -89,8 +81,8 @@
             <details id="share">
                 <summary class="share-summary">Поделиться в соцсетях</summary>
                 <div class="share-options">
-                    <details class="share-item">
-                        <summary>Пост в ВК</summary>
+                    <details class="share-item" onclick="changeStyle(event)">
+                        <summary class="details">Пост в ВК</summary>
                         <div class="share-content">
                             <p>Скопируйте ссылку, опубликуйте у себя на странице. Красивая карточка появится сама</p>
                             <p>{{ base_url }}/h/{{ student_id }}
@@ -106,8 +98,8 @@
                         </div>
                     </details>
 
-                    <details class="share-item">
-                        <summary>Истории в ВК</summary>
+                    <details class="share-item" onclick="changeStyle(event)">
+                        <summary class="details">Истории в ВК</summary>
                         <div class="share-content">
                             <p>Сохраните карточку с итогами</p>
                             <a href="{{ url_for('get_image', student_id=student_id) }}"
@@ -126,8 +118,8 @@
                         </div>
                     </details>
 
-                    <details class="share-item">
-                        <summary>Ваш телеграм канал</summary>
+                    <details class="share-item" onclick="changeStyle(event)">
+                        <summary class="details">Ваш телеграм канал</summary>
                         <div class="share-content">
                             <p>Скопируйте текст, опубликуйте у себя в канале. Красивая карточка появится сама</p>
                             <p>Сейчас я учусь в Skypro на профессии {{ profession }}. Сегодня хочу поделиться с вами
@@ -144,8 +136,8 @@
                         </div>
                     </details>
 
-                    <details class="share-item">
-                        <summary>История в Нельзяграме</summary>
+                    <details class="share-item" onclick="changeStyle(event)">
+                        <summary class="details">История в Нельзяграме</summary>
                         <div class="share-content">
                             <p>Сохраните карточку с итогами</p>
                             <a href="{{ url_for('get_image', student_id=student_id) }}"
@@ -164,8 +156,8 @@
                         </div>
                     </details>
 
-                    <details class="share-item">
-                        <summary>Телеграм сторис (нужен премиум)</summary>
+                    <details class="share-item" onclick="changeStyle(event)">
+                        <summary class="details">Телеграм сторис (нужен премиум)</summary>
                         <div class="share-content">
                             <p>Перейдите по <a href="{{ base_url }}/tg/{{ student_id }}">этой ссылке</a> в
                                 канал, где опубликована история с вашей статистикой. Репостните её</p>
@@ -176,5 +168,20 @@
         </div>
     </main>
 </div>
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function () {
+            alert('Ссылка скопирована!');
+        }, function (err) {
+            console.error('Не удалось скопировать текст: ', err);
+        });
+    }
+
+    function changeStyle(event) {
+        if (event.target.tagName.toLowerCase() === 'summary') {
+            event.target.classList.toggle('rotate');
+        }
+    }
+</script>
 </body>
 </html>

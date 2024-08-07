@@ -339,16 +339,52 @@ li:last-child {
 .share-item {
     margin-bottom: 10px;
     border-radius: 5px;
+    text-align: left;
 }
 
 .share-item summary {
-    background-color: #924CF6;
+    background-color: #312960;
     padding: 10px;
     cursor: pointer;
 }
 
+/*summary.details::-webkit-details-marker {*/
+/*    display: none;*/
+/*}*/
+
+summary.details {
+    list-style: none;
+    display: flex;
+}
+
+summary.details::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-image: url(../../data/images/plus.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding-left: 10px;
+    vertical-align: middle;
+    transform: rotate(-45deg);
+    transition: transform 0.2s ease;
+    transform-origin: 10px center;
+}
+
+summary.details.rotate::before {
+    transform: rotate(5deg);
+}
+
+.summary_poins {
+    background-color: #312960;
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+}
+
 .share-content {
-    background-color: #924CF6;
+    background-color: #312960;
     padding: 10px;
     text-align: left;
     overflow-wrap: break-word;
