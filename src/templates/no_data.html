@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skypro - Статистика</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
+
+    {% include 'metrica.html' %}
+</head>
+<body>
+<div class="container">
+    <header>
+        <img src="{{ url_for('data', path="images/skypro.png") }}" alt="" class="logo">
+    </header>
+    <main>
+        <h1 class="top-h1">ЗДЕСЬ МОГЛА БЫ БЫТЬ ТВОЯ СТАТИСТИКА</h1>
+        <div class="image-container">
+            <div class="image-wrapper">
+                <img src="{{ url_for('data', path="images/star.png") }}" alt="" class="star">
+            </div>
+            <div class="image-wrapper">
+                <img src="{{ url_for('data', path="images/skypro_fox.png") }}" alt="" class="skypro-fox">
+            </div>
+        </div>
+        <p style="font-size: 1.2rem">К сожалению, у нас мало данных, чтобы ее показать. Выполни 4 домашки и приходи снова!</p>
+        <form action="{{ url_for('dashboard') }}" method="get">
+            <button type="submit" class="lk-button">Вернуться в ЛК</button>
+        </form>
+    </main>
+</div>
+</body>
+</html>

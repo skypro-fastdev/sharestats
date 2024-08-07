@@ -6,29 +6,17 @@
     font-style: normal;
 }
 
-/*html {*/
-/*    height: 100%;*/
-/*}*/
-
 body {
     font-family: StratosSkyengWeb-Regular, sans-serif;
     background-color: #000000;
     color: white;
+    box-sizing: border-box;
+    min-height: 100vh;
     margin: 0;
     padding: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-}
-
-.container {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    max-width: 320px;
-    width: 100%;
 }
 
 .achievement-block {
@@ -91,9 +79,10 @@ li:last-child {
     margin-bottom: 0;
 }
 
-.container-share {
+.container {
     min-width: 360px;
     width: 360px;
+    height: 100%;
     margin: 0 auto;
     background-color: #924CF6;
     color: white;
@@ -152,7 +141,7 @@ li:last-child {
 
 .achievement-logo {
     max-width: 100%;
-    height: 100%;
+    height: auto;
     margin-top: 10px;
 }
 
@@ -297,18 +286,6 @@ li:last-child {
     position: relative;
     margin-top: 10px;
     margin-bottom: -60px;
-}
-
-.image-wrapper {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.image-wrapper img {
-    max-width: 100%;
-    height: 100%;
 }
 
 .image-class {
@@ -472,6 +449,19 @@ a {
     align-self: center;
 }
 
+.lk-button {
+    background-color: #bbec30;
+    color: #322963;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.05rem;
+    font-weight: bold;
+    width: 60%;
+    align-self: center;
+}
+
 .popup {
     display: none;
     position: fixed;
@@ -621,4 +611,49 @@ a {
 
 .carousel-btn.next {
     right: -40px;
+}
+
+.image-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    height: 300px;
+    font-family: StratosSkyengWeb-Regular, sans-serif;
+    font-weight: 600;
+    font-size: 10rem;
+    align-content: center;
+}
+
+.image-wrapper {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.left4 {
+    position: absolute;
+    top: 20%;
+    left: 3%;
+}
+
+.right4 {
+    position: absolute;
+    top: 20%;
+    right: 3%;
+}
+
+.image-wrapper img {
+    width: 300px;
+    height: 100%;
+}
+
+.star {
+    z-index: 1;
+}
+
+.skypro-fox {
+    z-index: 2;
 }

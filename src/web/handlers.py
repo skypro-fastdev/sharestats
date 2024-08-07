@@ -16,10 +16,11 @@ class StudentHandler:
         self.achievements = None
         self.achievement = None
 
-    async def initialize(self):
+    async def initialize(self) -> None:
         stats = await get_user_stats(self.student_id)
         if not stats:
-            raise HTTPException(status_code=404, detail=f"Студент с id {self.student_id} не найден")
+            logger.warning(f"No stats found for student_id: {self.student_id}")
+            return
 
         try:
             profession_str = stats.get("profession", "NA")

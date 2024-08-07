@@ -21,6 +21,7 @@ class S3Client:
             with BytesIO(file_bytes) as file_obj:
                 logger.info(f"Uploading {name} to S3")
                 filename_to_download = name.split("/")[-1]
+                logger.info(f"Filename to download: {filename_to_download}")
                 await s3.upload_fileobj(
                     file_obj,
                     self.__bucket,

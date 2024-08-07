@@ -6,7 +6,7 @@ from loguru import logger
 
 from src.config import IS_HEROKU, settings
 from src.db.crud import StudentDBHandler, get_student_crud
-from src.models import PhoneSubmission
+from src.models import AchievementType, PhoneSubmission
 from src.services.images import find_or_generate_image, get_achievement_logo_relative_path
 from src.services.stats import get_achievements_data, get_stats, get_student_skills
 from src.services.telegram import send_telegram_updates
@@ -17,6 +17,7 @@ router = APIRouter()
 templates = Jinja2Templates(directory="src/templates")
 
 HOST_URL = "https://sky.pro/share" if IS_HEROKU else "http://127.0.0.1:8000/share"
+STUDENT_DASHBOARD = "https://my.sky.pro/student-cabinet/"
 
 
 def is_social_bot(request):
@@ -45,6 +46,14 @@ async def stats(
     handler: StudentHandler = Depends(get_student_handler),
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
+    if not handler.student:
+        logger.info(f"Statistics for student {student_id} not found")
+        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
+
+    if handler.achievement.type == AchievementType.NEWBIE:
+        logger.info(f"{handler.student.first_name} {handler.student.last_name} - newbie")
+        return RedirectResponse(request.url_for("no_data"), status_code=status.HTTP_302_FOUND)
+
     achievement_logo = get_achievement_logo_relative_path(handler.achievement)  # changed to image service
 
     student_stats = get_stats(handler.student)
@@ -96,13 +105,14 @@ async def stats(
 
 @router.get("/get_image/{student_id}", name="get_image")
 async def get_image(
+    request: Request,
     student_id: int,
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
     if not db_achievement:
-        raise HTTPException(status_code=404, detail="Изображение для достижения не найдено!")
+        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
 
     achievement = db_achievement.to_achievement_model()
     image_data = await find_or_generate_image(achievement, "vertical")
@@ -123,7 +133,7 @@ async def share(
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
     if not db_achievement:
-        raise HTTPException(status_code=404, detail=f"Достижение для студента с id {student_id} не найдено")
+        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
 
     achievement = db_achievement.to_achievement_model()
 
@@ -160,7 +170,7 @@ async def tg(
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
     if not db_achievement:
-        raise HTTPException(status_code=404, detail=f"Достижение для студента с id {student_id} не найдено")
+        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
 
     achievement = db_achievement.to_achievement_model()
     image_data = await find_or_generate_image(achievement, "vertical")
@@ -185,14 +195,14 @@ async def referal(
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
     if not db_achievement:
-        raise HTTPException(status_code=404, detail="Страница достижений не найдена!")
+        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
 
     achievement = db_achievement.to_achievement_model()
 
     db_student = await crud.get_student(student_id)
 
     if not db_student:
-        raise HTTPException(status_code=404, detail=f"Студент с id {student_id} не найден!")
+        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
 
     student = db_student.to_student()
 
@@ -232,6 +242,21 @@ async def top_achievements(request: Request, crud: StudentDBHandler = Depends(ge
     counts_of_received_achievements: list[tuple[str, str, int]] = await crud.get_list_of_achievements_received()
     achievements = await get_achievements_data(counts_of_received_achievements)
     return templates.TemplateResponse("results.html", {"request": request, "achievements": achievements})
+
+
+@router.get("/dashboard", name="dashboard")
+async def dashboard():
+    return RedirectResponse(STUDENT_DASHBOARD, status_code=status.HTTP_308_PERMANENT_REDIRECT)
+
+
+@router.get("/no_data", name="no_data")
+async def no_data(request: Request):
+    return templates.TemplateResponse("no_data.html", {"request": request})
+
+
+@router.get("/404", name="404")
+async def not_found(request: Request):
+    return templates.TemplateResponse("404.html", {"request": request})
 
 
 # Route just for tests
