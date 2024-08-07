@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skypro - 404 Здесь ничего нет</title>
+    <title>Skypro - 500 Ошибка на сервере</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
 
     {% include 'metrica.html' %}
@@ -21,10 +21,10 @@
             <div class="image-wrapper">
                 <img src="{{ url_for('data', path="images/skypro_fox.png") }}" alt="" class="skypro-fox">
             </div>
-            <div class="left_num">4</div>
-            <div class="right_num">4</div>
+            <div class="left_num">5</div>
+            <div class="right_num">0</div>
         </div>
-        <h1 class="top-h1">ЗДЕСЬ<br>НИЧЕГО НЕТ</h1>
+        <h1 class="top-h1">ОШИБКА СЕРВЕРА</h1>
         <p style="font-size: 1.2rem">Попробуй перейти по прямой ссылке из личного кабинета</p>
         <form action="{{ url_for('dashboard') }}" method="get">
             <button type="submit" class="lk-button">Вернуться в ЛК</button>

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.requests import Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from loguru import logger
 
@@ -32,11 +32,6 @@ def is_social_bot(request):
     is_facebook_preview = request.headers.get("X-Purpose") == "preview"
 
     return is_bot or is_social_referer or is_facebook_preview
-
-
-@router.get("/")
-async def index():
-    return JSONResponse(status_code=status.HTTP_200_OK, content={"status": "ok"})
 
 
 @router.get("/stats/{student_id}", name="stats")

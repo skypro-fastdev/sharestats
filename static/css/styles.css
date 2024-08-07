@@ -633,13 +633,13 @@ a {
     transform: translateX(-50%);
 }
 
-.left4 {
+.left_num {
     position: absolute;
     top: 20%;
     left: 3%;
 }
 
-.right4 {
+.right_num {
     position: absolute;
     top: 20%;
     right: 3%;
