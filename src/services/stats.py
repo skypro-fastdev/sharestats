@@ -36,6 +36,10 @@ def plural_variant(n: int, type_: str) -> str:
             text = ["домашка", "домашки", "домашек"]
         case "question":
             text = ["вопрос", "вопроса", "вопросов"]
+        case "rate":
+            text = ["оценка", "оценки", "оценок"]
+        case "live":
+            text = ["лайв", "лайва", "лайвов"]
         case _:
             return str(n)
     if n % 10 == 1 and n % 100 != 11:
@@ -66,13 +70,14 @@ def get_stats(student: Student) -> dict:
         "percent_of_lessons_completed": percent_of_lessons_completed,
         "lessons_completed": f"{lessons_completed} / {lessons_in_program}",
         "courseworks_completed": f"{safe_get("courseworks_completed")} / {safe_get("courseworks_in_program")}",
-        "lives_visited": safe_get("lives_visited"),
-        "lives_watched_in_record": safe_get("lives_watched_in_record"),
+        "lives_visited": plural_variant(safe_get("lives_visited"), "live"),
+        "lives_watched_in_record": plural_variant(safe_get("lives_watched_in_record"), "live"),
         "homework_morning": plural_variant(safe_get("homework_morning"), "homework"),
         "homework_night": plural_variant(safe_get("homework_night"), "homework"),
         "homework_weekend": plural_variant(safe_get("homework_weekend"), "homework"),
-        "homework_intime": plural_variant(safe_get("homework_intime"), "homework"),
+        "homework_last_6": plural_variant(safe_get("homework_last_6"), "homework"),
         "questions_number": plural_variant(safe_get("questions_number"), "question"),
+        "rates_created": plural_variant(safe_get("rates_created"), "rate"),
     }
 
 

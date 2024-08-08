@@ -59,7 +59,7 @@ class NightOwlAchievement(AchievementBase):
         return homework_total > 3 and homework_night / homework_total > 0.5
 
     def describe(self, prof: str) -> str:
-        return f"Сдаю домашки по {prof} ночью, пока все спят!"
+        return f"Сдаю домашки по <strong>{prof}</strong> ночью, пока все спят!"
 
 
 class SunshineAchievement(AchievementBase):
@@ -76,7 +76,7 @@ class SunshineAchievement(AchievementBase):
         return homework_total > 3 and homework_morning / homework_total > 0.5
 
     def describe(self, prof: str) -> str:
-        return f"Сдаю домашки по {prof} по утрам"
+        return f"Сдаю домашки по <strong>{prof}</strong> по утрам"
 
 
 class NoRestAchievement(AchievementBase):
@@ -93,7 +93,7 @@ class NoRestAchievement(AchievementBase):
         return homework_total > 3 and homework_weekend / homework_total > 0.5
 
     def describe(self, prof: str) -> str:
-        return f"Сдаю домашки по {prof} даже на выходных, пока все отдыхают"
+        return f"Сдаю домашки по <strong>{prof}</strong> даже на выходных, пока все отдыхают"
 
 
 class LightningAchievement(AchievementBase):
@@ -110,7 +110,7 @@ class LightningAchievement(AchievementBase):
         return homework_total > 3 and homework_firstday / homework_total > 0.3
 
     def describe(self, prof: str) -> str:
-        return f"Сдаю домашки по {prof} в первые 24 часа"
+        return f"Сдаю домашки по <strong>{prof}</strong> в первые 24 часа"
 
 
 class FlawlessAchievement(AchievementBase):
@@ -127,7 +127,7 @@ class FlawlessAchievement(AchievementBase):
         return 3 < homework_total == homework_intime
 
     def describe(self, prof: str) -> str:
-        return f"100% моих домашек по {prof} сданы вовремя"
+        return f"100% моих домашек по <strong>{prof}</strong> сданы вовремя"
 
 
 class LivewatcherAchievement(AchievementBase):
@@ -144,7 +144,7 @@ class LivewatcherAchievement(AchievementBase):
         return lives_visited > 3 and lives_visited / lives_total > 0.5
 
     def describe(self, prof: str) -> str:
-        return f"Активно участвую в онлайн-занятиях по {prof}"
+        return f"Активно участвую в онлайн-занятиях по <strong>{prof}</strong>"
 
 
 class QuestionCatAchievement(AchievementBase):
@@ -160,7 +160,7 @@ class QuestionCatAchievement(AchievementBase):
         return questions_number > 7
 
     def describe(self, prof: str) -> str:
-        return f"Я задаю вопросы, как только что-то не понятно по {prof}"
+        return f"Я задаю вопросы, как только что-то не понятно по <strong>{prof}</strong>"
 
 
 class ResponsiveAchievement(AchievementBase):
@@ -176,7 +176,7 @@ class ResponsiveAchievement(AchievementBase):
         return comments_help > 3
 
     def describe(self, prof: str) -> str:
-        return f"Я помогаю другим ученикам разбираться с их вопросами по {prof}"
+        return f"Я помогаю другим ученикам разбираться с их вопросами по <strong>{prof}</strong>"
 
 
 class SheriffAchievement(AchievementBase):
@@ -193,7 +193,7 @@ class SheriffAchievement(AchievementBase):
         return homework_total > 3 and rates_created / homework_total > 0.5
 
     def describe(self, prof: str) -> str:
-        return f"Проставляю оценки наставникам, материалам и занятиям по {prof}"
+        return f"Проставляю оценки наставникам, материалам и занятиям по <strong>{prof}</strong>"
 
 
 class PersonalAchievement(AchievementBase):
@@ -209,7 +209,7 @@ class PersonalAchievement(AchievementBase):
         return ik_spent > 5
 
     def describe(self, prof: str) -> str:
-        return f"Я часто заависаю на личных встречах с наставниками по {prof}"
+        return f"Я часто заависаю на личных встречах с наставниками по <strong>{prof}</strong>"
 
 
 achievements_collection: list[AchievementBase] = [

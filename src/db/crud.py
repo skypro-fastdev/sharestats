@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from fastapi import Depends
 from sqlalchemy.exc import IntegrityError
@@ -79,12 +80,19 @@ class StudentDBHandler:
         return db_achievement
 
     async def add_achievement_to_student(self, student_id: int, achievement_id: int):
-        existing = await self.session.execute(
+        result = await self.session.execute(
             select(StudentAchievement).where(
                 (StudentAchievement.student_id == student_id) & (StudentAchievement.achievement_id == achievement_id)
             )
         )
-        if existing.scalar_one_or_none() is None:
+        existing_achievement = result.scalar_one_or_none()
+        if existing_achievement:
+            # Update timestamp for existing achievement
+            existing_achievement.created_at = datetime.now()
+            await self.session.commit()
+            return
+
+        if existing_achievement is None:
             student_achievement = StudentAchievement(student_id=student_id, achievement_id=achievement_id)
             self.session.add(student_achievement)
             await self.session.commit()

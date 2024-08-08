@@ -142,7 +142,7 @@ li:last-child {
 .achievement-logo {
     max-width: 100%;
     height: 360px;
-    margin-top: 10px;
+    margin-top: 20px;
 }
 
 .name-badge {
@@ -214,7 +214,8 @@ li:last-child {
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 20px;
+    font-size: 1.2rem;
+    font-family: StratosSkyengWeb-Regular, sans-serif;
     cursor: pointer;
     border-radius: 12px;
 }
@@ -227,19 +228,61 @@ li:last-child {
 }
 
 .share-summary {
+    display: block;
+    position: relative;
     cursor: pointer;
     padding: 10px;
     background-color: #bbec30;
     color: #000000;
     border-radius: 5px;
     margin-top: 10px;
+    font-size: 1.1rem;
+}
+
+.share-summary:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    background-image: url(../../data/images/arrow_purple.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding-right: 0;
+    vertical-align: middle;
+    transition: transform 0.2s ease;
+    transform-origin: 0 center 10px;
 }
 
 .how-to-get {
+    display: block;
+    position: relative;
     cursor: pointer;
     padding: 10px;
     background-color: #924CF6;
     border-radius: 5px;
+    font-size: 1.1rem;
+}
+
+.how-to-get:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    background-image: url(../../data/images/arrow_white.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding-right: 0;
+    vertical-align: middle;
+    transition: transform 0.2s ease;
+    transform-origin: 0 center 10px;
 }
 
 .what-is-skypro {
@@ -265,10 +308,14 @@ li:last-child {
 }
 
 .description {
-    font-size: 20px;
-    padding: 10px;
+    font-size: 1.4rem;
     border-radius: 10px;
-    margin-bottom: 20px;
+    margin: 0 0 20px 0;
+}
+
+.text-percents {
+    font-size: 1.8rem;
+    margin: 10px 30px 0 30px;
 }
 
 .percents {
@@ -316,11 +363,17 @@ li:last-child {
 }
 
 .stat-lives {
-    font-size: 24px;
+    font-size: 1.6rem;
 }
 
 .stat-label {
     font-size: 20px;
+}
+
+.share-text {
+    font-size: 1.2rem;
+    text-align: left;
+    margin-top: 30px;
 }
 
 .copy-icon {
@@ -437,11 +490,58 @@ a {
     margin-top: 20px;
 }
 
+/*####################*/
 .go-summary {
+    display: block;
+    position: relative;
     background-color: #bbec30;
     color: #322963;
     padding: 10px;
     border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+.go-summary:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    background-image: url(../../data/images/arrow_purple.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding-right: 0;
+    vertical-align: middle;
+    transition: transform 0.2s ease;
+    transform-origin: 0 center 10px;
+}
+
+input[type="text"] {
+    font-family: 'StratosSkyengWeb-Regular', sans-serif;
+    width: 100%;
+    padding: 6px;
+    font-size: 16px;
+    border: 2px solid #fff;
+    border-radius: 5px;
+}
+
+input[type="text"]::placeholder {
+    color: #8f8f8f; /* Цвет плейсхолдера */
+    font-size: 16px;
+}
+
+.send-url-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #bbec30;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    color: #333;
     cursor: pointer;
 }
 
@@ -477,10 +577,10 @@ a {
     background-color: #bbec30;
     color: #322963;
     border: none;
-    padding: 10px 20px;
+    padding: 10px 30px;
     border-radius: 5px;
     cursor: pointer;
-    font-weight: bold;
+    font-size: 1.1rem;
     width: fit-content;
     align-self: center;
 }
@@ -564,7 +664,7 @@ a {
 
 .top-h1 {
     color: white;
-    font-size: 2.2rem;
+    font-size: 2.4rem;
     text-align: center;
     margin-bottom: 20px;
 }

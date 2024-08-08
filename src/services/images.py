@@ -176,7 +176,7 @@ async def find_or_generate_image(achievement: Achievement, orientation: str) -> 
 
     # Сохраняем изображение в байтовый объект
     with BytesIO() as img_byte_arr:
-        base_image.save(img_byte_arr, format="PNG")
+        base_image.save(img_byte_arr, format="PNG", optimize=False, compress_level=0)
         image_bytes = img_byte_arr.getvalue()
 
         # Загружаем изображение в S3

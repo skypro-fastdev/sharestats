@@ -14,19 +14,16 @@
         <img src="{{ url_for('data', path="images/skypro.png") }}" alt="" class="logo">
     </header>
     <main>
+        <h1 class="top-h1">МОЙ СТИЛЬ<br>ОБУЧЕНИЯ:<br>{{ title.upper() }}</h1>
         <div class="achievement">
             <img class="achievement-logo" src="{{ url_for('data', path=achievement_logo) }}" alt="">
         </div>
-        <div class="name-badge">
-            <span>Мой стиль обучения:</span>
-        </div>
-        <h1 class="status">{{ title }}</h1>
-        <p class="description">{{ description }}</p>
+        <p class="description">{{ description|safe }}</p>
         <div class="button-block">
             <button class="share-button" onclick="location.href='#share'">Поделиться в соцсетях</button>
         </div>
+        <p class="text-percents">Я уже <strong>{{ profession }}</strong> на</p>
         <p class="percents">{{ percent_of_lessons_completed }}%</p>
-        <p style="font-size: 28px; margin: 0;">курса <strong>{{ profession }}</strong> пройдено</p>
         <img src="{{ url_for('data', path="images/calendar.png") }}" alt="" class="image-class">
         <p class="stats-header">Я учусь уже {{ days_since_start }}</p>
         <p class="stat-lives"><strong>{{ lessons_completed }}</strong> уроков пройдено</p>
@@ -42,7 +39,7 @@
         </div>
         <img src="{{ url_for('data', path="images/views.png") }}" alt="">
         <div class="stats-container">
-            <p class="stats-header">Просмотры лайвов:</p>
+            <p class="stats-header">Просмотры лайвов</p>
             <div class="stats-details">
                 <div class="stat-item">
                     <span class="stat-lives"><strong>{{ lives_visited }}</strong></span>
@@ -55,28 +52,30 @@
             </div>
             <br>
         </div>
-        <img src="{{ url_for('data', path="images/schedule.png") }}" alt="" class="image-class">
+        <img style="margin-top: -20px;" src="{{ url_for('data', path="images/schedule.png") }}" alt=""
+             class="image-class">
         <div class="stats-container">
-            <p class="stats-header">Мой график:</p>
+            <p class="stats-header">Мой график</p>
             <p class="stat-label">{{ homework_morning }} утром</p>
             <p class="stat-label">{{ homework_night }} ночью</p>
             <p class="stat-label">{{ homework_weekend }} на выходных</p>
-            <p class="stat-label">{{ homework_intime }} в последний момент</p>
+            <p class="stat-label">{{ homework_last_6 }} в последний момент</p>
         </div>
         <div class="stats-container">
             <img src="{{ url_for('data', path="images/questions.png") }}" alt="" class="image-class">
             <p class="stat-label">{{ questions_number }} наставникам</p>
+            <p class="stat-label">{{ rates_created }} наставников</p>
         </div>
         <div class="get-container">
-            <p style="font-size: 18px;">Это было круто!<br>Поделись красивой статистикой в соцсетях,
-                выиграй мерч, индивидуальные занятия с наставниками и <strong>получи 15000 ₽</strong></p>
+            <p style="font-size: 18px;"><strong>Это было круто!</strong><br><br>Поделись статистикой в соцсетях, получи
+                индивидуальное занятие с наставником и <strong>15 900 ₽, если друг придет учиться в Skypro</strong></p>
             <details>
                 <summary class="how-to-get">Узнать как всё это получить</summary>
                 <p style="font-size: 18px; margin-top: 10px;">Поделись статистикой в ВК, Телеграме (сторис или личный
                     канал),
                     Нельзяграме и прими участие в розыгрыше призов.<br><br>
                     Если посмотрев твою статистику, твои друзья и знакомые придут учиться,
-                    ты получишь 15 000 Р за каждого</p>
+                    ты получишь 15 900 ₽ за каждого</p>
             </details>
             <details id="share">
                 <summary class="share-summary">Поделиться в соцсетях</summary>
@@ -165,6 +164,15 @@
                     </details>
                 </div>
             </details>
+        </div>
+        <div class="stats-container">
+            <p class="share-text">Поделились? Присылайте<br>ссылку и ждите подарок от нас!</p>
+            <form>
+                <div class="input-group">
+                    <input type="text" placeholder="Ссылка" required>
+                </div>
+                <button type="submit" class="send-url-button">Ловите ссылку</button>
+            </form>
         </div>
     </main>
 </div>
