@@ -57,7 +57,7 @@ class DeterminedAchievement(AchievementBase):
         return homework_total >= 2 and homework_intime / homework_total >= 0.5
 
     def describe(self, prof: str) -> str:
-        return "Смело учусь обучение новой профессии и меняю свою жизнь"
+        return "Смело учусь новой профессии и меняю свою жизнь"
 
 
 class LurkyAchievement(AchievementBase):
