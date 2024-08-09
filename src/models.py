@@ -18,6 +18,9 @@ def plural_days(n: int) -> str:
 
 class AchievementType(str, Enum):
     NEWBIE = "newbie"
+    CHILLY = "chilly"
+    DETERMINED = "determined"
+    LURKY = "lurky"
     POPCORN = "popcorn"
     NIGHT_OWL = "nightowl"
     SUNSHINE = "sunshine"
@@ -29,6 +32,7 @@ class AchievementType(str, Enum):
     RESPONSIVE = "responsive"
     SHERIFF = "sheriff"
     PERSONAL = "personal"
+    LASTMINUTE = "lastminute"
 
 
 class ProfessionEnum(str, Enum):

@@ -27,6 +27,56 @@ class NewbieAchievement(AchievementBase):
         return "У нас еще мало данных, чтобы вычислить ваш стиль"
 
 
+class ChillyAchievement(AchievementBase):
+    type = AchievementType.CHILLY
+    title = "На чиле"
+
+    def check(self, stats: dict[str, int | str]) -> bool:
+        homework_total = stats.get("homework_total")
+
+        if not homework_total:
+            return False
+
+        return homework_total < 5
+
+    def describe(self, prof: str) -> str:
+        return "Наслаждаюсь новым статусом ученика, не сомневаюсь в своих силах, знаю что все легко изучу и сделаю"
+
+
+class DeterminedAchievement(AchievementBase):
+    type = AchievementType.DETERMINED
+    title = "Решительный"
+
+    def check(self, stats: dict[str, int | str]) -> bool:
+        homework_total = stats.get("homework_total")
+        homework_intime = stats.get("homework_intime")
+
+        if not all([homework_total, homework_intime]):
+            return False
+
+        return homework_total >= 2 and homework_intime / homework_total >= 0.5
+
+    def describe(self, prof: str) -> str:
+        return "Смело учусь обучение новой профессии и меняю свою жизнь"
+
+
+class LurkyAchievement(AchievementBase):
+    type = AchievementType.LURKY
+    title = "Затаившийся дракон"
+
+    def check(self, stats: dict[str, int | str]) -> bool:
+        homework_total = stats.get("homework_total")
+        homework_intime = stats.get("homework_intime")
+
+        if not all([homework_total, homework_intime]):
+            return False
+
+        return homework_total >= 2 and homework_intime / homework_total < 0.5
+
+    def describe(self, prof: str) -> str:
+        return "Прохожу уроки тихо и размеренно, набираю силу перед большим прыжком"
+
+
 class PopcornAchievement(AchievementBase):
     type = AchievementType.POPCORN
     title = "С попкорном"
@@ -212,8 +262,28 @@ class PersonalAchievement(AchievementBase):
         return f"Я часто заависаю на личных встречах с наставниками по <strong>{prof}</strong>"
 
 
+class LastminuteAchievement(AchievementBase):
+    type = AchievementType.LASTMINUTE
+    title = "Как в последний раз"
+
+    def check(self, stats: dict[str, int | str]) -> bool:
+        homework_total = stats.get("homework_total")
+        homework_last_6 = stats.get("homework_last_6")
+
+        if not all([homework_total, homework_last_6]):
+            return False
+
+        return homework_total > 3 and homework_last_6 / homework_total >= 0.3
+
+    def describe(self, prof: str) -> str:
+        return f"Откладываю все на последний день, но все же успеваю к дедлайну по <strong>{prof}</strong>"
+
+
 achievements_collection: list[AchievementBase] = [
-    NewbieAchievement(),
+    # NewbieAchievement(),  # DEPRECATED
+    ChillyAchievement(),
+    DeterminedAchievement(),
+    LurkyAchievement(),
     PopcornAchievement(),
     NightOwlAchievement(),
     SunshineAchievement(),
@@ -225,6 +295,7 @@ achievements_collection: list[AchievementBase] = [
     ResponsiveAchievement(),
     SheriffAchievement(),
     PersonalAchievement(),
+    LastminuteAchievement(),
 ]
 
 

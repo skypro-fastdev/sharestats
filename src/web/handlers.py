@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from loguru import logger
 from pydantic import ValidationError
 
-from src.models import ProfessionEnum, Student
+from src.models import AchievementType, ProfessionEnum, Student
 from src.services.stats import check_achievements, get_user_stats
 
 
@@ -27,7 +27,12 @@ class StudentHandler:
             profession_enum = ProfessionEnum.from_str(profession_str)
 
             started_at = datetime.strptime(stats.get("started_at"), "%d.%m.%Y").date()
-            last_name, first_name = stats.get("student_name", "Фамилия Имя").split(" ")
+            full_name = stats.get("student_name", "")
+            try:
+                last_name = full_name.split(" ")[0]
+                first_name = full_name.split(" ")[1]
+            except IndexError:
+                first_name, last_name = full_name, ""
 
             self.student = Student(
                 id=self.student_id,
@@ -45,7 +50,19 @@ class StudentHandler:
         self.achievement = self.get_random_achievement()
 
     def get_random_achievement(self):
-        return choice(self.achievements[1:]) if len(self.achievements) > 1 else self.achievements[0]
+        """Return random achievement, prioritizing non-basic achievements"""
+        basic_achievements = (AchievementType.CHILLY, AchievementType.DETERMINED, AchievementType.LURKY)
+
+        non_basic_achievements = [a for a in self.achievements if a.type not in basic_achievements]
+
+        if non_basic_achievements:
+            return choice(non_basic_achievements)
+
+        # Если есть только базовые достижения, выбираем случайное из них
+        basic_achievements_list = [a for a in self.achievements if a.type in basic_achievements]
+        return choice(basic_achievements_list) if basic_achievements_list else AchievementType.CHILLY
+        #
+        # return choice(self.achievements[1:]) if len(self.achievements) > 1 else self.achievements[0]
 
 
 async def get_student_handler(student_id: int) -> StudentHandler:

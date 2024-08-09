@@ -1,3 +1,4 @@
+import aiohttp
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.requests import Request
 from fastapi.responses import RedirectResponse
@@ -6,7 +7,7 @@ from loguru import logger
 
 from src.config import IS_HEROKU, settings
 from src.db.crud import StudentDBHandler, get_student_crud
-from src.models import AchievementType, PhoneSubmission
+from src.models import PhoneSubmission
 from src.services.images import find_or_generate_image, get_achievement_logo_relative_path
 from src.services.stats import get_achievements_data, get_stats, get_student_skills
 from src.services.telegram import send_telegram_updates
@@ -45,9 +46,10 @@ async def stats(
         logger.info(f"Statistics for student {student_id} not found")
         return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
 
-    if handler.achievement.type == AchievementType.NEWBIE:
-        logger.info(f"{handler.student.first_name} {handler.student.last_name} - newbie")
-        return RedirectResponse(request.url_for("no_data"), status_code=status.HTTP_302_FOUND)
+    # DEPRECATED
+    # if handler.achievement.type == AchievementType.NEWBIE:
+    #     logger.info(f"{handler.student.first_name} {handler.student.last_name} - newbie")
+    #     return RedirectResponse(request.url_for("no_data"), status_code=status.HTTP_302_FOUND)
 
     achievement_logo = get_achievement_logo_relative_path(handler.achievement)  # changed to image service
 
@@ -226,10 +228,24 @@ async def referal(
 
 @router.post("/submit-phone")
 async def submit_phone(submission: PhoneSubmission):
-    try:
-        logger.info(f"Received phone {submission.phone}, ref to student {submission.student_id}")
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
+    url = "https://api.sky.pro/webhook/lead/v1/create"
+    payload = {
+        "phone": f"{submission.phone}",
+        "funnel": "direct",
+        "sourceKey": "sharestats",
+        "name": "Заявка на Карьерную Консультацию",
+        "productId": 191,
+        "utmTerm": f"referral-{submission.student_id}",
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=payload) as response:
+            result = await response.text()
+            logger.info(f"Phone {submission.phone}, ref to student {submission.student_id}. Result: {result}")
+    # try:
+    #     logger.info(f"Received phone {submission.phone}, ref to student {submission.student_id}")
+    # except Exception as e:
+    #     raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 @router.get("/results", name="results")

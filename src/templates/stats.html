@@ -28,15 +28,17 @@
         <p class="stats-header">Я учусь уже {{ days_since_start }}</p>
         <p class="stat-lives"><strong>{{ lessons_completed }}</strong> уроков пройдено</p>
         <p class="stat-lives"><strong>{{ courseworks_completed }}</strong> курсовых сдано</p>
-        <img src="{{ url_for('data', path="images/check.png") }}" alt="" class="image-class">
-        <div class="stats-container">
-            <p class="stats-header">Я уже умею:</p>
-            <ul>
-                {% for skill in skills %}
-                    <li style="font-size: 18px; color: RGBA(255, 255, 255, 0.8);">{{ skill }}</li>
-                {% endfor %}
-            </ul>
-        </div>
+        {% if "нет навыков" not in skills[0] %}
+            <img src="{{ url_for('data', path="images/check.png") }}" alt="" class="image-class">
+            <div class="stats-container">
+                <p class="stats-header">Я уже умею:</p>
+                <ul>
+                    {% for skill in skills %}
+                        <li style="font-size: 18px; color: RGBA(255, 255, 255, 0.8);">{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
         <img src="{{ url_for('data', path="images/views.png") }}" alt="">
         <div class="stats-container">
             <p class="stats-header">Просмотры лайвов</p>

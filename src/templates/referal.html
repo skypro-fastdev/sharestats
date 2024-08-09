@@ -24,20 +24,22 @@
         <div class="achievement-ref">
             <img class="achievement-ref-logo" src="{{ url_for('data', path=achievement_logo) }}" alt="">
         </div>
-        <h1 class="top-h1">{{ first_name.upper() }} {{ last_name.upper() }}</h1>
+        <h1 id="top-h1" class="top-h1">{{ first_name.upper() }} {{ last_name.upper() }}</h1>
         <p class="text-percents"><strong>{{ profession }}</strong><br>уже на
             <strong>{{ percent_of_lessons_completed }}%</strong></p>
         <p class="description-down">Аналитик смотрит на цифры и помогает бизнесу принимать быстрые и правильные решения.<br>Средняя
             ЗП в России: 120 000.<br>Вакансий в этом году: 18500.</p>
-        <div class="stats-container">
-            <p class="stats-header">{{ first_name }} учится в Skypro<br>и уже умеет:</p>
-            <ul style="text-align: left;">
-                {% for skill in skills %}
-                    <li style="font-size: 18px; color: white">✅ {{ skill }}</li>
-                    {#                        <img src="{{ url_for('data', path="images/arrow.png") }}" alt=""> {{ skill }}#}
-                {% endfor %}
-            </ul>
-        </div>
+        {% if "нет навыков" not in skills[0] %}
+            <div class="stats-container">
+                <p class="stats-header">{{ first_name }} учится в Skypro<br>и уже умеет:</p>
+                <ul style="text-align: left;">
+                    {% for skill in skills %}
+                        <li style="font-size: 18px; color: white">✅ {{ skill }}</li>
+                        {#                        <img src="{{ url_for('data', path="images/arrow.png") }}" alt=""> {{ skill }}#}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
         <details>
             <summary class="what-is-skypro">Что такое Skypro?</summary>
             <div class="what-is-text">
@@ -92,5 +94,19 @@
         <script src="{{ url_for('static', path='js/submit_phone.js') }}"></script>
     </main>
 </div>
+<script>
+    function adjustFontSize() {
+        const element = document.getElementById('top-h1');
+        const maxWidth = 360;
+        let fontSize = parseFloat(window.getComputedStyle(element).fontSize);
+
+        while (element.scrollWidth > maxWidth && fontSize > 1) {
+            fontSize -= 1;
+            element.style.fontSize = `${fontSize}px`;
+        }
+    }
+    window.onload = adjustFontSize;
+    window.onresize = adjustFontSize;
+</script>
 </body>
 </html>
