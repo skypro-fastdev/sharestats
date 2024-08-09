@@ -120,12 +120,18 @@ async def get_image(
 
 @router.get("/h/{student_id}", name="share_horizontal")
 @router.get("/v/{student_id}", name="share_vertical")
+@router.get("/vk/{student_id}", name="share_vk")
 async def share(
     request: Request,
     student_id: int,
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
-    orientation = "horizontal" if "/h/" in request.url.path else "vertical"
+    if "/vk/" in request.url.path:
+        orientation = "vk_post"
+    elif "/h/" in request.url.path:
+        orientation = "horizontal"
+    else:
+        orientation = "vertical"
 
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
@@ -142,8 +148,8 @@ async def share(
             {
                 "request": request,
                 "student_id": student_id,
-                "title": achievement.title,
-                "description": achievement.description,
+                "title": "Мой стиль и статистика обучения",
+                "description": "Внутри подарок от Skypro",
                 "achievement_url": image_data["url"],
                 "image_width": image_data["width"],
                 "image_height": image_data["height"],
