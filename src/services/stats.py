@@ -29,8 +29,11 @@ def check_achievements(student: Student) -> list[Achievement]:
     return achieved
 
 
-def plural_variant(n: int, type_: str) -> str:
+def plural_variant(n: int | str, type_: str) -> str:
     """Форматирование множественного числа"""
+    if n == "?":
+        return n
+
     match type_:
         case "homework":
             text = ["домашка", "домашки", "домашек"]
@@ -42,6 +45,7 @@ def plural_variant(n: int, type_: str) -> str:
             text = ["лайв", "лайва", "лайвов"]
         case _:
             return str(n)
+
     if n % 10 == 1 and n % 100 != 11:
         return f"{n} {text[0]}"
     elif 2 <= n % 10 <= 4 and (n % 100 < 10 or n % 100 >= 20):  # noqa RET505

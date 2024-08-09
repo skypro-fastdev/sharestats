@@ -139,6 +139,12 @@ li:last-child {
     margin-bottom: -20px;
 }
 
+.achievement-ref-logo {
+    max-width: 100%;
+    height: 360px;
+    margin: -20px;
+}
+
 .achievement-logo {
     max-width: 100%;
     height: 360px;
@@ -286,10 +292,44 @@ li:last-child {
 }
 
 .what-is-skypro {
+    display: block;
+    position: relative;
     cursor: pointer;
     padding: 10px;
     background-color: #322963;
-    border-radius: 12px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+}
+
+.what-is-skypro:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    background-image: url(../../data/images/arrow_white.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding-right: 0;
+    vertical-align: middle;
+    transition: transform 0.2s ease;
+    transform-origin: 0 center 10px;
+}
+
+details[open] summary.what-is-skypro {
+    border-radius: 10px 10px 0 0;
+}
+
+.what-is-text {
+    background-color: #312960;
+    padding: 20px;
+    text-align: left;
+    font-size: 18px;
+    overflow-wrap: break-word;
+    border-radius: 0 0 10px 10px;
 }
 
 .description-up {
@@ -300,7 +340,7 @@ li:last-child {
 }
 
 .description-down {
-    background-color: RGBA(50, 41, 99, 0.2);
+    background-color: #322963;
     font-size: 18px;
     padding: 15px;
     border-radius: 10px;
@@ -314,7 +354,7 @@ li:last-child {
 }
 
 .text-percents {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     margin: 10px 30px 0 30px;
 }
 
@@ -401,10 +441,6 @@ li:last-child {
     cursor: pointer;
 }
 
-/*summary.details::-webkit-details-marker {*/
-/*    display: none;*/
-/*}*/
-
 summary.details {
     list-style: none;
     display: flex;
@@ -469,9 +505,11 @@ a {
 .info-box {
     background-color: #322963;
     color: white;
-    border-radius: 10px;
-    padding: 20px;
+    border-radius: 0 0 20px 20px;
+    margin: 10px -20px -20px -20px;
+    padding: 5px 20px 20px 20px;
     font-family: StratosSkyengWeb-Regular, sans-serif;
+    font-size: 18px;
 }
 
 .feature {
@@ -490,7 +528,6 @@ a {
     margin-top: 20px;
 }
 
-/*####################*/
 .go-summary {
     display: block;
     position: relative;
@@ -547,16 +584,14 @@ input[type="text"]::placeholder {
 
 .phone-input {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    width: 100%;
 }
 
 .input-group {
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
     width: 100%;
-    margin-bottom: 10px;
 }
 
 .input-group input[type="tel"] {
@@ -565,8 +600,8 @@ input[type="text"]::placeholder {
     font-size: 16px;
     padding: 10px;
     border-radius: 5px;
-    width: 100%;
     box-sizing: border-box;
+    width: 100%;
 }
 
 .input-group .iti {
@@ -577,12 +612,14 @@ input[type="text"]::placeholder {
     background-color: #bbec30;
     color: #322963;
     border: none;
-    padding: 10px 30px;
+    padding: 10px 15px;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1.1rem;
-    width: fit-content;
-    align-self: center;
+    margin-left: 10px;
+    width: auto;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .lk-button {

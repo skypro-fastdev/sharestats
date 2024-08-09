@@ -101,6 +101,7 @@ class Student(BaseModel):
             "homework_night",
             "homework_morning",
             "homework_weekend",
+            "homework_last_6",
             "courseworks_in_program",
             "courseworks_completed",
             "questions_number",

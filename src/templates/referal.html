@@ -11,33 +11,42 @@
 </head>
 <body>
 <div class="container">
-    <div class="header">
-        <div>
-            <img src="{{ url_for('data', path="images/skypro.png") }}" alt="" class="logo-header">
-        </div>
-        <div class="name">{{ first_name }} {{ last_name[:1] }}.</div>
-    </div>
+    {#    <div class="header">#}
+    {#        <div>#}
+    {#            <img src="{{ url_for('data', path="images/skypro.png") }}" alt="" class="logo-header">#}
+    {#        </div>#}
+    {#        <div class="name">{{ first_name }} {{ last_name[:1] }}.</div>#}
+    {#    </div>#}
+    <header>
+        <img src="{{ url_for('data', path="images/skypro.png") }}" alt="" class="logo">
+    </header>
     <main>
         <div class="achievement-ref">
-            <img class="achievement-logo" src="{{ url_for('data', path=achievement_logo) }}" alt="">
+            <img class="achievement-ref-logo" src="{{ url_for('data', path=achievement_logo) }}" alt="">
         </div>
-        <p class="description-up">{{ description }}</p>
+        <h1 class="top-h1">{{ first_name.upper() }} {{ last_name.upper() }}</h1>
+        <p class="text-percents"><strong>{{ profession }}</strong><br>уже на
+            <strong>{{ percent_of_lessons_completed }}%</strong></p>
         <p class="description-down">Аналитик смотрит на цифры и помогает бизнесу принимать быстрые и правильные решения.<br>Средняя
             ЗП в России: 120 000.<br>Вакансий в этом году: 18500.</p>
         <div class="stats-container">
-            <p class="stats-header">Я учусь в Skypro<br>и уже умею:</p>
-            <ul>
+            <p class="stats-header">{{ first_name }} учится в Skypro<br>и уже умеет:</p>
+            <ul style="text-align: left;">
                 {% for skill in skills %}
-                    <li style="font-size: 18px; color: RGBA(255, 255, 255, 0.8);">
-                        <img src="{{ url_for('data', path="images/arrow.png") }}" alt=""> {{ skill }}
-                    </li>
+                    <li style="font-size: 18px; color: white">✅ {{ skill }}</li>
+                    {#                        <img src="{{ url_for('data', path="images/arrow.png") }}" alt=""> {{ skill }}#}
                 {% endfor %}
             </ul>
         </div>
         <details>
             <summary class="what-is-skypro">Что такое Skypro?</summary>
-            <p style="font-size: 18px; margin-top: 10px;">Обучение IT-профессиям с нуля с гарантией новой работы.У нас
-                можно освоить востребованную профессию, независимо от прошлого опыта, образования и навыков.</p>
+            <div class="what-is-text">
+                <p>Обучение IT-профессиям с нуля с гарантией новой работы.</p>
+                <p>✅ 95% выпускников находят новую работу</p>
+                <p>✅ 72 000 ₽ средняя зарплата выпускника Skypro</p>
+                <p>✅ 2000 трудоустроенных выпускников</p>
+                <a href="">Узнать больше</a>
+            </div>
         </details>
         <p class="stats-header">Я профи по {{ profession_dative }} уже на {{ percent_of_lessons_completed }}%</p>
         <img src="{{ url_for('data', path="images/calendar.png") }}" alt="" class="image-class">
@@ -45,33 +54,20 @@
         <p class="stat-lives"><strong>{{ lessons_completed }}</strong> уроков пройдено</p>
         <p class="stat-lives"><strong>{{ courseworks_completed }}</strong> курсовых сдано</p>
         <div class="info-box">
-            <p>Хотите тоже попробовать себя в Аналитике данных? Друзья Маша Миллер могут учиться за 1500₽ за первый
-                месяц.</p>
-            <div class="feature">
-                <img src="{{ url_for('data', path="images/arrow.png") }}" alt="">
-                <span>Доступ к топовому контенту</span>
-            </div>
-            <div class="feature">
-                <img src="{{ url_for('data', path="images/arrow.png") }}" alt="">
-                <span>Интересные задания</span>
-            </div>
-            <div class="feature">
-                <img src="{{ url_for('data', path="images/arrow.png") }}" alt="">
-                <span>Проверка домашек наставниками</span>
-            </div>
-
-            <details class="go-details">
-                <summary class="go-summary">Покажите подробности!</summary>
-                <p>Мы готовы добавить вас в ближайшую группу обучения. Просто оставьте номер, мы позвоним и все
-                    расскажем.</p>
-                <form id="phoneForm" class="phone-input">
-                    <input type="hidden" id="studentId" value="{{ student_id }}">
-                    <div class="input-group">
-                        <input type="tel" id="phoneNumber" placeholder="(___) ___ __ __">
-                    </div>
+            <p>Для друзей <strong>{{ first_name }} {{ last_name }}</strong> доступна <strong>бесплатная карьерная
+                консультация</strong>. Найдите себя и получайте крутые результаты как {{ first_name }}. </p>
+            {#            <details class="go-details">#}
+            {#                <summary class="go-summary">Покажите подробности!</summary>#}
+            {#                <p>Мы готовы добавить вас в ближайшую группу обучения. Просто оставьте номер, мы позвоним и все#}
+            {#                    расскажем.</p>#}
+            <form id="phoneForm" class="phone-input">
+                <input type="hidden" id="studentId" value="{{ student_id }}">
+                <div class="input-group">
+                    <input type="tel" id="phoneNumber" placeholder="(___) ___ __ __">
                     <button type="submit" class="go-button">Погнали!</button>
-                </form>
-            </details>
+                </div>
+            </form>
+            {#            </details>#}
 
             <div id="successPopup" class="popup">
                 <div class="popup-content">

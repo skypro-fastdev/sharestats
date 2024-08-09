@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
 from starlette.exceptions import HTTPException
@@ -40,7 +39,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     if exc.status_code == 404:
         return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
     if exc.status_code == 500:
-        return HTMLResponse(content="500.html", status_code=exc.status_code)
+        return templates.TemplateResponse("500.html", {"request": request}, status_code=500)
     return None
 
 
