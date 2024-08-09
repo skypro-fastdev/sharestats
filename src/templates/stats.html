@@ -32,9 +32,9 @@
             <img src="{{ url_for('data', path="images/check.png") }}" alt="" class="image-class">
             <div class="stats-container">
                 <p class="stats-header">Я уже умею:</p>
-                <ul>
+                <ul class="skills-list">
                     {% for skill in skills %}
-                        <li style="font-size: 18px; color: RGBA(255, 255, 255, 0.8);">{{ skill }}</li>
+                        <li>✅ {{ skill }}</li>
                     {% endfor %}
                 </ul>
             </div>

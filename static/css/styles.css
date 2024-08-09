@@ -38,6 +38,16 @@ body {
     margin-bottom: 0;
 }
 
+.skills-list {
+    text-align: left;
+}
+
+.skills-list li {
+    font-family: StratosSkyengWeb-Regular, sans-serif;
+    font-size: 1.1rem;
+    color: white;
+}
+
 .button-block {
     display: flex;
     justify-content: center;
