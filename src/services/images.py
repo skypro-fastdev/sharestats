@@ -1,3 +1,4 @@
+import re
 import textwrap
 from io import BytesIO
 from pathlib import Path
@@ -117,6 +118,10 @@ def get_achievement_logo_relative_path(achievement: Achievement) -> str:
     return str(Path("images") / f"logo_{achievement.picture}")
 
 
+def remove_tags(text: str) -> str:
+    return re.sub(r"<[^>]+>", "", text)
+
+
 async def find_or_generate_image(achievement: Achievement, orientation: str) -> dict:
     """Ищем или генерируем изображение для данного достижения"""
     params = get_images_params(orientation)
@@ -166,7 +171,7 @@ async def find_or_generate_image(achievement: Achievement, orientation: str) -> 
     # Рисуем description на изображении
     draw_wrapped_text(
         draw,
-        achievement.description,
+        remove_tags(achievement.description),
         font_description,
         params["desc_box_max_width"],
         params["x_desc"],
