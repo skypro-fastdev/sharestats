@@ -31,7 +31,7 @@ class StudentDBHandler:
         if not db_student:
             return None
 
-        db_student.statistics = json.dumps(student.statistics)
+        db_student.statistics = json.dumps(student.statistics, ensure_ascii=False)
 
         try:
             await self.session.commit()
