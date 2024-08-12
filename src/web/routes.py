@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import aiohttp
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.requests import Request
@@ -9,6 +11,7 @@ from src.config import IS_HEROKU, settings
 from src.db.crud import StudentDBHandler, get_student_crud
 from src.models import PhoneSubmission
 from src.services.images import find_or_generate_image, get_achievement_logo_relative_path
+from src.services.security import verify_hash
 from src.services.stats import get_achievements_data, get_stats, get_student_skills
 from src.services.telegram import send_telegram_updates
 from src.web.handlers import StudentHandler, get_student_handler
@@ -39,19 +42,34 @@ def is_social_bot(request):
 async def stats(
     request: Request,
     student_id: int,
+    hash: str | None = None,  # noqa: A002
     handler: StudentHandler = Depends(get_student_handler),
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
+    if not verify_hash(student_id, hash):
+        ...
+
+    logger.info(f"student_id: {student_id}, hash verified: {verify_hash(student_id, hash)}")
+
     if not handler.student:
         logger.info(f"Statistics for student {student_id} not found")
         return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
 
-    # DEPRECATED
-    # if handler.achievement.type == AchievementType.NEWBIE:
-    #     logger.info(f"{handler.student.first_name} {handler.student.last_name} - newbie")
-    #     return RedirectResponse(request.url_for("no_data"), status_code=status.HTTP_302_FOUND)
+    if not handler.achievements:
+        logger.info(f"Statistics for student {student_id} not found")
+        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
+    try:
+        homework_total = handler.student.statistics.get("homework_total")
+        started_at = handler.student.started_at
+        today = datetime.today().date()
 
-    achievement_logo = get_achievement_logo_relative_path(handler.achievement)  # changed to image service
+        if homework_total == 0 or started_at > today:
+            return RedirectResponse(request.url_for("no_data"), status_code=status.HTTP_302_FOUND)
+
+        achievement_logo = get_achievement_logo_relative_path(handler.achievement)
+    except Exception as e:
+        logger.error(f"Failed to get student {student_id} stats: {e}")
+        return RedirectResponse(request.url_for("no_data"), status_code=status.HTTP_302_FOUND)
 
     student_stats = get_stats(handler.student)
     skills = get_student_skills(handler.student)
@@ -234,7 +252,7 @@ async def referal(
 
 @router.post("/submit-phone")
 async def submit_phone(submission: PhoneSubmission):
-    url = "https://api.sky.pro/webhook/lead/v1/create"
+    url = settings.CRM_URL
     payload = {
         "phone": f"{submission.phone}",
         "funnel": "direct",
@@ -243,15 +261,14 @@ async def submit_phone(submission: PhoneSubmission):
         "productId": 191,
         "utmTerm": f"referral-{submission.student_id}",
     }
-
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, json=payload) as response:
-            result = await response.text()
-            logger.info(f"Phone {submission.phone}, ref to student {submission.student_id}. Result: {result}")
-    # try:
-    #     logger.info(f"Received phone {submission.phone}, ref to student {submission.student_id}")
-    # except Exception as e:
-    #     raise HTTPException(status_code=400, detail=str(e)) from e
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, json=payload) as response:
+                result = await response.text()
+                logger.info(f"Phone {submission.phone}, ref to student {submission.student_id}. Result: {result}")
+    except Exception as e:
+        logger.error(f"Did not submit phone to CRM. Error: {e}")
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 
 @router.get("/results", name="results")

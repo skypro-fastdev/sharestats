@@ -72,8 +72,6 @@ class StudentHandler:
             picture="chilly.png",
         )
 
-    # return choice(self.achievements[1:]) if len(self.achievements) > 1 else self.achievements[0]
-
 
 async def get_student_handler(student_id: int) -> StudentHandler:
     handler = StudentHandler(student_id)
