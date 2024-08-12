@@ -16,6 +16,7 @@ class AchievementBase(ABC):
         pass
 
 
+# DEPRECATED
 class NewbieAchievement(AchievementBase):
     type = AchievementType.NEWBIE
     title = "Новичок"
@@ -34,7 +35,7 @@ class ChillyAchievement(AchievementBase):
     def check(self, stats: dict[str, int | str]) -> bool:
         homework_total = stats.get("homework_total")
 
-        if not homework_total:
+        if homework_total is None:
             return False
 
         return homework_total < 5

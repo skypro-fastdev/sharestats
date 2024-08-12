@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from loguru import logger
 from pydantic import ValidationError
 
-from src.models import AchievementType, ProfessionEnum, Student
+from src.models import Achievement, AchievementType, ProfessionEnum, Student
 from src.services.stats import check_achievements, get_user_stats
 
 
@@ -49,7 +49,7 @@ class StudentHandler:
         self.achievements = check_achievements(self.student)
         self.achievement = self.get_random_achievement()
 
-    def get_random_achievement(self):
+    def get_random_achievement(self) -> Achievement:
         """Return random achievement, prioritizing non-basic achievements"""
         basic_achievements = (AchievementType.CHILLY, AchievementType.DETERMINED, AchievementType.LURKY)
 
@@ -60,9 +60,19 @@ class StudentHandler:
 
         # Если есть только базовые достижения, выбираем случайное из них
         basic_achievements_list = [a for a in self.achievements if a.type in basic_achievements]
-        return choice(basic_achievements_list) if basic_achievements_list else AchievementType.CHILLY
-        #
-        # return choice(self.achievements[1:]) if len(self.achievements) > 1 else self.achievements[0]
+
+        if basic_achievements_list:
+            return choice(basic_achievements_list)
+
+        return Achievement(
+            type=AchievementType.CHILLY,
+            title="На чиле",
+            description="Наслаждаюсь новым статусом ученика, не сомневаюсь в своих силах, "
+            "знаю что все легко изучу и сделаю",
+            picture="chilly.png",
+        )
+
+    # return choice(self.achievements[1:]) if len(self.achievements) > 1 else self.achievements[0]
 
 
 async def get_student_handler(student_id: int) -> StudentHandler:
