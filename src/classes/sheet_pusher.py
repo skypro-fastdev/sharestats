@@ -27,6 +27,13 @@ class SheetPusher:
 
     async def push_data_to_sheet(self, data: URLSubmission):
         try:
+            return await asyncio.to_thread(self._sync_push_data_to_sheet, data)
+        except Exception as e:
+            logger.error(f"Error submitting URL and student data to sheet: {e}")
+            return False
+
+    def _sync_push_data_to_sheet(self, data: URLSubmission):
+        try:
             worksheet: Worksheet = self.__get_worksheet()
             data_to_push = [self.__get_current_time()] + list(data.model_dump().values())
             result = worksheet.append_row(data_to_push)

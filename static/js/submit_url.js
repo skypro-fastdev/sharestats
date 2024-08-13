@@ -6,10 +6,16 @@ document.addEventListener('DOMContentLoaded', function () {
     form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const url = input.value;
+        const url = input.value.trim();
         const studentId = document.getElementById('studentId').value;
         const studentName = document.getElementById('studentName').value;
         const studentProfession = document.getElementById('studentProfession').value;
+
+        // Проверка: URL не должен быть пустым
+        if (url === '') {
+            alert('Пожалуйста, введите ссылку!');
+            return;
+        }
 
         fetch('/share/submit-url', {
             method: 'POST',
@@ -24,25 +30,25 @@ document.addEventListener('DOMContentLoaded', function () {
             }),
         })
             .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.status === 'processing') {
-                popup.style.display = 'block';
-                setTimeout(() => {
-                    popup.style.display = 'none';
-                }, 4000);
-            } else {
-                console.warn('Unexpected response from server:', data);
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            // Здесь вы можете показать сообщение об ошибке пользователю
-        });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'processing') {
+                    popup.style.display = 'block';
+                    setTimeout(() => {
+                        popup.style.display = 'none';
+                    }, 4000);
+                } else {
+                    console.warn('Unexpected response from server:', data);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                // Здесь вы можете показать сообщение об ошибке пользователю
+            });
         input.value = '';
     });
 });
