@@ -171,15 +171,26 @@
         </div>
         <div class="stats-container">
             <p class="share-text">Поделились? Присылайте<br>ссылку и ждите подарок от нас!</p>
-            <form>
+            <form id="urlForm">
+                <input type="hidden" id="studentId" value="{{ student_id }}">
+                <input type="hidden" id="studentName" value="{{ student_name }}">
+                <input type="hidden" id="studentProfession" value="{{ profession }}">
                 <div class="input-group">
                     <input type="text" placeholder="Ссылка" required>
                 </div>
                 <button type="submit" class="send-url-button">Ловите ссылку</button>
             </form>
         </div>
+        <div id="successPopup" class="popup">
+            <div class="popup-content">
+                <img src="{{ url_for('data', path="images/check_mark.png") }}" alt="">
+                <h2>Готово!</h2>
+                <p>Мы получили вашу ссылку<br> и скоро отправим подарок!</p>
+            </div>
+        </div>
     </main>
 </div>
+<script src="{{ url_for('static', path='js/submit_url.js') }}"></script>
 <script>
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(function () {

@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     CREDENTIALS_DATA: bytes = b""
     DEBUG: str = "False"
     SHEET_ID_TEST: str
+    SHEET_URL_DATA: str
     ORIGINS: str
     TG_TOKEN: str
     TG_CHANNEL: str = "https://t.me/skypro_sharingstats"

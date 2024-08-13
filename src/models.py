@@ -122,6 +122,13 @@ class Student(BaseModel):
         return data_dict
 
 
+class URLSubmission(BaseModel):
+    student_id: int
+    student_name: str
+    student_profession: str
+    url: str
+
+
 class PhoneSubmission(BaseModel):
     phone: str
     student_id: int

@@ -5,6 +5,7 @@ from src.achievements import AchievementFactory, achievements_collection
 from src.classes.data_cache import DataCache
 from src.classes.s3 import S3Client
 from src.classes.sheet_loader import SheetLoader
+from src.classes.sheet_pusher import SheetPusher
 from src.classes.stats_loader import StatsLoader
 from src.config import IS_HEROKU, get_creds, settings
 
@@ -16,6 +17,9 @@ else:
 
 # Loader from Google Sheet
 sheet_loader = SheetLoader(gclient, settings.SHEET_ID_TEST)
+
+# Pusher to Google Sheet
+sheet_pusher = SheetPusher(gclient, settings.SHEET_URL_DATA)
 
 # Mock data cache
 data_cache = DataCache()

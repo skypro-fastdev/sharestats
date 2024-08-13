@@ -1,15 +1,16 @@
 from datetime import datetime
 
 import aiohttp
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.requests import Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from loguru import logger
 
 from src.config import IS_HEROKU, settings
 from src.db.crud import StudentDBHandler, get_student_crud
-from src.models import PhoneSubmission
+from src.dependencies import sheet_pusher
+from src.models import PhoneSubmission, URLSubmission
 from src.services.images import find_or_generate_image, get_achievement_logo_relative_path
 from src.services.security import verify_hash
 from src.services.stats import get_achievements_data, get_stats, get_student_skills
@@ -100,6 +101,7 @@ async def stats(
     context = {
         "request": request,
         "student_id": handler.student.id,
+        "student_name": f"{handler.student.first_name} {handler.student.last_name}",
         "days_since_start": handler.student.days_since_start,
         "profession": handler.student.profession.value,
         "skills": skills,
@@ -250,22 +252,37 @@ async def referal(
     return templates.TemplateResponse("referal.html", context)
 
 
+async def process_url_submission(data: URLSubmission):
+    success = await sheet_pusher.push_data_to_sheet(data)
+    if not success:
+        logger.error(f"Failed to submit student {data.student_id} data to Google Sheet. Save for retry later.")
+        await sheet_pusher.save_failed_submission(data)
+    else:
+        logger.info(f"Data submitted to Google Sheet for student {data.student_id}")
+
+
+@router.post("/submit-url")
+async def submit_url(data: URLSubmission, background_tasks: BackgroundTasks):
+    background_tasks.add_task(process_url_submission, data)
+    return JSONResponse({"status": "processing"})
+
+
 @router.post("/submit-phone")
-async def submit_phone(submission: PhoneSubmission):
+async def submit_phone(data: PhoneSubmission):
     url = settings.CRM_URL
     payload = {
-        "phone": f"{submission.phone}",
+        "phone": f"{data.phone}",
         "funnel": "direct",
         "sourceKey": "sharestats",
         "name": "Заявка на Карьерную Консультацию",
         "productId": 191,
-        "utmTerm": f"referral-{submission.student_id}",
+        "utmTerm": f"referral-{data.student_id}",
     }
     try:
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=payload) as response:
                 result = await response.text()
-                logger.info(f"Phone {submission.phone}, ref to student {submission.student_id}. Result: {result}")
+                logger.info(f"Phone {data.phone}, ref to student {data.student_id}. Result: {result}")
     except Exception as e:
         logger.error(f"Did not submit phone to CRM. Error: {e}")
         raise HTTPException(status_code=400, detail=str(e)) from e
