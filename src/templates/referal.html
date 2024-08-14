@@ -6,10 +6,11 @@
     <title>Стиль обучения {{ student_id }}</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/intlTelInput.css') }}">
-
+    {% include 'gtm_head.html' %}
     {% include 'metrica.html' %}
 </head>
 <body>
+{% include 'gtm_body.html' %}
 <div class="container">
     {#    <div class="header">#}
     {#        <div>#}
@@ -41,7 +42,7 @@
             </div>
         {% endif %}
         <details>
-            <summary class="what-is-skypro">Что такое Skypro?</summary>
+            <summary class="what-is-skypro" id="expand-skypro">Что такое Skypro?</summary>
             <div class="what-is-text">
                 <p>Обучение IT-профессиям с нуля с гарантией новой работы.</p>
                 <p>✅ 95% выпускников находят новую работу</p>
@@ -66,7 +67,7 @@
                 <input type="hidden" id="studentId" value="{{ student_id }}">
                 <div class="input-group">
                     <input type="tel" id="phoneNumber" placeholder="(___) ___ __ __">
-                    <button type="submit" class="go-button">Погнали!</button>
+                    <button type="submit" class="go-button" id="send-phone">Погнали!</button>
                 </div>
             </form>
             {#            </details>#}

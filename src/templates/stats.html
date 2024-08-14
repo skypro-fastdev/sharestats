@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skypro - Моя статистика</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
-
+    {% include 'gtm_head.html' %}
     {% include 'metrica.html' %}
 </head>
 <body>
+{% include 'gtm_body.html' %}
 <div class="container">
     <header>
         <img src="{{ url_for('data', path="images/skypro.png") }}" alt="" class="logo">
@@ -74,7 +75,7 @@
             <p style="font-size: 18px;"><strong>Это было круто!</strong><br><br>Поделись статистикой в соцсетях, получи
                 индивидуальное занятие с наставником и <strong>15 900 ₽, если друг придет учиться в Skypro</strong></p>
             <details>
-                <summary class="how-to-get">Узнать как всё это получить</summary>
+                <summary class="how-to-get" id="learn-how-summary">Узнать как всё это получить</summary>
                 <p style="font-size: 18px; margin-top: 10px;">Поделись статистикой в ВК, Телеграме (сторис или личный
                     канал),
                     Нельзяграме и прими участие в розыгрыше призов.<br><br>
@@ -82,7 +83,7 @@
                     ты получишь 15 900 ₽ за каждого</p>
             </details>
             <details id="share">
-                <summary class="share-summary">Поделиться в соцсетях</summary>
+                <summary class="share-summary" id="sharing-options">Поделиться в соцсетях</summary>
                 <div class="share-options">
                     <details class="share-item" onclick="changeStyle(event)">
                         <summary class="details">Пост в ВК</summary>
@@ -176,9 +177,9 @@
                 <input type="hidden" id="studentName" value="{{ student_name }}">
                 <input type="hidden" id="studentProfession" value="{{ profession }}">
                 <div class="input-group">
-                    <input type="text" placeholder="Ссылка" required>
+                    <input type="text" placeholder="Ссылка" id="type-link" required>
                 </div>
-                <button type="submit" class="send-url-button">Ловите ссылку</button>
+                <button type="submit" class="send-url-button" id="send-link">Ловите ссылку</button>
             </form>
         </div>
         <div id="successPopup" class="popup">
