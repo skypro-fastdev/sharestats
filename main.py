@@ -40,6 +40,8 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
     if exc.status_code == 500:
         return templates.TemplateResponse("500.html", {"request": request}, status_code=500)
+    if exc.status_code == 503:
+        return templates.TemplateResponse("503.html", {"request": request}, status_code=503)
     return None
 
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skypro - 500</title>
+    <title>Skypro - 503</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
 
     {% include 'metrica.html' %}
@@ -22,10 +22,10 @@
                 <img src="{{ url_for('data', path="images/skypro_fox.png") }}" alt="" class="skypro-fox">
             </div>
             <div class="left_num">5</div>
-            <div class="right_num">0</div>
+            <div class="right_num">3</div>
         </div>
         <h1 class="top-h1">ЧТО-ТО ПОШЛО НЕ ТАК</h1>
-        <p style="font-size: 1.2rem">Попробуйте зайти ещё раз.</p>
+        <p style="font-size: 1.2rem">Похоже мы не получили какие-то данные. Попробуйте ещё раз</p>
         <form action="{{ url_for('dashboard') }}" method="get">
             <button type="submit" class="lk-button">Вернуться в ЛК</button>
         </form>

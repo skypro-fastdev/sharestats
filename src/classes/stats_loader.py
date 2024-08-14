@@ -1,4 +1,5 @@
 import aiohttp
+from fastapi import HTTPException
 from loguru import logger
 
 
@@ -18,6 +19,8 @@ class StatsLoader:
                             return await response.json()
                         except Exception as e:
                             logger.error(f"Response is not JSON: {e}")
+                    elif response.status == 503:
+                        raise HTTPException(status_code=503)
                     return {}
 
         except Exception as e:
