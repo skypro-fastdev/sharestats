@@ -15,85 +15,42 @@
     ym(97943495, "init", {clickmap: true, trackLinks: true, accurateTrackBounce: true, webvisor: true});
 
     document.addEventListener('DOMContentLoaded', function () {
-        const learnHowSummary = document.getElementById('learn-how-summary');
-        const sharingOptions = document.getElementById('sharing-options');
-        const typeLink = document.getElementById('type-link');
-        const sendLink = document.getElementById('send-link');
-        const expandSkypro = document.getElementById('expand-skypro');
-        const typePhone = document.getElementById('phoneNumber');
-        const sendPhone = document.getElementById('send-phone');
-
-        if (learnHowSummary) {
-            learnHowSummary.addEventListener('click', function () {
-                ym(97943495, 'reachGoal', 'stats_expand_learn_how');
-            });
+        function safeAddEventListener(id, event, callback) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener(event, callback);
+            }
         }
 
-        if (sharingOptions) {
-            sharingOptions.addEventListener('click', function () {
-                ym(97943495, 'reachGoal', 'stats_expand_sharing_options');
-            });
-        }
-
-        let eventSentLink = false;
-
-        if (typeLink) {
-            typeLink.addEventListener('change', function () {
+        function createInputHandler(goalName) {
+            let eventSent = false;
+            return function () {
                 const inputValue = this.value.trim();
-
-                if (inputValue !== '' && !eventSentLink) {
-                    ym(97943495, 'reachGoal', 'stats_type_link');
-                    eventSentLink = true;
-                } else if (inputValue === '' && eventSentLink) {
-                    eventSentLink = false;
+                if (inputValue !== '' && !eventSent) {
+                    ym(97943495, 'reachGoal', goalName);
+                    eventSent = true;
+                } else if (inputValue === '' && eventSent) {
+                    eventSent = false;
                 }
-            });
+            };
+        }
 
-            typeLink.addEventListener('focus', function () {
+        safeAddEventListener('learn-how-summary', 'click', () => ym(97943495, 'reachGoal', 'stats_expand_learn_how'));
+        safeAddEventListener('sharing-options', 'click', () => ym(97943495, 'reachGoal', 'stats_expand_sharing_options'));
+        safeAddEventListener('send-link', 'click', () => ym(97943495, 'reachGoal', 'stats_send_link'));
+        safeAddEventListener('expand-skypro', 'click', () => ym(97943495, 'reachGoal', 'guest_expand_skypro'));
+        safeAddEventListener('send-phone', 'click', () => ym(97943495, 'reachGoal', 'guest_order_kk'));
+
+        safeAddEventListener('type-link', 'change', createInputHandler('stats_type_link'));
+        safeAddEventListener('phoneNumber', 'change', createInputHandler('guest_type_phone'));
+
+        ['type-link', 'phoneNumber'].forEach(id => {
+            safeAddEventListener(id, 'focus', function () {
                 if (this.value.trim() === '') {
-                    eventSentLink = false;
+                    this.dataset.eventSent = 'false';
                 }
             });
-        }
-
-        if (sendLink) {
-            sendLink.addEventListener('click', function () {
-                ym(97943495, 'reachGoal', 'stats_send_link');
-            });
-        }
-
-        if (expandSkypro) {
-            expandSkypro.addEventListener('click', function () {
-                ym(97943495, 'reachGoal', 'guest_expand_skypro');
-            });
-        }
-
-        let eventSentPhone = false;
-
-        if (typePhone) {
-            typePhone.addEventListener('change', function () {
-                const inputValue = this.value.trim();
-
-                if (inputValue !== '' && !eventSentPhone) {
-                    ym(97943495, 'reachGoal', 'guest_type_phone');
-                    eventSentPhone = true;
-                } else if (inputValue === '' && eventSentPhone) {
-                    eventSentPhone = false;
-                }
-            });
-
-            typeLink.addEventListener('focus', function () {
-                if (this.value.trim() === '') {
-                    eventSentPhone = false;
-                }
-            });
-        }
-
-        if (sendPhone) {
-            sendPhone.addEventListener('click', function () {
-                ym(97943495, 'reachGoal', 'guest_send_phone');
-            });
-        }
+        });
     });
 </script>
 <!-- Yandex Metrika -->
