@@ -10,7 +10,7 @@ from loguru import logger
 from src.config import IS_HEROKU, settings
 from src.db.crud import StudentDBHandler, get_student_crud
 from src.dependencies import sheet_pusher
-from src.models import PhoneSubmission, URLSubmission
+from src.models import PhoneSubmission, ProfessionEnum, URLSubmission
 from src.services.images import find_or_generate_image, get_achievement_logo_relative_path
 from src.services.security import verify_hash
 from src.services.stats import get_achievements_data, get_stats, get_student_skills
@@ -40,7 +40,7 @@ def is_social_bot(request):
 
 
 @router.get("/stats/{student_id}", name="stats")
-async def stats(
+async def stats(  # noqa: PLR0912
     request: Request,
     student_id: int,
     hash: str | None = None,  # noqa: A002
@@ -48,7 +48,10 @@ async def stats(
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
     if not verify_hash(student_id, hash):
-        ...
+        if handler.student.profession == ProfessionEnum.GD:
+            pass
+        else:
+            return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
 
     logger.info(f"student_id: {student_id}, hash verified: {verify_hash(student_id, hash)}")
 
