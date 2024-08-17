@@ -48,20 +48,20 @@ async def stats(  # noqa: PLR0912
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
     if not verify_hash(student_id, hash):
-        if handler.student.profession == ProfessionEnum.GD:
+        if handler.student and handler.student.profession == ProfessionEnum.GD:
             pass
         else:
-            return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
+            raise HTTPException(status_code=404, detail="Страница не найдена")
 
     logger.info(f"student_id: {student_id}, hash verified: {verify_hash(student_id, hash)}")
 
     if not handler.student:
         logger.info(f"Statistics for student {student_id} not found")
-        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
+        raise HTTPException(status_code=404, detail="Страница не найдена")
 
     if not handler.achievements:
         logger.info(f"Statistics for student {student_id} not found")
-        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
+        raise HTTPException(status_code=404, detail="Страница не найдена")
     try:
         homework_total = handler.student.statistics.get("homework_total")
         started_at = handler.student.started_at
@@ -125,17 +125,21 @@ async def stats(  # noqa: PLR0912
 
 @router.get("/get_image/{student_id}", name="get_image")
 async def get_image(
-    request: Request,
     student_id: int,
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
     if not db_achievement:
-        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
+        raise HTTPException(status_code=404, detail="Страница не найдена")
 
     achievement = db_achievement.to_achievement_model()
     image_data = await find_or_generate_image(achievement, "vertical")
+
+    if not image_data:
+        logger.error(f"Failed to get image, student_id: {student_id}")
+        raise HTTPException(status_code=500, detail="Failed to get image")
+
     image_url = image_data["url"]
 
     return RedirectResponse(image_url, status_code=status.HTTP_302_FOUND)
@@ -159,11 +163,15 @@ async def share(
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
     if not db_achievement:
-        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
+        raise HTTPException(status_code=404, detail="Страница не найдена")
 
     achievement = db_achievement.to_achievement_model()
 
     image_data = await find_or_generate_image(achievement, orientation)
+
+    if not image_data:
+        logger.error(f"Failed to get image, student_id: {student_id}")
+        return HTTPException(status_code=500, detail="Failed to get image")
 
     if is_social_bot(request):
         return templates.TemplateResponse(
@@ -191,19 +199,24 @@ async def share(
 async def tg(
     request: Request,
     student_id: int,
+    background_tasks: BackgroundTasks,
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
     if not db_achievement:
-        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
+        raise HTTPException(status_code=404, detail="Страница не найдена")
 
     achievement = db_achievement.to_achievement_model()
     image_data = await find_or_generate_image(achievement, "vertical")
 
+    if not image_data:
+        logger.error(f"Failed to get image, student_id: {student_id}")
+        raise HTTPException(status_code=500, detail="Failed to get image")
+
     referal_url = f"{HOST_URL}/s/{student_id}" if IS_HEROKU else str(request.url_for("referal", student_id=student_id))
 
-    await send_telegram_updates(referal_url, image_data["url"])
+    background_tasks.add_task(send_telegram_updates, image_data["url"], referal_url)
 
     response = RedirectResponse(settings.TG_CHANNEL, status_code=status.HTTP_302_FOUND)
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -221,14 +234,14 @@ async def referal(
     db_achievement = await crud.get_achievement_by_student_id(student_id)
 
     if not db_achievement:
-        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
+        raise HTTPException(status_code=404, detail="Страница не найдена")
 
     achievement = db_achievement.to_achievement_model()
 
     db_student = await crud.get_student(student_id)
 
     if not db_student:
-        return RedirectResponse(request.url_for("404"), status_code=status.HTTP_302_FOUND)
+        raise HTTPException(status_code=404, detail="Страница не найдена")
 
     student = db_student.to_student()
 
@@ -306,11 +319,6 @@ async def dashboard():
 @router.get("/no_data", name="no_data")
 async def no_data(request: Request):
     return templates.TemplateResponse("no_data.html", {"request": request})
-
-
-@router.get("/404", name="404")
-async def not_found(request: Request):
-    return templates.TemplateResponse("404.html", {"request": request})
 
 
 # Route just for tests

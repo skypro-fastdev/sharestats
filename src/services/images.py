@@ -138,24 +138,31 @@ def remove_tags(text: str) -> str:
     return re.sub(r"<[^>]+>", "", text)
 
 
-async def find_or_generate_image(achievement: Achievement, orientation: str) -> dict:
+async def find_or_generate_image(achievement: Achievement, orientation: str) -> dict | None:
     """Ищем или генерируем изображение для данного достижения"""
     params = get_images_params(orientation)
     prefix = params["prefix"]
 
     image_name = f"{prefix}/{achievement.profession}/{achievement.type.value}.png"
 
-    # Проверяем, существует ли файл в S3
-    if await s3_client.check_file_exists(image_name):
-        return {"url": s3_client.get_public_url(image_name), "width": params["size"][0], "height": params["size"][1]}
+    try:
+        # Проверяем, существует ли файл в S3
+        if await s3_client.check_file_exists(image_name):
+            return {
+                "url": s3_client.get_public_url(image_name),
+                "width": params["size"][0],
+                "height": params["size"][1],
+            }
 
-    async with aiofiles.open(IMAGES_PATH / params["template"], mode="rb") as f:
-        base_image_data = await f.read()
-        base_image = Image.open(BytesIO(base_image_data))
+        async with aiofiles.open(IMAGES_PATH / params["template"], mode="rb") as f:
+            base_image_data = await f.read()
+            base_image = Image.open(BytesIO(base_image_data))
 
-    async with aiofiles.open(IMAGES_PATH / f"logo_{achievement.picture}", mode="rb") as f:
-        achievement_img_data = await f.read()
-        achievement_img = Image.open(BytesIO(achievement_img_data)).convert("RGBA")
+        async with aiofiles.open(IMAGES_PATH / f"logo_{achievement.picture}", mode="rb") as f:
+            achievement_img_data = await f.read()
+            achievement_img = Image.open(BytesIO(achievement_img_data)).convert("RGBA")
+    except Exception:
+        return None
 
     achievement_img = resize_image(achievement_img, params["logo_height"])
     achievement_x, achievement_y = params["x_logo"], params["y_logo"]
@@ -195,92 +202,15 @@ async def find_or_generate_image(achievement: Achievement, orientation: str) -> 
         align=align_text,
     )
 
-    # Сохраняем изображение в байтовый объект
-    with BytesIO() as img_byte_arr:
-        base_image.save(img_byte_arr, format="PNG", optimize=False, compress_level=0)
-        image_bytes = img_byte_arr.getvalue()
+    try:
+        # Сохраняем изображение в байтовый объект
+        with BytesIO() as img_byte_arr:
+            base_image.save(img_byte_arr, format="PNG", optimize=False, compress_level=0)
+            image_bytes = img_byte_arr.getvalue()
 
-        # Загружаем изображение в S3
-        url = await s3_client.upload_file(image_bytes, image_name)
+            # Загружаем изображение в S3
+            url = await s3_client.upload_file(image_bytes, image_name)
 
-    return {"url": url, "width": width, "height": height}
-
-
-#
-# async def gen_image_vk(achievement: Achievement) -> dict:
-#     """Ищем или генерируем изображение для данного достижения"""
-#     params = {
-#         "size": (1200, 630),
-#         "template": "template_vk_1200x630.png",
-#         "prefix": "1200x630",
-#         "title_font_size": 74,
-#         "title_box_max_width": 680,
-#         "x_title": 45,
-#         "y_title": 130,
-#         "desc_font_size": 41,
-#         "x_desc": 47,
-#         "y_desc": 220,
-#         "desc_box_max_width": 620,
-#         "logo_height": 600,
-#         "x_logo": 650,
-#         "y_logo": 0,
-#     }
-#
-#     image_name = f"test/{achievement.profession}/{achievement.type.value}.png"
-#
-#     async with aiofiles.open(IMAGES_PATH / params["template"], mode="rb") as f:
-#         base_image_data = await f.read()
-#         base_image = Image.open(BytesIO(base_image_data))
-#
-#     async with aiofiles.open(IMAGES_PATH / f"logo_{achievement.picture}", mode="rb") as f:
-#         achievement_img_data = await f.read()
-#         achievement_img = Image.open(BytesIO(achievement_img_data)).convert("RGBA")
-#
-#     achievement_img = resize_image(achievement_img, params["logo_height"])
-#     achievement_x, achievement_y = params["x_logo"], params["y_logo"]
-#
-#     # Вставляем лого achievement на изображении
-#     base_image.paste(achievement_img, (achievement_x, achievement_y), achievement_img)
-#
-#     font_description = ImageFont.truetype(FONT_DESCR_PATH, params["desc_font_size"])
-#
-#     draw = ImageDraw.Draw(base_image)
-#
-#     width, height = params["size"]
-#
-#     # Рассчитываем размеры для шрифта title чтобы влезал на картинку
-#     font_title = get_fitting_font(
-#         draw, achievement.title, FONT_TITLE_PATH, params["title_font_size"], params["title_box_max_width"]
-#     )
-#
-#     # Рисуем title на изображении
-#     draw.text(
-#         (params["x_title"], params["y_title"]), achievement.title, fill="#FFFFFF", font=font_title, align="center"
-#     )
-#
-#     # Рисуем description на изображении
-#     draw_wrapped_text(
-#         draw,
-#         remove_tags(achievement.description),
-#         font_description,
-#         params["desc_box_max_width"],
-#         params["x_desc"],
-#         params["y_desc"],
-#         align="left",
-#     )
-#
-#     # Сохраняем изображение в байтовый объект
-#     with BytesIO() as img_byte_arr:
-#         base_image.save(img_byte_arr, format="PNG", optimize=False, compress_level=0)
-#         image_bytes = img_byte_arr.getvalue()
-#
-#         # Загружаем изображение в S3
-#         url = await s3_client.upload_file(image_bytes, image_name)
-#
-#     return {"url": url, "width": width, "height": height}
-#
-#
-# if __name__ == "__main__":
-#     a = achievements[6]
-#     a.description = a.get_description("Интернет маркетингу")
-#     asyncio.run(gen_image_vk(a))
+        return {"url": url, "width": width, "height": height}
+    except Exception:
+        return None

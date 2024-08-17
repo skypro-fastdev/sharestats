@@ -36,13 +36,33 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
     templates = Jinja2Templates(directory="src/templates")
 
-    if exc.status_code == 404:
-        return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
-    if exc.status_code == 500:
-        return templates.TemplateResponse("500.html", {"request": request}, status_code=500)
-    if exc.status_code == 503:
-        return templates.TemplateResponse("503.html", {"request": request}, status_code=503)
-    return None
+    status_code = str(exc.status_code)
+
+    error_details = {
+        "404": {"title": "Здесь ничего нет", "message": "Попробуй перейти по прямой ссылке из личного кабинета"},
+        "500": {
+            "title": "Внутренняя ошибка сервера",
+            "message": "Произошла непредвиденная ошибка. Пожалуйста, попробуйте позже.",
+        },
+        "503": {
+            "title": "Сервис временно недоступен",
+            "message": "Мы проводим технические работы. Пожалуйста, попробуйте позже.",
+        },
+    }
+
+    details = error_details.get(
+        status_code,
+        {
+            "title": "Произошла ошибка",
+            "message": exc.detail if exc.detail else "Пожалуйста, попробуйте еще раз или обратитесь в поддержку.",
+        },
+    )
+
+    return templates.TemplateResponse(
+        "error.html",
+        {"request": request, "status_code": status_code, "title": details["title"], "message": details["message"]},
+        status_code=exc.status_code,
+    )
 
 
 if __name__ == "__main__":

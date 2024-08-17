@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skypro - 404 Здесь ничего нет</title>
+    <title>Skypro - {{ status_code }} {{ title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
     {% include 'gtm_head.html' %}
     {% include 'metrica.html' %}
@@ -22,11 +22,13 @@
             <div class="image-wrapper">
                 <img src="{{ url_for('data', path="images/skypro_fox.png") }}" alt="" class="skypro-fox">
             </div>
-            <div class="left_num">4</div>
-            <div class="right_num">4</div>
+            {% if status_code %}
+                <div class="left_num">{{ status_code[0] }}</div>
+                <div class="right_num">{{ status_code[-1] }}</div>
+            {% endif %}
         </div>
-        <h1 class="top-h1">ЗДЕСЬ<br>НИЧЕГО НЕТ</h1>
-        <p style="font-size: 1.2rem">Попробуй перейти по прямой ссылке из личного кабинета</p>
+        <h1 class="top-h1">{{ title|upper }}</h1>
+        <p style="font-size: 1.2rem">{{ message }}</p>
         <form action="{{ url_for('dashboard') }}" method="get">
             <button type="submit" class="lk-button">Вернуться в ЛК</button>
         </form>
