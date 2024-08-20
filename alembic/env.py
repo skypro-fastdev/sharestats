@@ -8,6 +8,7 @@ from sqlmodel import SQLModel
 
 from alembic import context
 from src.config import settings
+from src.db.models import *  # noqa F403
 
 config = context.config
 
