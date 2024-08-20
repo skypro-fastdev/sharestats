@@ -1,12 +1,14 @@
 from src.classes.decorators import singleton
+from src.models import Challenge
 
 
 @singleton
 class DataCache:
     def __init__(self):
-        self.stats = {}
-        self.skills = {}
-        self.courses = {}
+        self.stats: dict[int, dict[str, int | str]] = {}
+        self.skills: dict[int, dict[int, str]] = {}
+        self.courses: dict[int, dict[str, int | str]] = {}
+        self.challenges: dict[str, Challenge] = {}
 
     def update_stats(self, mock_data: list):
         headers = mock_data[0]
@@ -25,4 +27,14 @@ class DataCache:
         self.courses = {
             int(row[1]): dict(zip(headers, [int(value) if value.isdigit() else value for value in row], strict=False))
             for row in courses_data[1:]
+        }
+
+    def update_challenges(self, challenges_data: list):
+        headers = challenges_data[0]
+
+        self.challenges = {
+            row[0]: Challenge(
+                **dict(zip(headers, [int(value) if value.isdigit() else value for value in row], strict=False))
+            )
+            for row in challenges_data[1:]
         }

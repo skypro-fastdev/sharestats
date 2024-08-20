@@ -12,12 +12,12 @@ class SheetLoader:
         try:
             self.__spreadsheet = self.__google_client.open_by_key(self.__sheet_id)
         except Exception as e:
-            logger.error(f"Ошибка загрузки моковых таблиц: {e}")
+            logger.error(f"Error loading spreadsheet: {e}")
 
     def get_data_from_sheet(self, sheet_name: str):
         try:
             worksheet: Worksheet = self.__spreadsheet.worksheet(sheet_name)
             return worksheet.get_all_values()
         except Exception as e:
-            logger.error(f"Ошибка при попытке получить данные из таблицы {sheet_name}: {e}")
+            logger.error(f"Error loading data from sheet with name: {sheet_name}: {e}")
             return []

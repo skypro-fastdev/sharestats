@@ -62,8 +62,10 @@ class StudentDB(SQLModel, table=True):
     profession: ProfessionEnum
     started_at: date
     statistics: str = Field(default="{}")
+    points: int = 0
 
     student_achievements: list["StudentAchievement"] = Relationship(back_populates="student")
+    student_challenges: list["StudentChallenge"] = Relationship(back_populates="student")
 
     @property
     def days_since_start(self) -> str:
@@ -79,6 +81,7 @@ class StudentDB(SQLModel, table=True):
                 profession=self.profession,
                 started_at=self.started_at,
                 statistics=json.loads(self.statistics),
+                points=self.points,
             )
         except Exception as e:
             logger.error(f"Failed to convert student data from db to model: {e}")
@@ -93,4 +96,26 @@ class StudentDB(SQLModel, table=True):
             profession=student.profession,
             started_at=student.started_at,
             statistics=json.dumps(student.statistics),
+            points=student.points,
         )
+
+
+class StudentChallenge(SQLModel, table=True):
+    __tablename__ = "student_challenges"
+    id: int | None = Field(default=None, primary_key=True)
+    student_id: int = Field(foreign_key="students.id")
+    challenge_id: str = Field(foreign_key="challenges.id")
+
+    student: StudentDB = Relationship(back_populates="student_challenges")
+    challenge: "ChallengesDB" = Relationship(back_populates="student_challenges")
+
+
+class ChallengesDB(SQLModel, table=True):
+    __tablename__ = "challenges"
+    id: str = Field(default=None, primary_key=True)
+    title: str
+    eval: str
+    value: int
+    is_active: bool
+
+    student_challenges: list["StudentChallenge"] = Relationship(back_populates="challenge")

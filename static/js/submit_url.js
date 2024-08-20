@@ -47,7 +47,6 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch((error) => {
                 console.error('Error:', error);
-                // Здесь вы можете показать сообщение об ошибке пользователю
             });
         input.value = '';
     });

@@ -3,7 +3,7 @@ from datetime import datetime
 import aiohttp
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.requests import Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from loguru import logger
 
@@ -142,7 +142,23 @@ async def get_image(
 
     image_url = image_data["url"]
 
-    return RedirectResponse(image_url, status_code=status.HTTP_302_FOUND)
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(image_url) as response:
+                if response.status != 200:
+                    raise HTTPException(status_code=500, detail="Failed to fetch image")
+
+                image_bytes = await response.read()
+                filename = image_url.split("/")[-1]
+
+                return Response(
+                    content=image_bytes,
+                    media_type=response.headers.get("Content-Type", "image/png"),
+                    headers={"Content-Disposition": f"attachment; filename={filename}"},
+                )
+        except Exception as e:
+            logger.error(f"Failed to fetch image: {str(e)}")
+            raise HTTPException(status_code=500, detail="Failed to fetch image") from e
 
 
 @router.get("/h/{student_id}", name="share_horizontal")

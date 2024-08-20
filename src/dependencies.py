@@ -15,8 +15,11 @@ if IS_HEROKU:
 else:
     gclient = gspread.service_account(filename=settings.CREDENTIALS_PATH)
 
-# Loader from Google Sheet
-sheet_loader = SheetLoader(gclient, settings.SHEET_ID_TEST)
+# Loader mock data from Google Sheet
+mock_data_loader = SheetLoader(gclient, settings.SHEET_ID_TEST)
+
+# Load challenges and prducts data from Google Sheet
+cafeteria_loader = SheetLoader(gclient, settings.SHEET_CAFETERIA)
 
 # Pusher to Google Sheet
 sheet_pusher = SheetPusher(gclient, settings.SHEET_URL_DATA)
@@ -38,8 +41,13 @@ s3_client = S3Client(
 
 def load_cache():
     logger.info("Loading mock data cache...")
-    sheet_loader.get_spreadsheet()
-    data_cache.update_stats(sheet_loader.get_data_from_sheet("mock"))
-    data_cache.update_courses(sheet_loader.get_data_from_sheet("courses"))
-    data_cache.update_skills(sheet_loader.get_data_from_sheet("skills"))
+    mock_data_loader.get_spreadsheet()
+    data_cache.update_stats(mock_data_loader.get_data_from_sheet("mock"))
+    data_cache.update_courses(mock_data_loader.get_data_from_sheet("courses"))
+    data_cache.update_skills(mock_data_loader.get_data_from_sheet("skills"))
     logger.info("Data cache has been loaded!")
+
+    # logger.info("Loading challenges data...")
+    # cafeteria_loader.get_spreadsheet()
+    # data_cache.update_challenges(cafeteria_loader.get_data_from_sheet("challenges"))
+    # logger.info("Challenges data has been loaded!")

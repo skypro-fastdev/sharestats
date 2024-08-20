@@ -58,6 +58,8 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         },
     )
 
+    logger.info(f"Error page status code: {status_code}")
+
     return templates.TemplateResponse(
         "error.html",
         {"request": request, "status_code": status_code, "title": details["title"], "message": details["message"]},

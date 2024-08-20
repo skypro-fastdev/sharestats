@@ -1,8 +1,8 @@
 from datetime import date
 from enum import Enum
-from typing import Callable
+from typing import Annotated, Callable
 
-from pydantic import BaseModel, computed_field, field_validator
+from pydantic import AfterValidator, BaseModel, computed_field, field_validator
 from pydantic_core import ValidationError
 
 
@@ -37,14 +37,14 @@ class AchievementType(str, Enum):
 
 class ProfessionEnum(str, Enum):
     PD = "Python-разработчик"
-    DA = "Аналитик данных"
-    GD = "Графический дизайнер"
-    WD = "Веб-разрабтчик"
-    QA = "Инженер по тестированию"
+    DA = "аналитик данных"
+    GD = "графический дизайнер"
+    WD = "веб-разрабтчик"
+    QA = "инженер по тестированию"
     JD = "Java-разработчик"
-    IM = "Интернет-маркетолог"
-    PM = "Менеджер проектов"
-    NA = "Неизвестная профессия"
+    IM = "интернет-маркетолог"
+    PM = "менеджер проектов"
+    NA = "..."
 
     @classmethod
     def from_str(cls, name: str):
@@ -55,14 +55,14 @@ class ProfessionEnum(str, Enum):
     @property
     def dative(self):
         dative_forms = {
-            self.PD: "Python разработке",
-            self.DA: "Аналитике данных",
-            self.GD: "Графическому дизайну",
-            self.WD: "Web-разработке",
-            self.QA: "Тестированию",
-            self.JD: "Java разработке",
-            self.IM: "Интернет-маркетингу",
-            self.PM: "Менеджменту проектов",
+            self.PD: "Python-разработке",
+            self.DA: "аналитике данных",
+            self.GD: "графическому дизайну",
+            self.WD: "веб-разработке",
+            self.QA: "тестированию",
+            self.JD: "Java-разработке",
+            self.IM: "интернет-маркетингу",
+            self.PM: "менеджменту проектов",
             self.NA: "...",
         }
         return dative_forms[self]
@@ -86,6 +86,7 @@ class Student(BaseModel):
     started_at: date
     statistics: dict[str, int | str]
     achievements: list[Achievement] = []
+    points: int = 0
 
     @computed_field
     def days_since_start(self) -> str:
@@ -132,3 +133,11 @@ class URLSubmission(BaseModel):
 class PhoneSubmission(BaseModel):
     phone: str
     student_id: int
+
+
+class Challenge(BaseModel):
+    id: str
+    title: str
+    eval: str
+    value: int
+    is_active: bool = Annotated[str, AfterValidator(lambda value: value == "TRUE")]

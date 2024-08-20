@@ -26,7 +26,7 @@
             <img class="achievement-ref-logo" src="{{ url_for('data', path=achievement_logo) }}" alt="">
         </div>
         <h1 id="top-h1" class="top-h1">{{ first_name.upper() }} {{ last_name.upper() }}</h1>
-        <p class="text-percents"><strong>{{ profession }}</strong><br>уже на
+        <p class="text-percents"><strong>{{ profession|capitalize }}</strong><br>уже на
             <strong>{{ percent_of_lessons_completed }}%</strong></p>
         <p class="description-down">Аналитик смотрит на цифры и помогает бизнесу принимать быстрые и правильные решения.<br>Средняя
             ЗП в России: 120 000.<br>Вакансий в этом году: 18500.</p>
