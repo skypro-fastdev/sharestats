@@ -16,9 +16,9 @@ class StudentDBHandler:
         self.session = session
 
     async def create_student(self, student: Student) -> StudentDB | None:
-        db_student = StudentDB.from_student(student)
-        self.session.add(db_student)
         try:
+            db_student = StudentDB.from_student(student)
+            self.session.add(db_student)
             await self.session.commit()
             await self.session.refresh(db_student)
             return db_student
@@ -31,9 +31,8 @@ class StudentDBHandler:
         if not db_student:
             return None
 
-        db_student.statistics = json.dumps(student.statistics, ensure_ascii=False)
-
         try:
+            db_student.statistics = json.dumps(student.statistics, ensure_ascii=False)
             await self.session.commit()
             await self.session.refresh(db_student)
             return db_student

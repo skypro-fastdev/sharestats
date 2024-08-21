@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -7,16 +8,29 @@ from starlette.exceptions import HTTPException
 
 from src.bot.client import bot
 from src.config import settings, setup_middlewares
-from src.dependencies import load_cache
+from src.dependencies import cafeteria_loader, data_cache, load_cache
+from src.services.background_tasks import update_challenges_periodically
 from src.web.routes import router
 
 
 @asynccontextmanager
 async def _lifespan(app: FastAPI):
+    # Load mock data from Google Sheet
     load_cache()
     await bot.delete_webhook(drop_pending_updates=True)
     logger.info("Bot has been started.")
+
+    ## Start periodic task for updating challenges
+    task = asyncio.create_task(update_challenges_periodically(cafeteria_loader, data_cache))
+
     yield
+
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        logger.info("Background task for updating challenges was cancelled")
+
     await bot.session.close()
     logger.info("Bot has been stopped.")
 
@@ -57,8 +71,6 @@ async def http_exception_handler(request: Request, exc: HTTPException):
             "message": exc.detail if exc.detail else "Пожалуйста, попробуйте еще раз или обратитесь в поддержку.",
         },
     )
-
-    logger.info(f"Error page status code: {status_code}")
 
     return templates.TemplateResponse(
         "error.html",

@@ -46,8 +46,3 @@ def load_cache():
     data_cache.update_courses(mock_data_loader.get_data_from_sheet("courses"))
     data_cache.update_skills(mock_data_loader.get_data_from_sheet("skills"))
     logger.info("Data cache has been loaded!")
-
-    # logger.info("Loading challenges data...")
-    # cafeteria_loader.get_spreadsheet()
-    # data_cache.update_challenges(cafeteria_loader.get_data_from_sheet("challenges"))
-    # logger.info("Challenges data has been loaded!")

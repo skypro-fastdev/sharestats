@@ -8,7 +8,7 @@ from fastapi.templating import Jinja2Templates
 from loguru import logger
 
 from src.config import IS_HEROKU, settings
-from src.db.crud import StudentDBHandler, get_student_crud
+from src.db.students_crud import StudentDBHandler, get_student_crud
 from src.dependencies import sheet_pusher
 from src.models import PhoneSubmission, ProfessionEnum, URLSubmission
 from src.services.images import find_or_generate_image, get_achievement_logo_relative_path

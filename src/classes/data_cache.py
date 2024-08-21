@@ -1,3 +1,6 @@
+from loguru import logger
+from pydantic import ValidationError
+
 from src.classes.decorators import singleton
 from src.models import Challenge
 
@@ -31,10 +34,18 @@ class DataCache:
 
     def update_challenges(self, challenges_data: list):
         headers = challenges_data[0]
+        self.challenges.clear()
 
-        self.challenges = {
-            row[0]: Challenge(
-                **dict(zip(headers, [int(value) if value.isdigit() else value for value in row], strict=False))
-            )
-            for row in challenges_data[1:]
-        }
+        for row in challenges_data[1:]:
+            try:
+                challenge_dict = dict(
+                    zip(headers, [int(value) if value.isdigit() else value for value in row], strict=False)
+                )
+                challenge = Challenge(**challenge_dict)
+                self.challenges[challenge.id] = challenge
+            except ValidationError as e:
+                logger.error(f"Error while validating data for challenge {row[0]}: {e}")
+            except Exception as e:
+                logger.error(f"Unexpected error while loading data for challenge {row[0]}: {e}")
+
+        logger.info(f"Loaded {len(self.challenges)} challenges")
