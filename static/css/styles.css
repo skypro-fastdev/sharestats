@@ -363,6 +363,12 @@ details[open] summary.what-is-skypro {
     border-radius: 0 0 10px 10px;
 }
 
+.what-is-text p:first-child {
+    display: block;
+    margin-block-start: 0;
+    margin-block-end: 1em;
+}
+
 .description-up {
     font-size: 20px;
     padding: 10px;

@@ -12,6 +12,7 @@ class DataCache:
         self.skills: dict[int, dict[int, str]] = {}
         self.courses: dict[int, dict[str, int | str]] = {}
         self.challenges: dict[str, Challenge] = {}
+        self.professions_info: dict[str, str] = {}
 
     def update_stats(self, mock_data: list):
         headers = mock_data[0]
@@ -31,6 +32,9 @@ class DataCache:
             int(row[1]): dict(zip(headers, [int(value) if value.isdigit() else value for value in row], strict=False))
             for row in courses_data[1:]
         }
+
+    def update_professions_info(self, professions_data: list):
+        self.professions_info = {row[0]: row[3] for row in professions_data[1:]}
 
     def update_challenges(self, challenges_data: list):
         headers = challenges_data[0]

@@ -53,8 +53,6 @@ async def stats(  # noqa: PLR0912
         else:
             raise HTTPException(status_code=404, detail="Страница не найдена")
 
-    logger.info(f"student_id: {student_id}, hash verified: {verify_hash(student_id, hash)}")
-
     if not handler.student:
         logger.info(f"Statistics for student {student_id} not found")
         raise HTTPException(status_code=404, detail="Страница не найдена")
@@ -273,6 +271,7 @@ async def referal(
         "last_name": student.last_name,
         "days_since_start": student.days_since_start,
         "profession": student.profession.value,
+        "profession_info": student.profession_info,
         "profession_dative": student.profession.dative,
         "skills": skills,
         "title": achievement.title,

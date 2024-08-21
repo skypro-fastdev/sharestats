@@ -1,4 +1,3 @@
-import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -8,8 +7,7 @@ from starlette.exceptions import HTTPException
 
 from src.bot.client import bot
 from src.config import settings, setup_middlewares
-from src.dependencies import cafeteria_loader, data_cache, load_cache
-from src.services.background_tasks import update_challenges_periodically
+from src.dependencies import load_cache
 from src.web.routes import router
 
 
@@ -20,16 +18,16 @@ async def _lifespan(app: FastAPI):
     await bot.delete_webhook(drop_pending_updates=True)
     logger.info("Bot has been started.")
 
-    ## Start periodic task for updating challenges
-    task = asyncio.create_task(update_challenges_periodically(cafeteria_loader, data_cache))
+    # Start periodic task for updating challenges
+    # task = asyncio.create_task(update_challenges_periodically(cafeteria_loader, data_cache))
 
     yield
 
-    task.cancel()
-    try:
-        await task
-    except asyncio.CancelledError:
-        logger.info("Background task for updating challenges was cancelled")
+    # task.cancel()
+    # try:
+    #     await task
+    # except asyncio.CancelledError:
+    #     logger.info("Background task for updating challenges was cancelled")
 
     await bot.session.close()
     logger.info("Bot has been stopped.")

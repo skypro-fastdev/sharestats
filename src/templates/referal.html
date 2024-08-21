@@ -28,8 +28,11 @@
         <h1 id="top-h1" class="top-h1">{{ first_name.upper() }} {{ last_name.upper() }}</h1>
         <p class="text-percents"><strong>{{ profession|capitalize }}</strong><br>уже на
             <strong>{{ percent_of_lessons_completed }}%</strong></p>
-        <p class="description-down">Аналитик смотрит на цифры и помогает бизнесу принимать быстрые и правильные решения.<br>Средняя
-            ЗП в России: 120 000.<br>Вакансий в этом году: 18500.</p>
+        {% if profession_info %}
+            <p class="description-down">{{ profession_info }}</p>
+        {% else %}
+            <p></p>
+        {% endif %}
         {% if "нет навыков" not in skills[0] %}
             <div class="stats-container">
                 <p class="stats-header">{{ first_name }} учится в Skypro<br>и уже умеет:</p>
@@ -44,10 +47,10 @@
         <details>
             <summary class="what-is-skypro" id="expand-skypro">Что такое Skypro?</summary>
             <div class="what-is-text">
-                <p>Обучение IT-профессиям с нуля с гарантией новой работы.</p>
-                <p>✅ 95% выпускников находят новую работу</p>
-                <p>✅ 72 000 ₽ средняя зарплата выпускника Skypro</p>
-                <p>✅ 2000 трудоустроенных выпускников</p>
+                <p>Му учим IT-профессиям с нуля<br>с гарантией новой работы.</p>
+                <p>✅ <strong>95%</strong> наших выпускников находят новую работу</p>
+                <p>✅ <strong>72 000 ₽</strong> средняя зарплата выпускника Skypro</p>
+                <p>✅ <strong>2500</strong> выпускников уже работают по новой профессии</p>
                 <a href="">Узнать больше</a>
             </div>
         </details>
@@ -57,8 +60,9 @@
         <p class="stat-lives"><strong>{{ lessons_completed }}</strong> уроков пройдено</p>
         <p class="stat-lives"><strong>{{ courseworks_completed }}</strong> курсовых сдано</p>
         <div class="info-box">
-            <p>Для друзей <strong>{{ first_name }} {{ last_name }}</strong> доступна <strong>бесплатная карьерная
-                консультация</strong>. Найдите себя и получайте крутые результаты как {{ first_name }}. </p>
+            <p>Если <strong>{{ first_name }} {{ last_name }}</strong> — ваш друг, вы можете пройти бесплатную карьерную
+                консультацию. Узнайте, какая профессия вам подходит, и получайте крутые результаты, как {{ first_name }}.
+            </p>
             {#            <details class="go-details">#}
             {#                <summary class="go-summary">Покажите подробности!</summary>#}
             {#                <p>Мы готовы добавить вас в ближайшую группу обучения. Просто оставьте номер, мы позвоним и все#}
@@ -106,6 +110,7 @@
             element.style.fontSize = `${fontSize}px`;
         }
     }
+
     window.onload = adjustFontSize;
     window.onresize = adjustFontSize;
 </script>

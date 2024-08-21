@@ -93,6 +93,12 @@ class Student(BaseModel):
         days = (date.today() - self.started_at).days
         return plural_days(days)
 
+    @computed_field
+    def profession_info(self) -> str:
+        from src.dependencies import data_cache
+
+        return data_cache.professions_info.get(self.profession.name, "")
+
     @field_validator("statistics")
     def check_required_keys(cls, data_dict):  # noqa N805
         required_keys = {

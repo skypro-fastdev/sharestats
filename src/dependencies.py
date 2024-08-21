@@ -45,4 +45,5 @@ def load_cache():
     data_cache.update_stats(mock_data_loader.get_data_from_sheet("mock"))
     data_cache.update_courses(mock_data_loader.get_data_from_sheet("courses"))
     data_cache.update_skills(mock_data_loader.get_data_from_sheet("skills"))
+    data_cache.update_professions_info(mock_data_loader.get_data_from_sheet("professions"))
     logger.info("Data cache has been loaded!")
