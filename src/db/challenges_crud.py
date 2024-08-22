@@ -1,5 +1,4 @@
 import json
-from typing import Iterable
 
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,12 +18,12 @@ class ChallengeCRUD:
         result = await self.session.execute(select(ChallengesDB).where(ChallengesDB.id == challenge_id))
         return result.scalar_one_or_none()
 
-    async def get_all_challenges(self, active_only: bool = False) -> Iterable[ChallengesDB]:
+    async def get_all_challenges(self, active_only: bool = False) -> list[ChallengesDB]:
         query = select(ChallengesDB)
         if active_only:
             query = query.where(ChallengesDB.is_active == True)  # noqa
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def create_challenge(self, challenge: Challenge) -> ChallengesDB | None:
         try:
@@ -102,16 +101,13 @@ class ChallengeCRUD:
             f"{challenges_deactivated} deactivated"
         )
 
-    async def get_students_with_challenges(self) -> Iterable[StudentDB]:
+    async def get_students_with_challenges(self) -> list[StudentDB]:
         # Получаем всех студентов с их текущими челленджами
         students = await self.session.execute(select(StudentDB).options(joinedload(StudentDB.student_challenges)))
-        return students.unique().scalars().all()
+        return list(students.unique().scalars().all())
 
     async def update_student_challenges(self):
         students = await self.get_students_with_challenges()
-
-        logger.info(f"Found students: {students}")
-
         active_challenges = await self.get_all_challenges(active_only=True)
 
         try:
@@ -120,7 +116,10 @@ class ChallengeCRUD:
                 student_stats = json.loads(student.statistics)
                 completed_challenges = {sc.challenge_id for sc in student.student_challenges}
 
-                logger.info(f"Completed challenges for {student.id}: {completed_challenges}")
+                logger.info(
+                    f"Completed challenges for {student.id}: "
+                    f"{completed_challenges if completed_challenges else 'None'}"
+                )
 
                 points_to_add = 0
 

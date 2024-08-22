@@ -12,12 +12,6 @@
 <body>
 {% include 'gtm_body.html' %}
 <div class="container">
-    {#    <div class="header">#}
-    {#        <div>#}
-    {#            <img src="{{ url_for('data', path="images/skypro.png") }}" alt="" class="logo-header">#}
-    {#        </div>#}
-    {#        <div class="name">{{ first_name }} {{ last_name[:1] }}.</div>#}
-    {#    </div>#}
     <header>
         <img src="{{ url_for('data', path="images/skypro.png") }}" alt="" class="logo">
     </header>
@@ -33,13 +27,24 @@
         {% else %}
             <p></p>
         {% endif %}
-        {% if "нет навыков" not in skills[0] %}
+        {% if skills %}
+            <img src="{{ url_for('data', path="images/check.png") }}" alt="" class="image-class">
             <div class="stats-container">
-                <p class="stats-header">{{ first_name }} учится в Skypro<br>и уже умеет:</p>
-                <ul style="text-align: left;">
+                <p class="stats-header">{{ first_name }} учится в Skypro и уже умеет:</p>
+                <ul class="skills-list">
                     {% for skill in skills %}
-                        <li style="font-size: 18px; color: white">✅ {{ skill }}</li>
-                        {#                        <img src="{{ url_for('data', path="images/arrow.png") }}" alt=""> {{ skill }}#}
+                        <li>
+                            <details class="skill-details-container">
+                                <summary>
+                                    <span class="skill-checkbox">✅</span>
+                                    <span class="skill-content">
+                                        <span class="skill-short">{{ skill.skill_short }}</span>
+                                        <span class="skill-extended">Объясните понятно, зачем это?</span>
+                                    </span>
+                                </summary>
+                                <p class="skill-details">{{ skill.skill_extended }}</p>
+                            </details>
+                        </li>
                     {% endfor %}
                 </ul>
             </div>

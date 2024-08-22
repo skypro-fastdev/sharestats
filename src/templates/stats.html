@@ -32,13 +32,24 @@
         <p class="stats-header">Я учусь уже {{ days_since_start }}</p>
         <p class="stat-lives"><strong>{{ lessons_completed }}</strong> уроков пройдено</p>
         <p class="stat-lives"><strong>{{ courseworks_completed }}</strong> курсовых сдано</p>
-        {% if "нет навыков" not in skills[0] %}
+        {% if skills %}
             <img src="{{ url_for('data', path="images/check.png") }}" alt="" class="image-class">
             <div class="stats-container">
                 <p class="stats-header">Я уже умею:</p>
                 <ul class="skills-list">
                     {% for skill in skills %}
-                        <li>✅ {{ skill }}</li>
+                        <li>
+                            <details class="skill-details-container">
+                                <summary>
+                                    <span class="skill-checkbox">✅</span>
+                                    <span class="skill-content">
+                                        <span class="skill-short">{{ skill.skill_short }}</span>
+                                        <span class="skill-extended">Объясните понятно, зачем это?</span>
+                                    </span>
+                                </summary>
+                                <p class="skill-details">{{ skill.skill_extended }}</p>
+                            </details>
+                        </li>
                     {% endfor %}
                 </ul>
             </div>

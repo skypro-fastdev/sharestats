@@ -13,6 +13,7 @@ class DataCache:
         self.courses: dict[int, dict[str, int | str]] = {}
         self.challenges: dict[str, Challenge] = {}
         self.professions_info: dict[str, str] = {}
+        self.skills_details: dict[int, dict[int, dict[str, str]]] = {}
 
     def update_stats(self, mock_data: list):
         headers = mock_data[0]
@@ -25,6 +26,24 @@ class DataCache:
         for row in skills_data[1:]:
             self.skills.setdefault(int(row[1]), {})
             self.skills[int(row[1])].update({int(row[2]): row[3]})
+
+    def update_skills_details(self, skills_details: list):
+        for row in skills_details[1:]:
+            if not row[0]:
+                break
+
+            if not row[0].isdigit() or not row[4].isdigit():
+                continue
+
+            program = int(row[0])
+            lessons_completed = int(row[4])
+            skill = row[5]
+            skill_extended = row[6]
+
+            self.skills_details.setdefault(program, {})[lessons_completed] = {
+                "skill_short": skill,
+                "skill_extended": skill_extended
+            }
 
     def update_courses(self, courses_data: list):
         headers = courses_data[0]

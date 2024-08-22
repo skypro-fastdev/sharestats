@@ -1,3 +1,5 @@
+import asyncio
+
 from gspread import Client, Spreadsheet, Worksheet
 from loguru import logger
 
@@ -21,3 +23,14 @@ class SheetLoader:
         except Exception as e:
             logger.error(f"Error loading data from sheet with name: {sheet_name}: {e}")
             return []
+
+
+class AsyncSheetLoaderWrapper:
+    def __init__(self, sheet_loader: SheetLoader):
+        self.__sheet_loader = sheet_loader
+
+    async def get_spreadsheet(self):
+        return await asyncio.to_thread(self.__sheet_loader.get_spreadsheet)
+
+    async def get_data_from_sheet(self, sheet_name: str):
+        return await asyncio.to_thread(self.__sheet_loader.get_data_from_sheet, sheet_name)

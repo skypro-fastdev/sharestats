@@ -1,3 +1,4 @@
+from pprint import pformat
 from typing import Any
 
 from loguru import logger
@@ -88,31 +89,24 @@ def get_stats(student: Student) -> dict:
 def get_student_skills(student: Student) -> list:
     """Получаем навыки студента в зависимости от программы и курса"""
     try:
-        skills_data = data_cache.skills
-        # courses_data = data_cache.courses
+        skills_data = data_cache.skills_details
 
         student_program = student.statistics.get("program")
-        courses_completed = student.statistics.get("courseworks_completed")
-
-        # prof = courses_data[student_program]["profession"]
-        # courses_total = courses_data[student_program]["courses_total"]
+        student_lessons_completed = student.statistics.get("lessons_completed")
 
         skills = []
+        program_skills = skills_data.get(student_program, {})
 
-        skills_to_extend = skills_data.get(student_program, {}).get(courses_completed, [])
+        for lessons_to_complete in program_skills:
+            if student_lessons_completed >= lessons_to_complete:
+                skills.append(program_skills[lessons_to_complete])
+            else:
+                break
 
-        if not skills_to_extend:
-            skills.append("... Пока что нет навыков ...")
-            return skills
-
-        if "/" in skills_to_extend:
-            skills.extend(skills_to_extend.split(" / "))
-        else:
-            skills.append(skills_to_extend)
         return skills
     except Exception as e:
         logger.error(f"Error getting skills: {e}")
-        return ["Ошибка при загрузке данных из таблицы!"]
+        return []
 
 
 async def get_achievements_data(data: list[tuple[str, str, int]]) -> list:
