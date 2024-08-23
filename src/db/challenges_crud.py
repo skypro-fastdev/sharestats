@@ -1,16 +1,18 @@
 import json
 
+from fastapi import Depends
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from sqlmodel import select, update
 
 from src.db.models import ChallengesDB, StudentChallenge, StudentDB
+from src.db.session import get_async_session
 from src.models import Challenge
 from src.services.safe_eval import safe_eval_condition
 
 
-class ChallengeCRUD:
+class ChallengeDBHandler:
     def __init__(self, session: AsyncSession):
         self.session = session
 
@@ -71,8 +73,8 @@ class ChallengeCRUD:
         db_challenges = await self.get_all_challenges()
         db_challenge_ids = {challenge.id for challenge in db_challenges}
 
-        challenges_updated = 0
         challenges_created = 0
+        challenges_updated = 0
         challenges_deactivated = 0
 
         # Update or create challenges
@@ -106,7 +108,36 @@ class ChallengeCRUD:
         students = await self.session.execute(select(StudentDB).options(joinedload(StudentDB.student_challenges)))
         return list(students.unique().scalars().all())
 
-    async def update_student_challenges(self):
+    async def update_new_student_challenges(self, student: StudentDB) -> tuple[list[ChallengesDB], list[ChallengesDB]]:
+        student_stats = json.loads(student.statistics)
+        completed_challenges = []
+        active_challenges = await self.get_all_challenges(active_only=True)
+        total_points_earned = 0
+
+        for challenge in active_challenges:
+            try:
+                if safe_eval_condition(challenge.eval, student_stats):
+                    new_challenge = StudentChallenge(student_id=student.id, challenge_id=challenge.id)
+                    self.session.add(new_challenge)
+                    student.points += challenge.value
+                    total_points_earned += challenge.value
+                    completed_challenges.append(challenge)
+                    logger.info(
+                        f"Student {student.id} completed challenge {challenge.id} and earned {challenge.value} points"
+                    )
+            except ValueError as e:
+                logger.error(f"Error evaluating challenge {challenge.id} for student {student.id}: {e}")
+            except Exception as e:
+                logger.error(f"Unexpected error for challenge {challenge.id} and student {student.id}: {e}")
+
+        if completed_challenges:
+            await self.session.commit()
+            logger.info(f"Added {len(completed_challenges)} new challenges for student {student.id}. "
+                        f"Total points earned: {total_points_earned}")
+
+        return active_challenges, completed_challenges
+
+    async def update_all_students_challenges(self):
         students = await self.get_students_with_challenges()
         active_challenges = await self.get_all_challenges(active_only=True)
 
@@ -149,5 +180,5 @@ class ChallengeCRUD:
             await self.session.rollback()
 
 
-async def get_challenge_crud(session: AsyncSession) -> ChallengeCRUD:
-    return ChallengeCRUD(session)
+async def get_challenge_crud(session: AsyncSession = Depends(get_async_session)) -> ChallengeDBHandler:
+    return ChallengeDBHandler(session)

@@ -1,5 +1,4 @@
 from datetime import datetime
-from pprint import pformat
 
 import aiohttp
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status

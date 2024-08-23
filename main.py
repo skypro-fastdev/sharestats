@@ -9,8 +9,10 @@ from starlette.exceptions import HTTPException
 from src.bot.client import bot
 from src.config import settings, setup_middlewares
 from src.dependencies import load_cache, cafeteria_loader, data_cache, stats_loader
-from src.services.background_tasks import update_challenges_periodically
+from src.services.background_tasks import update_challenges_products_periodically
 from src.web.routes import router
+from src.web.bonuses import router as bonuses_router
+from src.api.routes import api_router
 
 
 @asynccontextmanager
@@ -20,13 +22,13 @@ async def _lifespan(app: FastAPI):
     await bot.delete_webhook(drop_pending_updates=True)
     logger.info("Bot has been started.")
 
-    # # Start periodic task for updating challenges
+    # Start periodic task for updating challenges
     # task = asyncio.create_task(
-    #     update_challenges_periodically(cafeteria_loader, data_cache, stats_loader)
+    #     update_challenges_products_periodically(cafeteria_loader, data_cache, stats_loader)
     # )
 
     yield
-    #
+
     # task.cancel()
     # try:
     #     await task
@@ -44,6 +46,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/data", StaticFiles(directory="data"), name="data")
 
 app.include_router(router, prefix="/share")
+app.include_router(bonuses_router, prefix="/share")
+app.include_router(api_router, prefix="/share")
 
 
 @app.exception_handler(HTTPException)

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skypro - Бонусы</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles_bonuses.css') }}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <img src="{{ url_for('data', path="images/skypro.png") }}" alt="" class="logo">
+    </header>
+    <div class="avatar"></div>
+    <p class="fullname">{{ fullname }}</p>
+    <h1 class="points">{{ points }} бонусов</h1>
+    <div class="action-buttons">
+        <button class="btn btn-earn active" data-target="bonuses-section">Заработать</button>
+        <button class="btn btn-spend" data-target="products-section">Потратить</button>
+    </div>
+    <div id="bonuses-section" class="content-section active">
+        <div class="bonuses-container">
+            <h2>Бонусы, которые можно получить</h2>
+            <ul class="bonuses-list">
+                {% if available_challenges %}
+                    {% for challenge in available_challenges %}
+                        <li class="bonus-item">
+                            <span class="bonus-title">{{ challenge.title }}</span>
+                            <span class="bonus-points">+ {{ challenge.value }}</span>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="bonus-item-no-bonuses">
+                        <span class="bonus-title-no-bonuses">Вы получили все бонусы на текущий момент</span>
+                    </li>
+                {% endif %}
+            </ul>
+            <h2>Бонусы, которые уже получены</h2>
+            <ul class="bonuses-list received">
+                {% if completed_challenges %}
+                    {% for challenge in completed_challenges %}
+                        <li class="bonus-item">
+                            <span class="bonus-title">{{ challenge.title }}</span>
+                            <span class="bonus-points spent">+ {{ challenge.value }}</span>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="bonus-item-no-bonuses">
+                        <span class="bonus-title-no-bonuses">Пока что у вас нет бонусов</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    <div id="products-section" class="content-section">
+        <div class="products-container">
+            <h2>Доступные продукты</h2>
+            <ul class="products-list">
+                {% if available_products %}
+                    {% for product in available_products %}
+                        <li class="product-item">
+                            <span class="product-title">{{ product.title }}</span>
+                            <span class="product-points">КУПИТЬ за {{ product.value }}</span>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="product-item-no-products">
+                        <span class="product-title-no-products">Нет доступных продуктов</span>
+                    </li>
+                {% endif %}
+            </ul>
+            <h2>Купленные продукты</h2>
+            <ul class="products-list purchased">
+                {% if purchased_products %}
+                    {% for product in purchased_products %}
+                        <li class="product-item">
+                            <span class="product-title">{{ product.title }}</span>
+                            <span class="product-points purchased">- {{ product.value }}</span>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="product-item-no-products">
+                        <span class="product-title-no-products">Вы пока не купили ни одного продукта</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', path='js/bonuses.js') }}" defer></script>
+</body>
+</html>

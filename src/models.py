@@ -147,3 +147,10 @@ class Challenge(BaseModel):
     eval: str
     value: int
     is_active: bool = Annotated[str, AfterValidator(lambda value: value == "TRUE")]
+
+
+class Product(BaseModel):
+    id: str
+    title: str
+    value: int
+    is_active: bool = Annotated[str, AfterValidator(lambda value: value == "TRUE")]

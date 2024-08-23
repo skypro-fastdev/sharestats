@@ -66,6 +66,7 @@ class StudentDB(SQLModel, table=True):
 
     student_achievements: list["StudentAchievement"] = Relationship(back_populates="student")
     student_challenges: list["StudentChallenge"] = Relationship(back_populates="student")
+    student_products: list["StudentProduct"] = Relationship(back_populates="student")
 
     @property
     def days_since_start(self) -> str:
@@ -119,3 +120,24 @@ class ChallengesDB(SQLModel, table=True):
     is_active: bool
 
     student_challenges: list["StudentChallenge"] = Relationship(back_populates="challenge")
+
+
+class StudentProduct(SQLModel, table=True):
+    __tablename__ = "student_products"
+    id: int | None = Field(default=None, primary_key=True)
+    student_id: int = Field(foreign_key="students.id")
+    product_id: str = Field(foreign_key="products.id")
+    created_at: datetime = Field(default_factory=datetime.now, index=True)
+
+    student: StudentDB = Relationship(back_populates="student_products")
+    product: "ProductDB" = Relationship(back_populates="student_products")
+
+
+class ProductDB(SQLModel, table=True):
+    __tablename__ = "products"
+    id: str = Field(default=None, primary_key=True)
+    title: str
+    value: int
+    is_active: bool
+
+    student_products: list["StudentProduct"] = Relationship(back_populates="product")
