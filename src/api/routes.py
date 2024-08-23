@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, HTTPException, Depends, Security
+from fastapi import APIRouter, status, Depends, Security
 from fastapi.responses import JSONResponse
 from fastapi.security import APIKeyHeader
 

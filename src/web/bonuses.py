@@ -33,19 +33,19 @@ async def bonuses(
     student = await students_crud.get_student_with_challenges(student_id)
 
     if not student:  # If not found in DB (first time on the site)
-        try:
-            student = await students_crud.create_student(handler.student)
-            if not student:
-                raise HTTPException(status_code=500, detail="Failed to create a new student in DB")
-            # Calculate challenges and add points
-            active_challenges, completed_challenges = await challenges_crud.update_new_student_challenges(student)
-            student = await students_crud.get_student(student_id)  # Refresh student data
-            if not student:
-                raise HTTPException(status_code=500, detail="Failed to retrieve updated student data")
+        if not handler.student:
+            raise HTTPException(status_code=404, detail="Страница не найдена")
 
-        except Exception as e:
-            logger.error(f"Failed to process new student: {e}")
-            raise HTTPException(status_code=500, detail="Failed to process new student")
+        student = await students_crud.create_student(handler.student)
+        if not student:
+            raise HTTPException(status_code=500, detail="Failed to create a new student in DB")
+
+        # Calculate challenges and add points
+        active_challenges, completed_challenges = await challenges_crud.update_new_student_challenges(student)
+        student = await students_crud.get_student(student_id)  # Refresh student data
+
+        if not student:
+            raise HTTPException(status_code=500, detail="Failed to retrieve updated student data")
     else:
         completed_challenges = [c.challenge for c in student.student_challenges]
         active_challenges = await challenges_crud.get_all_challenges(active_only=True)

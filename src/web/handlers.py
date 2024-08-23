@@ -12,7 +12,7 @@ from src.services.stats import check_achievements, get_user_stats
 class StudentHandler:
     def __init__(self, student_id: int):
         self.student_id = student_id
-        self.student = None
+        self.student: Student | None = None
         self.achievements = None
         self.achievement = None
 
