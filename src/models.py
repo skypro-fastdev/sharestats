@@ -1,8 +1,8 @@
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 from typing import Annotated, Callable
 
-from pydantic import AfterValidator, BaseModel, computed_field, field_validator
+from pydantic import AfterValidator, BaseModel, computed_field, field_validator, Field
 from pydantic_core import ValidationError
 
 
@@ -154,3 +154,9 @@ class Product(BaseModel):
     title: str
     value: int
     is_active: bool = Annotated[str, AfterValidator(lambda value: value == "TRUE")]
+
+
+class Purchase(BaseModel):
+    product_id: str
+    student_id: int
+    created_at: datetime = Field(default_factory=datetime.now)
