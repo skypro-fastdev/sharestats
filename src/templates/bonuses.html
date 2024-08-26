@@ -54,13 +54,20 @@
     </div>
     <div id="products-section" class="content-section">
         <div class="products-container">
-            <h2>Доступные продукты</h2>
+            <h2>Что я могу купить</h2>
             <ul class="products-list">
                 {% if available_products %}
                     {% for product in available_products %}
                         <li class="product-item">
-                            <span class="product-title">{{ product.title }}</span>
-                            <span class="product-points">КУПИТЬ за {{ product.value }}</span>
+                            <details>
+                                <summary class="product-summary">
+                                    <span class="product-title">{{ product.title }}</span>
+                                    <span class="product-points">КУПИТЬ за {{ product.value }}</span>
+                                </summary>
+                                <p class="product-p">Чтобы купить, перейдите в диалог с вашим куратором и отправьте ему текст. "Хочу
+                                    купить “{{ product.title }}” за {{ product.value }} бонусов, мой Id {{ student_id }}".</p>
+                                <p class="product-p">Куратор обработает заявку в течение 24 часов. Купленный продукт появится ниже.</p>
+                            </details>
                         </li>
                     {% endfor %}
                 {% else %}
@@ -69,7 +76,7 @@
                     </li>
                 {% endif %}
             </ul>
-            <h2>Купленные продукты</h2>
+            <h2>Уже куплено</h2>
             <ul class="products-list purchased">
                 {% if purchased_products %}
                     {% for product in purchased_products %}

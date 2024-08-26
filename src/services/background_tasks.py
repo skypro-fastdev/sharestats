@@ -3,12 +3,12 @@ import asyncio
 from loguru import logger
 
 from src.classes.data_cache import DataCache
-from src.classes.sheet_loader import SheetLoader, AsyncSheetLoaderWrapper
+from src.classes.sheet_loader import AsyncSheetLoaderWrapper, SheetLoader
 from src.classes.stats_loader import StatsLoader
 from src.db.challenges_crud import ChallengeDBHandler
 from src.db.products_crud import ProductDBHandler
-from src.db.students_crud import StudentDBHandler
 from src.db.session import get_async_session
+from src.db.students_crud import StudentDBHandler
 
 
 async def get_challenges_and_products_data(cafeteria_loader: SheetLoader) -> tuple:
@@ -54,4 +54,4 @@ async def update_challenges_products_periodically(
         except Exception as e:
             logger.error(f"Error during challenges update: {e}")
 
-        await asyncio.sleep(60)  # 60 seconds
+        await asyncio.sleep(5 * 60)  # 60 seconds

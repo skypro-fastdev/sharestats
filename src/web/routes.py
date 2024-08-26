@@ -57,8 +57,8 @@ async def stats(  # noqa: PLR0912
         logger.info(f"Statistics for student {student_id} not found")
         raise HTTPException(status_code=404, detail="Страница не найдена")
 
-    if not handler.achievements:
-        logger.info(f"Statistics for student {student_id} not found")
+    if not handler.achievement:
+        logger.info(f"Student {student_id} has no achievement")
         raise HTTPException(status_code=404, detail="Страница не найдена")
     try:
         homework_total = handler.student.statistics.get("homework_total")

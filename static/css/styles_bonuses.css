@@ -31,6 +31,10 @@ body {
     padding-top: 60px;
 }
 
+summary {
+    cursor: pointer;
+}
+
 .container {
     position: relative;
     width: 100%;
@@ -236,6 +240,19 @@ body {
     text-align: center;
 }
 
+.product-p {
+    color: black;
+    text-align: left;
+    font-size: 20px;
+}
+
+.product-summary {
+    display: flex;
+    text-align: left;
+    width: 100%;
+    align-items: center;
+}
+
 .products-list {
     list-style-type: none;
     padding: 0;
@@ -246,7 +263,6 @@ body {
     border-radius: 10px;
     padding: 22px 25px;
     margin-bottom: 10px;
-    display: flex;
     justify-content: space-between;
     align-items: center;
 }

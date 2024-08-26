@@ -70,6 +70,7 @@ class StudentHandler:
             description="Наслаждаюсь новым статусом ученика, не сомневаюсь в своих силах, "
             "знаю что все легко изучу и сделаю",
             picture="chilly.png",
+            profession=self.student.profession.name,
         )
 
 

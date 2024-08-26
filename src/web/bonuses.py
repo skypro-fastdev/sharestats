@@ -1,14 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
 from fastapi.templating import Jinja2Templates
-from loguru import logger
 
 from src.config import IS_HEROKU
-from src.db.challenges_crud import get_challenge_crud, ChallengeDBHandler
-from src.db.products_crud import get_product_crud, ProductDBHandler
-from src.db.students_crud import get_student_crud, StudentDBHandler
-from src.services.security import verify_hash
-from src.web.handlers import get_student_handler, StudentHandler
+from src.db.challenges_crud import ChallengeDBHandler, get_challenge_crud
+from src.db.products_crud import ProductDBHandler, get_product_crud
+from src.db.students_crud import StudentDBHandler, get_student_crud
+from src.web.handlers import StudentHandler, get_student_handler
 
 router = APIRouter()
 
@@ -18,7 +16,7 @@ HOST_URL = "https://sky.pro/share" if IS_HEROKU else "http://127.0.0.1:8000/shar
 
 
 @router.get("/bonuses/{student_id}", name="bonuses")
-async def bonuses(
+async def bonuses(  # noqa: PLR0913
     request: Request,
     student_id: int,
     hash: str | None = None,  # noqa: A002
@@ -57,6 +55,7 @@ async def bonuses(
         "request": request,
         "fullname": f"{student.first_name} {student.last_name}",
         "points": student.points,
+        "student_id": student_id,
         "completed_challenges": completed_challenges,
         "available_challenges": available_challenges,
         "available_products": available_products,
