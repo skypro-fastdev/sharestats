@@ -1,4 +1,3 @@
-import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -6,13 +5,12 @@ from fastapi.staticfiles import StaticFiles
 from loguru import logger
 from starlette.exceptions import HTTPException
 
+from src.api.routes import api_router
 from src.bot.client import bot
 from src.config import settings, setup_middlewares
-from src.dependencies import load_cache, cafeteria_loader, data_cache, stats_loader
-from src.services.background_tasks import update_challenges_products_periodically
-from src.web.routes import router
+from src.dependencies import load_cache
 from src.web.bonuses import router as bonuses_router
-from src.api.routes import api_router
+from src.web.sharestats import router as sharestats_router
 
 
 @asynccontextmanager
@@ -28,7 +26,7 @@ async def _lifespan(app: FastAPI):
     # )
 
     yield
-
+    #
     # task.cancel()
     # try:
     #     await task
@@ -45,7 +43,7 @@ setup_middlewares(app)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/data", StaticFiles(directory="data"), name="data")
 
-app.include_router(router, prefix="/share")
+app.include_router(sharestats_router, prefix="/share")
 app.include_router(bonuses_router, prefix="/share")
 app.include_router(api_router, prefix="/share")
 

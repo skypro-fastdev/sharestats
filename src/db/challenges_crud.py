@@ -132,8 +132,10 @@ class ChallengeDBHandler:
 
         if completed_challenges:
             await self.session.commit()
-            logger.info(f"Added {len(completed_challenges)} new challenges for student {student.id}. "
-                        f"Total points earned: {total_points_earned}")
+            logger.info(
+                f"Added {len(completed_challenges)} new challenges for student {student.id}. "
+                f"Total points earned: {total_points_earned}"
+            )
 
         return active_challenges, completed_challenges
 
@@ -163,7 +165,10 @@ class ChallengeDBHandler:
                                 new_challenge = StudentChallenge(student_id=student.id, challenge_id=challenge.id)
                                 self.session.add(new_challenge)
                                 points_to_add += challenge.value
-                                logger.info(f"Student {student.id} completed challenge {challenge.id}")
+                                logger.info(
+                                    f"Student {student.id} completed challenge {challenge.id} "
+                                    f"and earned {challenge.value} points"
+                                )
                         except ValueError as e:
                             logger.error(f"Error evaluating challenge {challenge.id} for student {student.id}: {e}")
                         except Exception as e:
@@ -171,7 +176,7 @@ class ChallengeDBHandler:
 
                 if points_to_add > 0:
                     student.points += points_to_add
-                    logger.info(f"Added {points_to_add} points to student {student.id}")
+                    logger.info(f"Add sum of points = {points_to_add} to the student {student.id}")
 
             await self.session.commit()
             logger.info("Student challenges and points updated successfully")

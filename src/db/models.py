@@ -63,6 +63,7 @@ class StudentDB(SQLModel, table=True):
     started_at: date
     statistics: str = Field(default="{}")
     points: int = 0
+    last_login: datetime | None = None
 
     student_achievements: list["StudentAchievement"] = Relationship(back_populates="student")
     student_challenges: list["StudentChallenge"] = Relationship(back_populates="student")
@@ -83,6 +84,7 @@ class StudentDB(SQLModel, table=True):
                 started_at=self.started_at,
                 statistics=json.loads(self.statistics),
                 points=self.points,
+                last_login=self.last_login,
             )
         except Exception as e:
             logger.error(f"Failed to convert student data from db to model: {e}")
@@ -98,6 +100,7 @@ class StudentDB(SQLModel, table=True):
             started_at=student.started_at,
             statistics=json.dumps(student.statistics),
             points=student.points,
+            last_login=student.last_login,
         )
 
 

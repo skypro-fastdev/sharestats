@@ -2,7 +2,7 @@ from datetime import date, datetime
 from enum import Enum
 from typing import Annotated, Callable
 
-from pydantic import AfterValidator, BaseModel, computed_field, field_validator, Field
+from pydantic import AfterValidator, BaseModel, Field, computed_field, field_validator
 from pydantic_core import ValidationError
 
 
@@ -87,6 +87,7 @@ class Student(BaseModel):
     statistics: dict[str, int | str]
     achievements: list[Achievement] = []
     points: int = 0
+    last_login: datetime | None = None
 
     @computed_field
     def days_since_start(self) -> str:
@@ -160,3 +161,25 @@ class Purchase(BaseModel):
     product_id: str
     student_id: int
     created_at: datetime = Field(default_factory=datetime.now)
+
+
+class DateQuery(BaseModel):
+    search_date: date | None = Field(
+        None, validation_alias="date", description="Date for which to fetch login data (YYYY-MM-DD)"
+    )
+
+    @field_validator("search_date")
+    @classmethod
+    def check_date(cls, v):
+        if v is None:
+            return datetime.now().date()
+        if isinstance(v, date):
+            return v
+        try:
+            return datetime.strptime(v, "%Y-%m-%d").date()
+        except ValueError:
+            return datetime.now().date()
+
+    @property
+    def formatted_date(self) -> str:
+        return self.search_date.strftime("%Y-%m-%d")

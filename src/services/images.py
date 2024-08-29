@@ -4,6 +4,9 @@ from io import BytesIO
 from pathlib import Path
 
 import aiofiles
+import aiohttp
+from fastapi import HTTPException
+from loguru import logger
 from PIL import Image, ImageDraw, ImageFont
 
 from src.dependencies import s3_client
@@ -214,3 +217,28 @@ async def find_or_generate_image(achievement: Achievement, orientation: str) -> 
         return {"url": url, "width": width, "height": height}
     except Exception:
         return None
+
+
+async def get_image_data(achievement: Achievement, orientation: str) -> dict:
+    image_data = await find_or_generate_image(achievement, orientation)
+    if not image_data:
+        logger.error(f"Failed to get image for achievement: {achievement.title}")
+        raise HTTPException(status_code=500, detail="Failed to get image")
+    return image_data
+
+
+async def fetch_image(image_url: str) -> tuple:
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(image_url) as response:
+                if response.status != 200:
+                    raise HTTPException(status_code=500, detail="Failed to fetch image")
+
+                image_bytes = await response.read()
+                content_type = response.headers.get("Content-Type", "image/png")
+                filename = image_url.split("/")[-1]
+
+                return image_bytes, content_type, filename
+        except Exception as e:
+            logger.error(f"Failed to fetch image: {str(e)}")
+            raise HTTPException(status_code=500, detail="Failed to fetch image") from e

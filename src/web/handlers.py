@@ -41,7 +41,9 @@ class StudentHandler:
                 profession=profession_enum,
                 started_at=started_at,
                 statistics=stats,
+                last_login=datetime.now(),
             )
+            logger.info(f"Student {self.student.id} last login: {self.student.last_login}")
         except ValidationError as e:
             logger.error(f"Failed to initialize student handler! student_id: {self.student_id}")
             raise HTTPException(status_code=400, detail=e.errors()) from e

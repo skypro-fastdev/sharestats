@@ -1,6 +1,7 @@
 import asyncio
 import json
-from datetime import datetime
+from datetime import date, datetime
+from typing import Sequence
 
 from fastapi import Depends
 from loguru import logger
@@ -11,7 +12,7 @@ from sqlmodel import desc, func, select
 
 from src.classes.data_cache import DataCache
 from src.classes.stats_loader import StatsLoader
-from src.db.models import AchievementDB, StudentAchievement, StudentDB, StudentChallenge
+from src.db.models import AchievementDB, StudentAchievement, StudentChallenge, StudentDB
 from src.db.session import get_async_session
 from src.models import Achievement, Student
 
@@ -37,6 +38,9 @@ class StudentDBHandler:
             return None
 
         try:
+            db_student.first_name = student.first_name
+            db_student.last_name = student.last_name
+            db_student.last_login = datetime.now()
             db_student.statistics = json.dumps(student.statistics, ensure_ascii=False)
             await self.session.commit()
             await self.session.refresh(db_student)
@@ -89,13 +93,15 @@ class StudentDBHandler:
         result = await self.session.execute(statement)
         return result.scalar_one_or_none()
 
+    async def get_students_with_last_login(self, target_date: date) -> Sequence[StudentDB]:
+        statement = select(StudentDB.id, StudentDB.last_login).where(func.date(StudentDB.last_login) == target_date)
+        result = await self.session.execute(statement)
+        return result.all()
+
     async def get_student_with_challenges(self, student_id: int) -> StudentDB | None:
         statement = (
             select(StudentDB)
-            .options(
-                joinedload(StudentDB.student_challenges)
-                .joinedload(StudentChallenge.challenge)
-            )
+            .options(joinedload(StudentDB.student_challenges).joinedload(StudentChallenge.challenge))
             .where(StudentDB.id == student_id)
         )
         result = await self.session.execute(statement)

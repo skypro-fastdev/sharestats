@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = ""
     CRM_URL: str
     SALT: str
+    API_KEY: str
 
     @property
     def debug(self) -> bool:
