@@ -3,10 +3,10 @@ from fastapi import HTTPException
 from loguru import logger
 
 from src.config import settings
-from src.models import PhoneSubmission
+from src.models import CRMSubmission
 
 
-async def submit_phone_to_crm(data: PhoneSubmission) -> str:
+async def submit_phone_to_crm(data: CRMSubmission) -> str:
     url = settings.CRM_URL
     payload = {
         "phone": f"{data.phone}",

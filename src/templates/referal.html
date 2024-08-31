@@ -65,43 +65,99 @@
         <p class="stat-lives"><strong>{{ lessons_completed }}</strong> уроков пройдено</p>
         <p class="stat-lives"><strong>{{ courseworks_completed }}</strong> курсовых сдано</p>
         <div class="info-box">
-            <p>Если <strong>{{ first_name }} {{ last_name }}</strong> — ваш друг, вы можете пройти бесплатную карьерную
-                консультацию. Узнайте, какая профессия вам подходит, и получайте крутые результаты, как {{ first_name }}.
+            <p>
+                Для друзей {{ first_name }} {{ last_name }}
             </p>
-            {#            <details class="go-details">#}
-            {#                <summary class="go-summary">Покажите подробности!</summary>#}
-            {#                <p>Мы готовы добавить вас в ближайшую группу обучения. Просто оставьте номер, мы позвоним и все#}
-            {#                    расскажем.</p>#}
-            <form id="phoneForm" class="phone-input">
-                <input type="hidden" id="studentId" value="{{ student_id }}">
-                <div class="input-group">
-                    <input type="tel" id="phoneNumber" placeholder="(___) ___ __ __">
-                    <button type="submit" class="go-button" id="send-phone">Погнали!</button>
+            <h1 class="info-h1">Мы приготовили три подарка:</h1>
+            <p class="present">Первый</p>
+            <p class="present-text">
+                Профессиональная консультация по смене работы. Узнайте, какая профессия вам подходит и сколько вы
+                сможете зарабатывать через год.
+            </p>
+            <details>
+                <summary class="present-summary" id="expand-consultation">
+                    <span class="price">5000 ₽</span>
+                    <span class="text">Забрать бесплатно</span>
+                </summary>
+                <div class="present-details">
+                    <p>Достаточно номера, мы напишем или позвоним, чтобы назначить удобную дату консультации</p>
+                    <form id="phoneForm1" class="phone-input">
+                        <div class="input-group">
+                            <input type="tel" id="phoneNumber1" placeholder="(___) ___ __ __">
+                            <button type="submit" class="go-button">Получить консультацию</button>
+                        </div>
+                    </form>
                 </div>
-            </form>
-            {#            </details>#}
+            </details>
+            <p class="present">Второй</p>
+            <p class="present-text">
+                Топовый курс по софтс-скиллам: как разруливать конфликты на работе, все успевать, не уставать, быстро
+                учиться и всем нравиться.
+            </p>
+            <details>
+                <summary class="present-summary" id="expand-minicourse">
+                    <span class="price">10000 ₽</span>
+                    <span class="text">Забрать бесплатно</span>
+                </summary>
+                <div class="present-details">
+                    <p>Оставьте нам номер телефона, и мы пришлем ссылку на мини-курс и инструкции.</p>
+                    <form id="phoneForm2" class="phone-input">
+                        <div class="input-group">
+                            <input type="tel" id="phoneNumber2" placeholder="(___) ___ __ __">
+                            <button type="submit" class="go-button">Получить мини-курс</button>
+                        </div>
+                    </form>
+                </div>
+            </details>
+            <p class="present">Третий</p>
+            <p class="present-text">
+                Скидка до 50 000 (20% от цены любого курса) для вас, если вы придете учиться. Потому, что друзья наших
+                учеников – наши друзья.<br>А для друзей у нас лучшие условия!
+            </p>
+            <details>
+                <summary class="present-summary" id="expand-discount">
+                    <span>Забрать скидку до 50000 ₽</span>
+                </summary>
+                <div class="present-details">
+                    <p>Перейдите по ссылке и скидка применится!</p>
+                    <form class="email-form">
+                        <input type="hidden" id="studentId" value="{{ student_id }}">
+                        <div class="input-group">
+                            <button type="submit" class="go-button" id="choose-course">Выбрать курс</button>
+                        </div>
+                    </form>
+                </div>
+            </details>
 
-            <div id="successPopup" class="popup">
+            <div id="successPopup" class="popup"
+                 data-success-image="{{ url_for('data', path='images/check_mark.png') }}"
+                 data-error-image="{{ url_for('data', path='images/error_mark.png') }}">
                 <div class="popup-content">
-                    <img src="{{ url_for('data', path="images/check_mark.png") }}" alt="">
-                    <h2>Готово!</h2>
-                    <p>Мы получили заявку<br> и скоро позвоним!</p>
+                    <img id="popupImage" src="{{ url_for('data', path='images/check_mark.png') }}" alt="Статус">
+                    <h2 id="popupTitle">Готово!</h2>
+                    <p id="popupMessage"></p>
                 </div>
             </div>
         </div>
-        <script src="{{ url_for('static', path='js/intlTelInput.min.js') }}"></script>
-        <script>
+        <script src="{{ url_for('static', path='js/intlTelInput.min.js') }}" defer></script>
+        <script defer>
+            let UTILS_SCRIPT_PATH = "{{ url_for('static', path='js/utils.js') }}";
+
             document.addEventListener('DOMContentLoaded', function () {
-                const input = document.querySelector("#phoneNumber");
-                window.iti = window.intlTelInput(input, {
+                const input1 = document.querySelector("#phoneNumber1");
+                const input2 = document.querySelector("#phoneNumber2");
+                const iti_options = {
                     autoPlaceholder: "polite",
                     placeholderNumberType: "MOBILE",
                     nationalMode: false,
-                    utilsScript: "{{ url_for('static', path='js/utils.js') }}"
-                });
+                    utilsScript: UTILS_SCRIPT_PATH,
+                    initialCountry: "ru"  // добавим это для установки начальной страны
+                };
+                window.iti1 = window.intlTelInput(input1, iti_options);
+                window.iti2 = window.intlTelInput(input2, iti_options);
             });
         </script>
-        <script src="{{ url_for('static', path='js/submit_phone.js') }}"></script>
+        <script src="{{ url_for('static', path='js/submit_to_crm.js') }}" defer></script>
     </main>
 </div>
 <script>

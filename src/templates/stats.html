@@ -105,8 +105,9 @@
                             <p>Уже {{ months_since_start }} я учусь новой профессии, пока всё нравится. Вот мои первые
                                 результаты и статистика
                                 <span class="copy-icon"
-                                          onclick="copyToClipboard('Уже {{ months_since_start }} я учусь новой профессии, пока всё нравится. Вот мои первые результаты и статистика')">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                      onclick="copyToClipboard('Уже {{ months_since_start }} я учусь новой профессии, пока всё нравится. Вот мои первые результаты и статистика')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             fill="currentColor"
                                              class="bi bi-copy" viewBox="0 0 16 16">
                                           <path fill-rule="evenodd"
                                                 d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
@@ -141,7 +142,7 @@
                     <details class="share-item" onclick="changeStyle(event)">
                         <summary class="details">Телеграм: канал или беседа</summary>
                         <div class="share-content">
-                            <a href="https://t.me/share/url?url={{ base_url | urlencode }}/h/{{ student_id }}&text=Сейчас я учусь в Skypro на профессии {{ profession }}. Хочу поделиться статистикой"
+                            <a href="https://t.me/share/url?url={{ base_url | urlencode }}/h/{{ student_id }}&text=Уже {{ months_since_start }} я учусь новой профессии, пока всё нравится. Вот мои первые результаты и статистика"
                                class="telegram-share-button" target="_blank">Поделиться</a>
                         </div>
                     </details>
@@ -182,7 +183,7 @@
                 <input type="hidden" id="studentId" value="{{ student_id }}">
                 <input type="hidden" id="studentName" value="{{ student_name }}">
                 <input type="hidden" id="studentProfession" value="{{ profession }}">
-                <div class="input-group">
+                <div class="input-group-url">
                     <input type="text" placeholder="Ссылка на vk, telegram, нельзяграм" id="type-link" required>
                 </div>
                 <button type="submit" class="send-url-button" id="send-link">Забрать +1 консультацию</button>
@@ -197,7 +198,7 @@
         </div>
     </main>
 </div>
-<script src="{{ url_for('static', path='js/submit_url.js') }}"></script>
+<script src="{{ url_for('static', path='js/submit_url.js') }}" defer></script>
 <script>
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(function () {

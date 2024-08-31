@@ -41,10 +41,13 @@
         safeAddEventListener('expand-skypro', 'click', () => ym(97943495, 'reachGoal', 'guest_expand_skypro'));
         safeAddEventListener('send-phone', 'click', () => ym(97943495, 'reachGoal', 'guest_order_kk'));
 
-        safeAddEventListener('type-link', 'change', createInputHandler('stats_type_link'));
-        safeAddEventListener('phoneNumber', 'change', createInputHandler('guest_type_phone'));
+        safeAddEventListener('expand-consultation', 'click', () => ym(97943495, 'reachGoal', 'guest_expand_consultation'));
+        safeAddEventListener('expand-minicourse', 'click', () => ym(97943495, 'reachGoal', 'guest_expand_minicourse'));
+        safeAddEventListener('expand-discount', 'click', () => ym(97943495, 'reachGoal', 'guest_expand_discount'));
 
-        ['type-link', 'phoneNumber'].forEach(id => {
+        safeAddEventListener('type-link', 'change', createInputHandler('stats_type_link'));
+
+        ['type-link'].forEach(id => {
             safeAddEventListener(id, 'focus', function () {
                 if (this.value.trim() === '') {
                     this.dataset.eventSent = 'false';

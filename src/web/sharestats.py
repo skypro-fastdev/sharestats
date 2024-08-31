@@ -8,7 +8,7 @@ from loguru import logger
 from src.config import IS_HEROKU, settings
 from src.db.students_crud import StudentDBHandler, get_student_crud
 from src.dependencies import sheet_pusher
-from src.models import PhoneSubmission, URLSubmission
+from src.models import CRMSubmission, URLSubmission
 from src.services.images import fetch_image, get_achievement_logo_relative_path, get_image_data
 from src.services.security import verify_hash_dependency
 from src.services.stats import get_achievements_data, get_stats, get_student_skills
@@ -169,41 +169,68 @@ async def referal(
     return add_no_cache_headers(templates.TemplateResponse("referal.html", context))
 
 
-async def process_url_submission(data: URLSubmission):
-    success = await sheet_pusher.push_data_to_sheet(data)
-    if not success:
-        logger.error(f"Failed to submit student {data.student_id} data to Google Sheet. Save for retry later.")
-        await sheet_pusher.save_failed_submission(data)
+async def process_submission(data: URLSubmission | CRMSubmission):
+    if isinstance(data, URLSubmission):
+        worksheet_name = "shared"
+    elif isinstance(data, CRMSubmission):
+        worksheet_name = "requested_cc" if data.order == "consultation" else "requested_course"
     else:
-        logger.info(f"Data submitted to Google Sheet for student {data.student_id}")
+        raise ValueError("Unknown submission type")
+
+    success = await sheet_pusher.push_data_to_sheet(data, worksheet_name)
+    if not success:
+        logger.error(f"Failed to submit data to sheet '{worksheet_name}'. Save for retry later.")
+        await sheet_pusher.save_failed_submission(data, worksheet_name)
 
 
 @router.post("/submit-url")
 async def submit_url(data: URLSubmission, background_tasks: BackgroundTasks):
-    background_tasks.add_task(process_url_submission, data)
+    background_tasks.add_task(process_submission, data)
     return JSONResponse({"status": "processing"})
 
 
-@router.post("/submit-phone")
-async def submit_phone(data: PhoneSubmission):
+@router.post("/submit-to-crm", name="submit_to_crm")
+async def submit_to_crm(data: CRMSubmission, background_tasks: BackgroundTasks):
     # TODO: Has to refactor it (move logic to crm_service.py)
+    background_tasks.add_task(process_submission, data)
+
     url = settings.CRM_URL
+
+    if not data.phone or not data.order:
+        return JSONResponse(content={"status": "error", "message": "Необходимо заполнить все поля!"}, status_code=400)
+
     payload = {
-        "phone": f"{data.phone}",
+        "phone": data.phone,
         "funnel": "direct",
         "sourceKey": "sharestats",
-        "name": "Заявка на Карьерную Консультацию",
+        "name": "Заявка на Карьерную Консультацию"
+        if data.order == "consultation"
+        else "Заявка на получение мини-курса",
         "productId": 191,
         "utmTerm": f"referral-{data.student_id}",
     }
+
     try:
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=payload) as response:
-                result = await response.text()
-                logger.info(f"Phone {data.phone}, ref to student {data.student_id}. Result: {result}")
+                if response.status != 200:
+                    logger.error(
+                        f"Failed to submit phone {data.phone}, order {data.order} to CRM. Status: {response.status}"
+                    )
+                    raise HTTPException(status_code=response.status, detail="CRM request failed")
+
+                crm_answer = await response.text()
+                logger.info(
+                    f"Submitted phone {data.phone}, order {data.order}, "
+                    f"ref to student {data.student_id}. Answer from CRM: {crm_answer}"
+                )
+                return JSONResponse(content={"status": "success"}, status_code=200)
+    except aiohttp.ClientError as e:
+        logger.error(f"Failed to submit phone {data.phone}, order {data.order} to CRM. Error: {e}")
+        raise HTTPException(status_code=503, detail="Something went wrong") from e
     except Exception as e:
-        logger.error(f"Did not submit phone to CRM. Error: {e}")
-        raise HTTPException(status_code=400, detail=str(e)) from e
+        logger.error(f"Unexpected error when submitting phone {data.phone}, order {data.order} to CRM. Error: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error") from e
 
 
 @router.get("/results", name="results")

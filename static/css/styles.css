@@ -633,13 +633,88 @@ a {
 }
 
 .info-box {
-    background-color: #322963;
-    color: white;
-    border-radius: 0 0 20px 20px;
+    background-color: #ffffff;
+    color: #322963;
+    border-radius: 20px;
     margin: 10px -20px -20px -20px;
     padding: 5px 20px 20px 20px;
     font-family: StratosSkyengWeb-Regular, sans-serif;
+    font-size: 20px;
+}
+
+.info-h1 {
+    color: #322963;
+    font-size: 28px;
+}
+
+.present {
+    color: RGBA(50, 41, 99, 0.7);
+    text-align: center;
+}
+
+.present-text {
+    text-align: left;
+}
+
+.present-summary {
+    display: block;
+    position: relative;
+    cursor: pointer;
+    padding: 10px;
+    background-color: #924CF6;
+    color: #ffffff;
+    border-radius: 10px;
+    font-size: 20px;
+}
+
+.present-summary:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    background-image: url(../../data/images/arrow_white.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding-right: 0;
+    vertical-align: middle;
+    transition: transform 0.2s ease;
+    transform-origin: 0 center 10px;
+}
+
+details[open] summary.present-summary {
+    border-radius: 10px 10px 0 0;
+}
+
+.present-details {
+    background-color: #924CF6;
+    color: #ffffff;
+    padding: 15px;
+    text-align: left;
     font-size: 18px;
+    overflow-wrap: break-word;
+    border-radius: 0 0 10px 10px;
+}
+
+.present-details p:first-child {
+    display: block;
+    margin-block-start: 0;
+    margin-block-end: 1em;
+}
+
+.present-summary .price {
+    position: absolute;
+    left: 20px;
+    text-decoration: line-through;
+}
+
+.present-summary .text {
+    flex-grow: 1;
+    text-align: center;
+    padding-left: 20px;
 }
 
 .feature {
@@ -734,10 +809,19 @@ input[type="text"]::placeholder {
 .phone-input {
     display: flex;
     align-items: center;
+
+}
+
+.input-group-url {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: 100%;
 }
 
 .input-group {
     display: flex;
+    flex-direction: column;
     flex-wrap: nowrap;
     align-items: center;
     width: 100%;
@@ -745,16 +829,26 @@ input[type="text"]::placeholder {
 
 .input-group input[type="tel"] {
     flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    width: 100%;
+    font-size: 16px;
+}
+
+.input-group .iti {
+    width: 100%;
+}
+
+.email-input {
+    width: 100%;
     border: 1px solid #ccc;
     font-size: 16px;
     padding: 10px;
     border-radius: 5px;
     box-sizing: border-box;
-    width: 100%;
-}
-
-.input-group .iti {
-    width: 100%;
+    margin-bottom: 10px;
 }
 
 .go-button {
@@ -764,11 +858,11 @@ input[type="text"]::placeholder {
     padding: 10px 15px;
     border-radius: 5px;
     cursor: pointer;
+    font-family: StratosSkyengWeb-Regular, sans-serif;
     font-size: 1.1rem;
-    margin-left: 10px;
-    width: auto;
+    margin-top: 10px;
+    width: 100%;
     white-space: nowrap;
-    flex-shrink: 0;
 }
 
 .lk-button {

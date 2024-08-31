@@ -142,9 +142,10 @@ class URLSubmission(BaseModel):
     url: str
 
 
-class PhoneSubmission(BaseModel):
-    phone: str
+class CRMSubmission(BaseModel):
     student_id: int
+    phone: str | None = None
+    order: str | None = None
 
 
 class Challenge(BaseModel):
