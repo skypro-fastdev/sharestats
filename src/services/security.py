@@ -1,5 +1,7 @@
 import hashlib
 
+from fastapi import HTTPException
+
 from src.config import settings
 
 
@@ -10,3 +12,8 @@ def verify_hash(student_id, expected_hash):
     calculated_hash = sha256.hexdigest()[:8]
 
     return calculated_hash == expected_hash
+
+
+def verify_hash_dependency(student_id: int, hash: str | None = None) -> None:  # noqa: A002
+    if not verify_hash(student_id, hash):
+        raise HTTPException(status_code=404, detail="Страница не найдена")

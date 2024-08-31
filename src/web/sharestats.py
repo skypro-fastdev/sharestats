@@ -8,9 +8,9 @@ from loguru import logger
 from src.config import IS_HEROKU, settings
 from src.db.students_crud import StudentDBHandler, get_student_crud
 from src.dependencies import sheet_pusher
-from src.models import PhoneSubmission, ProfessionEnum, URLSubmission
+from src.models import PhoneSubmission, URLSubmission
 from src.services.images import fetch_image, get_achievement_logo_relative_path, get_image_data
-from src.services.security import verify_hash
+from src.services.security import verify_hash_dependency
 from src.services.stats import get_achievements_data, get_stats, get_student_skills
 from src.services.student_service import (
     NoDataException,
@@ -36,16 +36,10 @@ STUDENT_DASHBOARD = "https://my.sky.pro/student-cabinet/"
 async def stats(
     request: Request,
     student_id: int,
-    hash: str | None = None,  # noqa: A002
+    hash_verified: None = Depends(verify_hash_dependency),
     handler: StudentHandler = Depends(get_student_handler),
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
-    if not verify_hash(student_id, hash):
-        if handler.student and handler.student.profession == ProfessionEnum.GD:
-            pass
-        else:
-            raise HTTPException(status_code=404, detail="Страница не найдена")
-
     try:
         student = await get_student_data(handler, student_id)
         db_student = await update_or_create_student_in_db(crud, student)
@@ -57,6 +51,7 @@ async def stats(
             "student_id": student.id,
             "student_name": f"{student.first_name} {student.last_name}",
             "days_since_start": student.days_since_start,
+            "months_since_start": student.months_since_start,
             "profession": student.profession.value,
             "skills": get_student_skills(student),
             "title": handler.achievement.title,
@@ -104,13 +99,15 @@ async def share(
     achievement = await get_achievement_for_student(crud, student_id)
     image_data = await get_image_data(achievement, orientation)
 
+    title = "Для моих друзей бесплатная консультация по смене работы, курс в подарок и скидки до 50 000 в Skypro"
+
     if is_social_bot(request):
         return templates.TemplateResponse(
             "share.html",
             {
                 "request": request,
                 "student_id": student_id,
-                "title": "Мой стиль и статистика обучения",
+                "title": title,
                 "description": "Внутри подарок от Skypro",
                 "achievement_url": image_data["url"],
                 "image_width": image_data["width"],

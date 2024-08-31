@@ -6,14 +6,14 @@ from pydantic import AfterValidator, BaseModel, Field, computed_field, field_val
 from pydantic_core import ValidationError
 
 
-def plural_days(n: int) -> str:
-    days = ["день", "дня", "дней"]
+def plural_text(n: int, month: bool = False) -> str:
+    word = ["месяц", "месяца", "месяцев"] if month else ["день", "дня", "дней"]
     if n % 10 == 1 and n % 100 != 11:
-        return f"{n} {days[0]}"
+        return f"{n} {word[0]}"
     elif 2 <= n % 10 <= 4 and (n % 100 < 10 or n % 100 >= 20):  # noqa RET505
-        return f"{n} {days[1]}"
+        return f"{n} {word[1]}"
     else:
-        return f"{n} {days[2]}"
+        return f"{n} {word[2]}"
 
 
 class AchievementType(str, Enum):
@@ -92,7 +92,12 @@ class Student(BaseModel):
     @computed_field
     def days_since_start(self) -> str:
         days = (date.today() - self.started_at).days
-        return plural_days(days)
+        return plural_text(days)
+
+    @computed_field
+    def months_since_start(self) -> str:
+        days = (date.today() - self.started_at).days
+        return plural_text(round(days / 30), month=True)
 
     @computed_field
     def profession_info(self) -> str:

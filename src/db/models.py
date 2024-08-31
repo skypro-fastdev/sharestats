@@ -4,7 +4,7 @@ from datetime import date, datetime
 from loguru import logger
 from sqlmodel import Field, Relationship, SQLModel, UniqueConstraint
 
-from src.models import Achievement, AchievementType, ProfessionEnum, Student, plural_days
+from src.models import Achievement, AchievementType, ProfessionEnum, Student, plural_text
 
 
 class StudentAchievement(SQLModel, table=True):
@@ -72,7 +72,7 @@ class StudentDB(SQLModel, table=True):
     @property
     def days_since_start(self) -> str:
         days = (date.today() - self.started_at).days
-        return plural_days(days)
+        return plural_text(days)
 
     def to_student(self) -> Student | None:
         try:

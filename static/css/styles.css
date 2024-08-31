@@ -359,6 +359,10 @@ li:last-child {
     transform-origin: 0 center 10px;
 }
 
+.recommend {
+    color: RGBA(255, 255, 255, 0.7);
+}
+
 .how-to-get {
     display: block;
     position: relative;
