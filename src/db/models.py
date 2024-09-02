@@ -63,6 +63,7 @@ class StudentDB(SQLModel, table=True):
     started_at: date
     statistics: str = Field(default="{}")
     points: int = 0
+    meme_stats: str = Field(default="{}")
     last_login: datetime | None = None
 
     student_achievements: list["StudentAchievement"] = Relationship(back_populates="student")
@@ -83,6 +84,7 @@ class StudentDB(SQLModel, table=True):
                 profession=self.profession,
                 started_at=self.started_at,
                 statistics=json.loads(self.statistics),
+                meme_stats=json.loads(self.meme_stats),
                 points=self.points,
                 last_login=self.last_login,
             )
@@ -99,6 +101,7 @@ class StudentDB(SQLModel, table=True):
             profession=student.profession,
             started_at=student.started_at,
             statistics=json.dumps(student.statistics),
+            meme_stats=json.dumps(student.meme_stats),
             points=student.points,
             last_login=student.last_login,
         )

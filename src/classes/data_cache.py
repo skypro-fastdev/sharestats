@@ -2,7 +2,7 @@ from loguru import logger
 from pydantic import ValidationError
 
 from src.classes.decorators import singleton
-from src.models import Challenge, Product
+from src.models import Challenge, Meme, Product
 
 
 @singleton
@@ -13,6 +13,7 @@ class DataCache:
         self.courses: dict[int, dict[str, int | str]] = {}
         self.challenges: dict[str, Challenge] = {}
         self.products: dict[str, Product] = {}
+        self.meme_data: dict[str, Meme] = {}
         self.professions_info: dict[str, str] = {}
         self.skills_details: dict[int, dict[int, dict[str, str]]] = {}
 
@@ -44,7 +45,7 @@ class DataCache:
 
             self.skills_details.setdefault(program, {})[lessons_completed] = {
                 "skill_short": skill,
-                "skill_extended": skill_extended
+                "skill_extended": skill_extended,
             }
 
     def update_courses(self, courses_data: list):
@@ -92,3 +93,19 @@ class DataCache:
                 logger.error(f"Unexpected error while loading data for product {row[0]}: {e}")
 
         logger.info(f"Loaded {len(self.products)} products")
+
+    def update_meme_data(self, meme_data: list):
+        headers = meme_data[0]
+        self.meme_data.clear()
+
+        for row in meme_data[1:]:
+            try:
+                meme_dict = dict(zip(headers, [value.strip() for value in row], strict=False))
+                meme = Meme(**meme_dict)
+                self.meme_data[meme.id] = meme
+            except ValidationError as e:
+                logger.error(f"Error while validating data for meme {row[0]}: {e}")
+            except Exception as e:
+                logger.error(f"Unexpected error while loading data for meme {row[0]}: {e}")
+
+        logger.info(f"Loaded {len(self.meme_data)} memes")

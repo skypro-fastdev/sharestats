@@ -85,6 +85,7 @@ class Student(BaseModel):
     profession: ProfessionEnum
     started_at: date
     statistics: dict[str, int | str]
+    meme_stats: dict[str, str] = {}
     achievements: list[Achievement] = []
     points: int = 0
     last_login: datetime | None = None
@@ -161,6 +162,20 @@ class Product(BaseModel):
     title: str
     value: int
     is_active: bool = Annotated[str, AfterValidator(lambda value: value == "TRUE")]
+
+
+class Meme(BaseModel):
+    id: str
+    group: str
+    question: str
+    options: list[str]
+
+    @field_validator("options", mode="before")
+    @classmethod
+    def split_options(cls, v):
+        if isinstance(v, str):
+            return v.split("\n")
+        return v
 
 
 class Purchase(BaseModel):

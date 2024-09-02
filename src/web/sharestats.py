@@ -1,3 +1,5 @@
+import json
+
 import aiohttp
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.requests import Request
@@ -7,7 +9,7 @@ from loguru import logger
 
 from src.config import IS_HEROKU, settings
 from src.db.students_crud import StudentDBHandler, get_student_crud
-from src.dependencies import sheet_pusher
+from src.dependencies import data_cache, sheet_pusher
 from src.models import CRMSubmission, URLSubmission
 from src.services.images import fetch_image, get_achievement_logo_relative_path, get_image_data
 from src.services.security import verify_hash_dependency
@@ -46,6 +48,8 @@ async def stats(
         db_achievement = await update_or_create_achievement_in_db(crud, handler.achievement)
         await crud.add_achievement_to_student(db_student.id, db_achievement.id)
 
+        meme_stats = json.loads(db_student.meme_stats)
+
         context = {
             "request": request,
             "student_id": student.id,
@@ -57,6 +61,7 @@ async def stats(
             "title": handler.achievement.title,
             "description": handler.achievement.description,
             "achievement_logo": get_achievement_logo_relative_path(handler.achievement),
+            "meme_stats": meme_stats,
             "tg_link": settings.TG_CHANNEL,
             "base_url": HOST_URL,
             **get_stats(student),
@@ -159,6 +164,7 @@ async def referal(
         "profession": student.profession.value,
         "profession_info": student.profession_info,
         "profession_dative": student.profession.dative,
+        "meme_stats": student.meme_stats,
         "skills": get_student_skills(student),
         "title": achievement.title,
         "description": achievement.description,
@@ -248,3 +254,48 @@ async def dashboard():
 @router.get("/no_data", name="no_data")
 async def no_data(request: Request):
     return templates.TemplateResponse("no_data.html", {"request": request})
+
+
+@router.get("/quiz/{student_id}", name="quiz")
+async def meme_quiz(
+    request: Request,
+    student_id: int,
+):
+    context = {
+        "request": request,
+        "student_id": student_id,
+        "questions": data_cache.meme_data.values(),
+    }
+    return templates.TemplateResponse("meme-quiz.html", context)
+
+
+@router.post("/quiz", name="quiz_result")
+async def meme_quiz_result(
+    request: Request,
+    crud: StudentDBHandler = Depends(get_student_crud),
+):
+    try:
+        answers = await request.json()
+        logger.info(f"Received answers: {answers}")
+
+        student_id = int(answers.pop("student_id"))
+        meme_stats = {}
+        for meme_id, option_index in answers.items():
+            meme_stats[meme_id] = data_cache.meme_data[meme_id].options[option_index]
+
+        result = await crud.add_meme_stats_to_student(student_id, meme_stats)
+
+        if not result:
+            logger.error("Failed to add meme stats to student")
+            raise HTTPException(status_code=500, detail="Failed to add meme stats to student")
+
+        return JSONResponse(
+            content={"status": "success", "message": "Ответы успешно получены. Статистика обновлена"},
+            status_code=200,
+        )
+    except json.JSONDecodeError:
+        logger.error("Invalid JSON data received from the request.")
+        raise HTTPException(status_code=400, detail="Invalid JSON data received from the request.") from None
+    except Exception as e:
+        logger.error(f"Error processing quiz answers: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error") from e

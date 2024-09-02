@@ -486,6 +486,38 @@ details[open] summary.what-is-skypro {
     margin-bottom: -10px;
 }
 
+.meme-header {
+    font-size: 28px;
+    font-weight: bolder;
+    margin-bottom: 0;
+}
+
+.meme-label {
+    font-size: 24px;
+    font-weight: bolder;
+    margin: 5px 0 5px 0;
+}
+
+.meme-fact {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.meme-image {
+    width: 120px;
+    aspect-ratio: 1 / 1;
+    margin-right: 5px;
+    object-fit: cover;
+}
+
+.meme-text {
+    flex: 1;
+    margin: 0;
+    text-align: left;
+    font-size: 18px;
+}
+
 .stats-container {
     text-align: center;
 }

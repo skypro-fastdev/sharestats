@@ -187,6 +187,21 @@ class StudentDBHandler:
         result = await self.session.execute(statement)
         return result.all()
 
+    async def add_meme_stats_to_student(self, student_id: int, memes: dict) -> StudentDB | None:
+        db_student = await self.get_student(student_id)
+
+        if not db_student:
+            return None
+
+        try:
+            db_student.meme_stats = json.dumps(memes, ensure_ascii=False)
+            await self.session.commit()
+            await self.session.refresh(db_student)
+            return db_student
+        except IntegrityError:
+            await self.session.rollback()
+            return None
+
 
 def get_student_crud(session: AsyncSession = Depends(get_async_session)) -> StudentDBHandler:
     return StudentDBHandler(session)

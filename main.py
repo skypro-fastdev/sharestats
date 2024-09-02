@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -8,7 +9,8 @@ from starlette.exceptions import HTTPException
 from src.api.routes import api_router
 from src.bot.client import bot
 from src.config import settings, setup_middlewares
-from src.dependencies import load_cache
+from src.dependencies import data_cache, load_cache, mock_data_loader
+from src.services.background_tasks import update_meme_data_periodically
 from src.web.bonuses import router as bonuses_router
 from src.web.sharestats import router as sharestats_router
 
@@ -25,7 +27,16 @@ async def _lifespan(app: FastAPI):
     #     update_challenges_products_periodically(cafeteria_loader, data_cache, stats_loader)
     # )
 
+    # Start periodic task for updating memes
+    update_memes_task = asyncio.create_task(update_meme_data_periodically(mock_data_loader, data_cache))
+
     yield
+
+    update_memes_task.cancel()
+    try:
+        await update_memes_task
+    except asyncio.CancelledError:
+        logger.info("Background task for updating memes was cancelled")
     #
     # task.cancel()
     # try:

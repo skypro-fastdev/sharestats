@@ -64,6 +64,10 @@
         <p class="stats-header">Учусь уже {{ days_since_start }}</p>
         <p class="stat-lives"><strong>{{ lessons_completed }}</strong> уроков пройдено</p>
         <p class="stat-lives"><strong>{{ courseworks_completed }}</strong> курсовых сдано</p>
+
+        <!-- Include meme stats -->
+        {% include 'meme_stats.html' %}
+
         <div class="info-box">
             <p>
                 Для друзей {{ first_name }} {{ last_name }}

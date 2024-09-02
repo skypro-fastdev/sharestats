@@ -19,6 +19,12 @@ async def get_challenges_and_products_data(cafeteria_loader: SheetLoader) -> tup
     return challenges_data, products_data
 
 
+async def get_memes_data(data_loader: SheetLoader) -> list:
+    async_sheet_loader = AsyncSheetLoaderWrapper(data_loader)
+    await async_sheet_loader.get_spreadsheet()
+    return await async_sheet_loader.get_data_from_sheet("memes")
+
+
 async def update_challenges_products_periodically(
     cafeteria_loader: SheetLoader,
     data_cache: DataCache,
@@ -50,8 +56,28 @@ async def update_challenges_products_periodically(
                 await challenge_crud.update_all_students_challenges()
                 break
 
-            logger.info("All updates completed.")
+            logger.info("Challenges and products updates completed.")
         except Exception as e:
-            logger.error(f"Error during challenges update: {e}")
+            logger.error(f"Error during challenges and products update: {e}")
 
-        await asyncio.sleep(5 * 60)  # 60 seconds
+        await asyncio.sleep(50 * 60)  # 50 minutes
+
+
+async def update_meme_data_periodically(
+    data_loader: SheetLoader,
+    data_cache: DataCache,
+) -> None:
+    while True:
+        try:
+            logger.info("Updating meme data from Google Sheet...")
+            meme_data = await get_memes_data(data_loader)
+            data_cache.update_meme_data(meme_data)
+
+            for key, value in data_cache.meme_data.items():
+                logger.info(f"Options for {key}: {len(value.options)}")
+
+            logger.info("Meme's data updated.")
+        except Exception as e:
+            logger.error(f"Error during meme's data update: {e}")
+
+        await asyncio.sleep(60 * 60)  # 60 minutes

@@ -70,3 +70,10 @@ async def get_achievement_for_student(crud: StudentDBHandler, student_id: int) -
     if not db_achievement:
         raise HTTPException(status_code=404, detail="Страница не найдена")
     return db_achievement.to_achievement_model()
+
+
+async def add_meme_stats_to_student(crud: StudentDBHandler, student_id: int, memes: list) -> None:
+    db_student = await crud.add_memes_stats_to_student(student_id, memes)
+    if not db_student:
+        logger.error(f"Student {student_id} not found in DB while adding meme stats")
+        raise HTTPException(status_code=500, detail="Failed to add meme stats to student")

@@ -1,0 +1,13 @@
+{% if meme_stats %}
+    <div class="stats-container">
+        <p class="meme-header">ФАН-ФАКТЫ:</p>
+        <p class="meme-label">ЭТО БЫЛО НЕПРОСТО, НО<br>ХОРОШЕГО БЫЛО БОЛЬШЕ</p>
+        {% for image, fact in meme_stats.items() %}
+            <div class="meme-fact">
+                <img src="{{ url_for('data', path='images/memes/' ~ image ~ '.png') }}" alt="{{ image }}"
+                     class="meme-image">
+                <p class="meme-text">{{ fact }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

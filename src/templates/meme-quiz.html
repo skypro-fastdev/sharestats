@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skypro - Анкета для дополнительной статистики</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles_quiz.css') }}">
+    {% include 'gtm_head.html' %}
+    {% include 'metrica.html' %}
+</head>
+<body>
+{% include 'gtm_body.html' %}
+<div class="container">
+    <header>
+        <img src="{{ url_for('data', path="images/skypro.png") }}" alt="" class="logo">
+    </header>
+    <main>
+        <h1 class="top-h1">Заполните пожалуйста анкету для дополнительной статистики!</h1>
+        <form id="quizForm">
+            {% for meme in questions %}
+                <div class="question">
+                    <h3>{{ meme.question }}</h3>
+                    <div class="options">
+                        {% for option in meme.options %}
+                            <div>
+                                <input type="radio" id="{{ meme.id }}_{{ loop.index0 }}" name="{{ meme.id }}"
+                                       value="{{ loop.index0 }}">
+                                <label for="{{ meme.id }}_{{ loop.index0 }}">{{ option }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+            <button type="submit">Отправить ответы</button>
+        </form>
+        <input type="hidden" id="studentId" value="{{ student_id }}">
+    </main>
+
+    <div id="successPopup" class="popup"
+         data-success-image="{{ url_for('data', path='images/check_mark.png') }}"
+         data-error-image="{{ url_for('data', path='images/error_mark.png') }}">
+        <div class="popup-content">
+            <img id="popupImage" src="{{ url_for('data', path='images/check_mark.png') }}" alt="">
+            <h2 id="popupTitle">Готово!</h2>
+            <p id="popupMessage"></p>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', path='js/submit_memes_quiz.js') }}" defer></script>
+</body>
+</html>
