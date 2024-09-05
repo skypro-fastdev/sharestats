@@ -105,7 +105,8 @@ class ChallengeDBHandler:
 
     async def get_students_with_challenges(self) -> list[StudentDB]:
         # Получаем всех студентов с их текущими челленджами
-        students = await self.session.execute(select(StudentDB).options(joinedload(StudentDB.student_challenges)))
+        statement = select(StudentDB).options(joinedload(StudentDB.student_challenges))
+        students = await self.session.execute(statement)
         return list(students.unique().scalars().all())
 
     async def update_new_student_challenges(self, student: StudentDB) -> tuple[list[ChallengesDB], list[ChallengesDB]]:

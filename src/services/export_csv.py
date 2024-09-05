@@ -2,10 +2,10 @@ import csv
 from io import StringIO
 from typing import Sequence
 
-from src.db.models import StudentDB
+from sqlalchemy import Row
 
 
-def generate_csv(students: Sequence[StudentDB]) -> StringIO:
+def generate_csv(students: Sequence[Row]) -> StringIO:
     buffer = StringIO()
     writer = csv.writer(buffer)
     writer.writerow(["student_id", "last_login"])

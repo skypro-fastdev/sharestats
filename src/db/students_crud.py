@@ -5,6 +5,7 @@ from typing import Sequence
 
 from fastapi import Depends
 from loguru import logger
+from sqlalchemy import Row
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -93,7 +94,7 @@ class StudentDBHandler:
         result = await self.session.execute(statement)
         return result.scalar_one_or_none()
 
-    async def get_students_with_last_login(self, target_date: date) -> Sequence[StudentDB]:
+    async def get_students_with_last_login(self, target_date: date) -> Sequence[Row]:
         statement = select(StudentDB.id, StudentDB.last_login).where(func.date(StudentDB.last_login) == target_date)
         result = await self.session.execute(statement)
         return result.all()
@@ -163,14 +164,12 @@ class StudentDBHandler:
             self.session.add(student_achievement)
             await self.session.commit()
 
-    async def get_list_of_achievements_received(self) -> list[tuple[str, str, int]]:
+    async def get_list_of_achievements_received(self) -> Sequence[Row]:
         """Get descending list of achievements received"""
-        # Step 1: Get the IDs grouped by title
+        # Step 1: Get the unique achievement titles, pictures and ids
         achievement_subquery = (
-            select(AchievementDB.title, AchievementDB.picture, AchievementDB.id).group_by(
-                AchievementDB.title, AchievementDB.picture, AchievementDB.id
-            )
-        ).subquery()
+            select(AchievementDB.title, AchievementDB.picture, AchievementDB.id).distinct().subquery()
+        )
 
         # Step 2: Count occurrences in student_achievements based on achievement ID
         statement = (
@@ -179,6 +178,7 @@ class StudentDBHandler:
                 achievement_subquery.c.picture,
                 func.count(StudentAchievement.student_id).label("receive_count"),
             )
+            .select_from(achievement_subquery)
             .join(StudentAchievement, StudentAchievement.achievement_id == achievement_subquery.c.id)
             .group_by(achievement_subquery.c.title, achievement_subquery.c.picture)
             .order_by(func.count(StudentAchievement.student_id).desc())

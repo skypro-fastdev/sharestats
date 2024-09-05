@@ -37,6 +37,11 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .then(data => {
                 if (data.status === 'processing') {
+                    // Отправляем событие в Яндекс Метрику при успешной обработке
+                    if (typeof ym !== 'undefined') {
+                        ym(97943495, 'reachGoal', 'stats_send_link');
+                    }
+
                     popup.style.display = 'block';
                     setTimeout(() => {
                         popup.style.display = 'none';

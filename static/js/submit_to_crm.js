@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 3000);
     }
 
-    function submitForm(data, successMessage) {
+    function submitForm(data, successMessage, metrikaEvent) {
         fetch('/share/submit-to-crm', {
             method: 'POST',
             headers: {
@@ -63,6 +63,10 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.status === 'success') {
                     showPopup(successMessage, true);
+                    // Отправляем событие в Яндекс.Метрику
+                    if (typeof ym !== 'undefined') {
+                        ym(97943495, 'reachGoal', metrikaEvent);
+                    }
                 } else {
                     showPopup(data.message || 'Произошла ошибка. Пожалуйста, попробуйте еще раз.', false);
                 }
@@ -86,20 +90,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let successMessage = 'Мы получили вашу заявку!<br>';
         let order;
+        let metrikaEvent;
 
         if (formName === 'phoneForm1') {
             successMessage += 'Скоро мы вам позвоним или напишем!';
             order = 'consultation';
+            metrikaEvent = 'guest_order_kk';
         } else {
             successMessage += 'Скоро мы пришлём вам доступ к мини-курсу!';
             order = 'mini-course';
+            metrikaEvent = 'guest_order_minicourse';
         }
 
         submitForm({
             phone: '+' + countryCode + '-' + phoneNumber,
             student_id: studentId,
             order: order
-        }, successMessage);
+        }, successMessage, metrikaEvent);
     }
 
     if (phoneForm1) {
