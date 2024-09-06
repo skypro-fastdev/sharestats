@@ -43,7 +43,7 @@ async def stats(
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
     try:
-        student = await get_student_data(handler, student_id)
+        student = get_student_data(handler, student_id)
         db_student = await update_or_create_student_in_db(crud, student)
         db_achievement = await update_or_create_achievement_in_db(crud, handler.achievement)
         await crud.add_achievement_to_student(db_student.id, db_achievement.id)

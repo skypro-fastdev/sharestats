@@ -13,7 +13,7 @@ class NoDataException(Exception):  # noqa N818
     pass
 
 
-async def get_student_data(handler: StudentHandler, student_id: int) -> Student:
+def get_student_data(handler: StudentHandler, student_id: int) -> Student:
     if not handler.student:
         logger.info(f"Statistics for student {student_id} not found")
         raise HTTPException(status_code=404, detail="Страница не найдена")
@@ -27,6 +27,7 @@ async def get_student_data(handler: StudentHandler, student_id: int) -> Student:
     today = datetime.today().date()
 
     if homework_total == 0 or started_at > today:
+        logger.info(f"Student {student_id} has no data (homework_total: {homework_total}, started_at: {started_at})")
         raise NoDataException()
 
     return handler.student
