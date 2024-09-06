@@ -49,6 +49,12 @@ async def stats(
         await crud.add_achievement_to_student(db_student.id, db_achievement.id)
 
         meme_stats = json.loads(db_student.meme_stats)
+        if meme_stats:
+            answer_to_question = {meme.id: meme.question for meme in data_cache.meme_data.values()}
+
+            for key, answer in meme_stats.items():
+                if answer_to_question.get(key) is not None:
+                    meme_stats[key] = {"question": answer_to_question[key], "answer": answer}
 
         context = {
             "request": request,

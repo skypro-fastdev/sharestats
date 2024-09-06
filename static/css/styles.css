@@ -327,6 +327,7 @@ li:last-child {
     color: white;
     padding: 15px;
     border-radius: 10px;
+    margin-top: 10px;
 }
 
 .share-summary {
@@ -501,20 +502,47 @@ details[open] summary.what-is-skypro {
 .meme-fact {
     display: flex;
     align-items: center;
-    margin-bottom: 5px;
 }
 
 .meme-image {
     width: 120px;
     aspect-ratio: 1 / 1;
-    margin-right: 5px;
+    margin-right: 0;
     object-fit: cover;
 }
 
-.meme-text {
-    flex: 1;
-    margin: 0;
+.meme-chat {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 5px 0;
+}
+
+.meme-question, .meme-answer {
+    max-width: 75%;
+    padding: 10px;
+    border-radius: 10px;
     text-align: left;
+    margin-bottom: 10px;
+}
+
+.meme-question {
+    background-color: #BBEC30;
+    color: #322963;
+    align-self: flex-start;
+    margin-top: auto;
+}
+
+.meme-answer {
+    background-color: #322963;
+    color: #FFFFFF;
+    align-self: flex-end;
+    margin-top: auto;
+}
+
+.meme-text {
+    margin: 0;
     font-size: 18px;
 }
 
