@@ -116,3 +116,13 @@ async def get_achievements_data(data: list[tuple[str, str, int]]) -> list:
         achievement_logo_path = f"images/logo_{picture}"
         achievements_data.append({"title": title, "receive_count": receive_count, "image_url": achievement_logo_path})
     return achievements_data
+
+
+def get_meme_stats(meme_stats: dict) -> dict:
+    if meme_stats:
+        answer_to_question = {meme.id: meme.question for meme in data_cache.meme_data.values()}
+
+        for key, answer in meme_stats.items():
+            if answer_to_question.get(key) is not None:
+                meme_stats[key] = {"question": answer_to_question[key], "answer": answer}
+    return meme_stats

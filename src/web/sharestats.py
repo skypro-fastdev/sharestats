@@ -13,7 +13,7 @@ from src.dependencies import data_cache, sheet_pusher
 from src.models import CRMSubmission, URLSubmission
 from src.services.images import fetch_image, get_achievement_logo_relative_path, get_image_data
 from src.services.security import verify_hash_dependency
-from src.services.stats import get_achievements_data, get_stats, get_student_skills
+from src.services.stats import get_achievements_data, get_meme_stats, get_stats, get_student_skills
 from src.services.student_service import (
     NoDataException,
     get_achievement_for_student,
@@ -48,13 +48,7 @@ async def stats(
         db_achievement = await update_or_create_achievement_in_db(crud, handler.achievement)
         await crud.add_achievement_to_student(db_student.id, db_achievement.id)
 
-        meme_stats = json.loads(db_student.meme_stats)
-        if meme_stats:
-            answer_to_question = {meme.id: meme.question for meme in data_cache.meme_data.values()}
-
-            for key, answer in meme_stats.items():
-                if answer_to_question.get(key) is not None:
-                    meme_stats[key] = {"question": answer_to_question[key], "answer": answer}
+        meme_stats = get_meme_stats(json.loads(db_student.meme_stats))
 
         context = {
             "request": request,
@@ -170,7 +164,7 @@ async def referal(
         "profession": student.profession.value,
         "profession_info": student.profession_info,
         "profession_dative": student.profession.dative,
-        "meme_stats": student.meme_stats,
+        "meme_stats": get_meme_stats(student.meme_stats),
         "skills": get_student_skills(student),
         "title": achievement.title,
         "description": achievement.description,
