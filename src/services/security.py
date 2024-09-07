@@ -2,6 +2,7 @@ import hashlib
 
 from fastapi import HTTPException
 
+from src.bot.logger import tg_logger
 from src.config import settings
 
 
@@ -14,6 +15,7 @@ def verify_hash(student_id, expected_hash):
     return calculated_hash == expected_hash
 
 
-def verify_hash_dependency(student_id: int, hash: str | None = None) -> None:  # noqa: A002
+async def verify_hash_dependency(student_id: int, hash: str | None = None) -> None:  # noqa: A002
     if not verify_hash(student_id, hash):
+        await tg_logger.log("ERROR", f"Invalid hash for student {student_id}: {hash}")
         raise HTTPException(status_code=404, detail="Страница не найдена")

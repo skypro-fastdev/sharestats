@@ -3,8 +3,8 @@ from random import choice
 
 from fastapi import HTTPException
 from loguru import logger
-from pydantic import ValidationError
 
+from src.bot.logger import tg_logger
 from src.models import Achievement, AchievementType, ProfessionEnum, Student
 from src.services.stats import check_achievements, get_user_stats
 
@@ -43,10 +43,11 @@ class StudentHandler:
                 statistics=stats,
                 last_login=datetime.now(),
             )
-            logger.info(f"Student {self.student.id} last login: {self.student.last_login}")
-        except ValidationError as e:
-            logger.error(f"Failed to initialize student handler! student_id: {self.student_id}")
-            raise HTTPException(status_code=400, detail=e.errors()) from e
+        except Exception as e:
+            await tg_logger.log(
+                "ERROR", f"Failed to initialize student handler! student_id: {self.student_id}\n" f"Error: {e}"
+            )
+            raise HTTPException(status_code=400, detail=str(e)) from e
 
         self.achievements = check_achievements(self.student)
         self.achievement = self.get_random_achievement()

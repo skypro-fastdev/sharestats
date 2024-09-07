@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from loguru import logger
 
+from src.bot.logger import tg_logger
 from src.config import IS_HEROKU, settings
 from src.db.students_crud import StudentDBHandler, get_student_crud
 from src.dependencies import data_cache, sheet_pusher
@@ -43,7 +44,7 @@ async def stats(
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
     try:
-        student = get_student_data(handler, student_id)
+        student = await get_student_data(handler, student_id)
         db_student = await update_or_create_student_in_db(crud, student)
         db_achievement = await update_or_create_achievement_in_db(crud, handler.achievement)
         await crud.add_achievement_to_student(db_student.id, db_achievement.id)
@@ -78,10 +79,11 @@ async def stats(
 
 @router.get("/get_image/{student_id}", name="get_image")
 async def get_image(
+    request: Request,
     student_id: int,
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
-    achievement = await get_achievement_for_student(crud, student_id)
+    achievement = await get_achievement_for_student(crud, student_id, endpoint=request.url.path)
     image_data = await get_image_data(achievement, orientation="vertical")
     image_bytes, content_type, filename = await fetch_image(image_data["url"])
 
@@ -101,7 +103,7 @@ async def share(
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
     orientation = get_orientation(request)
-    achievement = await get_achievement_for_student(crud, student_id)
+    achievement = await get_achievement_for_student(crud, student_id, endpoint=request.url.path)
     image_data = await get_image_data(achievement, orientation)
 
     title = "Для моих друзей бесплатная консультация по смене работы, курс в подарок и скидки до 50 000 в Skypro"
@@ -133,7 +135,7 @@ async def tg(
     background_tasks: BackgroundTasks,
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
-    achievement = await get_achievement_for_student(crud, student_id)
+    achievement = await get_achievement_for_student(crud, student_id, endpoint=request.url.path)
     image_data = await get_image_data(achievement, orientation="vertical")
 
     if IS_HEROKU:  # noqa SIM108
@@ -152,7 +154,7 @@ async def referal(
     student_id: int,
     crud: StudentDBHandler = Depends(get_student_crud),
 ):
-    achievement = await get_achievement_for_student(crud, student_id)
+    achievement = await get_achievement_for_student(crud, student_id, request.url.path)
     student = await get_student_by_id(crud, student_id)
 
     context = {
@@ -195,6 +197,7 @@ async def submit_url(data: URLSubmission, background_tasks: BackgroundTasks):
     return JSONResponse({"status": "processing"})
 
 
+# /submit-to-crm DEPRECATED
 @router.post("/submit-to-crm", name="submit_to_crm")
 async def submit_to_crm(data: CRMSubmission, background_tasks: BackgroundTasks):
     # TODO: Has to refactor it (move logic to crm_service.py)
@@ -241,7 +244,7 @@ async def submit_to_crm(data: CRMSubmission, background_tasks: BackgroundTasks):
 
 @router.get("/results", name="results")
 async def top_achievements(request: Request, crud: StudentDBHandler = Depends(get_student_crud)):
-    counts_of_received_achievements: list[tuple[str, str, int]] = await crud.get_list_of_achievements_received()
+    counts_of_received_achievements = await crud.get_list_of_achievements_received()
     achievements = await get_achievements_data(counts_of_received_achievements)
     return templates.TemplateResponse("results.html", {"request": request, "achievements": achievements})
 
@@ -276,9 +279,8 @@ async def meme_quiz_result(
 ):
     try:
         answers = await request.json()
-        logger.info(f"Received answers: {answers}")
-
         student_id = int(answers.pop("student_id"))
+
         meme_stats = {}
         for meme_id, option_index in answers.items():
             meme_stats[meme_id] = data_cache.meme_data[meme_id].options[option_index]
@@ -286,7 +288,8 @@ async def meme_quiz_result(
         result = await crud.add_meme_stats_to_student(student_id, meme_stats)
 
         if not result:
-            logger.error("Failed to add meme stats to student")
+            logger.error(f"Failed to add meme stats to student {student_id}")
+            await tg_logger.log("ERROR", f"Failed to add meme stats to student {student_id}")
             raise HTTPException(status_code=500, detail="Failed to add meme stats to student")
 
         return JSONResponse(

@@ -75,7 +75,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         },
         "503": {
             "title": "Сервис временно недоступен",
-            "message": "Мы проводим технические работы. Пожалуйста, попробуйте позже.",
+            "message": "Пожалуйста, попробуйте позже.",
         },
     }
 

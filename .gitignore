@@ -42,4 +42,5 @@ node_modules/
 *.log
 *.sqlite3
 *.tmp
+*old_*
 credentials.json

@@ -1,6 +1,9 @@
+from json import JSONDecodeError
+
 import aiohttp
 from fastapi import HTTPException
-from loguru import logger
+
+from src.bot.logger import tg_logger
 
 
 class StatsLoader:
@@ -17,12 +20,29 @@ class StatsLoader:
                     if response.status == 200:
                         try:
                             return await response.json()
-                        except Exception as e:
-                            logger.error(f"Response is not JSON: {e}")
-                    elif response.status == 503:
-                        raise HTTPException(status_code=503)
+                        except JSONDecodeError as e:
+                            await tg_logger.log(
+                                "ERROR",
+                                f"Failed to decode JSON response for student_id {student_id}: {e}",
+                            )
+                    else:
+                        await tg_logger.log(
+                            "WARNING",
+                            f"Unexpected response from Yandex API for student_id: {student_id}\n"
+                            f"Status: {response.status}\n"
+                            f"Reason: {response.reason}",
+                        )
+                        raise HTTPException(status_code=503, detail="Yandex API is currently unavailable")
                     return {}
-
+        except aiohttp.ClientError as e:
+            await tg_logger.log(
+                "ERROR",
+                f"Network error while getting stats for student_id {student_id}: {e}",
+            )
+            return {}
         except Exception as e:
-            logger.error(f"Error while getting stats {student_id}: {e}")
+            await tg_logger.log(
+                "ERROR",
+                f"Unexpected error in while getting stats from Yandex API for student_id {student_id}\n{e}",
+            )
             return {}

@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     TG_TOKEN: str
     TG_CHANNEL: str = "https://t.me/skypro_sharingstats"
     CHANNEL_ID: str
+    ADMIN_CHANNEL_ID: str
     LOAD_STATS_HOST: str
     LOAD_STATS_TOKEN: str
     YANDEX_S3_KEY_ID: str

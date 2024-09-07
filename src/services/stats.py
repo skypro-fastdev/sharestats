@@ -1,6 +1,7 @@
-from typing import Any
+from typing import Any, Sequence
 
 from loguru import logger
+from sqlalchemy import Row
 
 from src.dependencies import achievements, data_cache, stats_loader
 from src.models import Achievement, Student
@@ -108,7 +109,7 @@ def get_student_skills(student: Student) -> list:
         return []
 
 
-async def get_achievements_data(data: list[tuple[str, str, int]]) -> list:
+async def get_achievements_data(data: Sequence[Row]) -> list:
     achievements_data = []
     for title, picture, receive_count in data:
         if title == "Новичок":
