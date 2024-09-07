@@ -32,7 +32,7 @@ class StatsLoader:
                             f"Status: {response.status}\n"
                             f"Reason: {response.reason}",
                         )
-                        raise HTTPException(status_code=503, detail="Yandex API is currently unavailable")
+                        raise HTTPException(status_code=response.status, detail=response.reason)
                     return {}
         except aiohttp.ClientError as e:
             await tg_logger.log(
