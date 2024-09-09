@@ -24,7 +24,7 @@ async def _lifespan(app: FastAPI):
 
     # Start periodic task for updating challenges
     # task = asyncio.create_task(
-    #     update_challenges_products_periodically(cafeteria_loader, data_cache, stats_loader)
+    #     update_challenges_statistics_periodically(data_cache, stats_loader)
     # )
 
     # Start periodic task for updating memes
@@ -37,7 +37,7 @@ async def _lifespan(app: FastAPI):
         await update_memes_task
     except asyncio.CancelledError:
         logger.info("Background task for updating memes was cancelled")
-    #
+
     # task.cancel()
     # try:
     #     await task
@@ -75,7 +75,11 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         },
         "503": {
             "title": "Сервис временно недоступен",
-            "message": "Пожалуйста, попробуйте позже.",
+            "message": "Пожалуйста, попробуйте зайти позже.",
+        },
+        "504": {
+            "title": "Сервис временно недоступен",
+            "message": "Пожалуйста, попробуйте зайти через 5 минут.",
         },
     }
 

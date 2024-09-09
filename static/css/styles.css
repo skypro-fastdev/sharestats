@@ -446,12 +446,59 @@ details[open] summary.what-is-skypro {
     margin-bottom: 10px;
 }
 
-.description-down {
-    background-color: #322963;
+.profession-info-container {
+    background-color: #ffffff;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.description-prof {
+    color: #322963;
     font-size: 18px;
     padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 10px;
+    margin: 0;
+}
+
+.career-change-section {
+    background-color: #f0e6ff;
+    padding: 15px;
+    text-align: center;
+}
+
+.take-test-section {
+    padding: 0 15px 15px 15px;
+    text-align: center;
+}
+
+.career-change-section p {
+    color: #322963;
+    margin: 0 0 20px 0;
+    font-size: 18px;
+}
+
+.take-test-btn {
+    background-color: #322963;
+    color: white;
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: bolder;
+    cursor: pointer;
+}
+
+.take-test-btn-down {
+    background-color: #BBEC30;
+    color: #322963;
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: bolder;
+    cursor: pointer;
 }
 
 .description {

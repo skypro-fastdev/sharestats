@@ -4,7 +4,7 @@ from datetime import date, datetime
 from loguru import logger
 from sqlmodel import Field, Relationship, SQLModel, UniqueConstraint
 
-from src.models import Achievement, AchievementType, ProfessionEnum, Student, plural_text
+from src.models import Achievement, AchievementType, ProfessionEnum, ProfessionEnumWithAll, Student, plural_text
 
 
 class StudentAchievement(SQLModel, table=True):
@@ -121,6 +121,7 @@ class ChallengesDB(SQLModel, table=True):
     __tablename__ = "challenges"
     id: str = Field(default=None, primary_key=True)
     title: str
+    profession: ProfessionEnumWithAll | None = Field(default=None)
     eval: str
     value: int
     is_active: bool

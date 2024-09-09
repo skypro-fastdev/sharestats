@@ -3,8 +3,9 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.security import APIKeyHeader
 
 from src.config import settings
+from src.db.challenges_crud import ChallengeDBHandler, get_challenge_crud
 from src.db.students_crud import StudentDBHandler, get_student_crud
-from src.models import DateQuery, Purchase
+from src.models import Challenge, DateQuery, Purchase
 from src.services.export_csv import generate_csv
 
 api_key_header = APIKeyHeader(name="X-API-Key")
@@ -17,6 +18,19 @@ async def validate_token(key: str = Security(api_key_header)):
 
 
 api_router = APIRouter(dependencies=[Depends(validate_token)])
+
+
+@api_router.post("/bonuses/challenges", name="challenges")
+async def process_challenges(
+    data: list[Challenge],
+    crud: ChallengeDBHandler = Depends(get_challenge_crud),
+):
+    results = await crud.process_challenges_batch(data)
+
+    return JSONResponse(
+        {"status": "OK", "message": "Challenges processed", "results": results},
+        status_code=status.HTTP_200_OK,
+    )
 
 
 @api_router.post("/bonuses/purchase")

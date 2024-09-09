@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skypro - Моя статистика</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
-    {% include 'gtm_head.html' %}
     {% include 'metrica.html' %}
+    {% include 'gtm_head.html' %}
 </head>
 <body>
 {% include 'gtm_body.html' %}
@@ -90,7 +90,8 @@
         {% include 'meme_stats.html' %}
 
         <div class="get-container">
-            <p style="margin-top: 5px; font-size: 18px;"><strong>Вы – просто супер!</strong><br><br>Поделитесь красивой<br>статистикой в
+            <p style="margin-top: 5px; font-size: 18px;"><strong>Вы – просто супер!</strong><br><br>Поделитесь
+                красивой<br>статистикой в
                 соцсетях, получите +1 индивидуальную консультацию с наставником. И <strong>15 900 ₽ за каждого
                     друга</strong>, который придет к нам учиться.</p>
             <details>

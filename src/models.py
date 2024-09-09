@@ -68,6 +68,18 @@ class ProfessionEnum(str, Enum):
         return dative_forms[self]
 
 
+class ProfessionEnumWithAll(str, Enum):
+    PD = "PD"
+    DA = "DA"
+    GD = "GD"
+    WD = "WD"
+    QA = "QA"
+    JD = "JD"
+    IM = "IM"
+    PM = "PM"
+    ALL = "ALL"
+
+
 class Achievement(BaseModel):
     title: str
     description: str
@@ -152,6 +164,7 @@ class CRMSubmission(BaseModel):
 class Challenge(BaseModel):
     id: str
     title: str
+    profession: ProfessionEnumWithAll
     eval: str
     value: int
     is_active: bool = Annotated[str, AfterValidator(lambda value: value == "TRUE")]

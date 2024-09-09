@@ -4,7 +4,7 @@ from fastapi import Depends
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
-from sqlmodel import select, update
+from sqlmodel import or_, select, update
 
 from src.db.models import ChallengesDB, StudentChallenge, StudentDB
 from src.db.session import get_async_session
@@ -20,10 +20,15 @@ class ChallengeDBHandler:
         result = await self.session.execute(select(ChallengesDB).where(ChallengesDB.id == challenge_id))
         return result.scalar_one_or_none()
 
-    async def get_all_challenges(self, active_only: bool = False) -> list[ChallengesDB]:
+    async def get_all_challenges(self, active_only: bool = False, profession: str | None = None) -> list[ChallengesDB]:
         query = select(ChallengesDB)
+
         if active_only:
             query = query.where(ChallengesDB.is_active == True)  # noqa
+
+        if profession:
+            query = query.where(or_(ChallengesDB.profession == profession, ChallengesDB.profession == "ALL"))
+
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
@@ -69,39 +74,67 @@ class ChallengeDBHandler:
             logger.error(f"Failed to deactivate challenge {challenge_id}: {e}")
             await self.session.rollback()
 
-    async def sync_challenges(self, data_cache: dict[str, Challenge]) -> None:
-        db_challenges = await self.get_all_challenges()
-        db_challenge_ids = {challenge.id for challenge in db_challenges}
+    async def process_challenges_batch(self, challenges: list[Challenge]) -> dict:
+        results = {"created": 0, "updated": 0, "unchanged": 0, "failed": 0}
 
-        challenges_created = 0
-        challenges_updated = 0
-        challenges_deactivated = 0
+        for challenge in challenges:
+            try:
+                existing_challenge = await self.get_challenge(challenge.id)
 
-        # Update or create challenges
-        for challenge_id, challenge in data_cache.items():
-            if challenge_id in db_challenge_ids:
-                if not data_cache[challenge_id].is_active:
-                    await self.deactivate_challenge(challenge_id)
-                    challenges_deactivated += 1
-                    continue
-                await self.update_challenge(challenge)
-                challenges_updated += 1
-            elif data_cache[challenge_id].is_active:
-                await self.create_challenge(challenge)
-                challenges_created += 1
+                if existing_challenge is None:
+                    new_challenge = await self.create_challenge(challenge)
+                    if new_challenge:
+                        results["created"] += 1
+                    else:
+                        results["failed"] += 1
+                elif existing_challenge.is_active != challenge.is_active:
+                    updated_challenge = await self.update_challenge(challenge)
+                    if updated_challenge:
+                        results["updated"] += 1
+                    else:
+                        results["failed"] += 1
+                else:
+                    results["unchanged"] += 1
+            except Exception as e:
+                logger.error(f"Failed to process challenge {challenge.id}: {e}")
+                results["failed"] += 1
 
-        # Deactivate inactive challenges
-        for db_challenge in db_challenges:
-            if db_challenge.id not in data_cache and db_challenge.is_active:
-                await self.deactivate_challenge(db_challenge.id)
-                logger.info(f"Challenge {db_challenge.id} deactivated in DB")
-                challenges_deactivated += 1
+        return results
 
-        logger.info(
-            f"Synced challenges: {challenges_updated} updated, "
-            f"{challenges_created} created, "
-            f"{challenges_deactivated} deactivated"
-        )
+    #
+    # async def sync_challenges(self, data_cache: dict[str, Challenge]) -> None:
+    #     db_challenges = await self.get_all_challenges()
+    #     db_challenge_ids = {challenge.id for challenge in db_challenges}
+    #
+    #     challenges_created = 0
+    #     challenges_updated = 0
+    #     challenges_deactivated = 0
+    #
+    #     # Update or create challenges
+    #     for challenge_id, challenge in data_cache.items():
+    #         if challenge_id in db_challenge_ids:
+    #             if not data_cache[challenge_id].is_active:
+    #                 await self.deactivate_challenge(challenge_id)
+    #                 challenges_deactivated += 1
+    #                 continue
+    #             await self.update_challenge(challenge)
+    #             challenges_updated += 1
+    #         elif data_cache[challenge_id].is_active:
+    #             await self.create_challenge(challenge)
+    #             challenges_created += 1
+    #
+    #     # Deactivate inactive challenges
+    #     for db_challenge in db_challenges:
+    #         if db_challenge.id not in data_cache and db_challenge.is_active:
+    #             await self.deactivate_challenge(db_challenge.id)
+    #             logger.info(f"Challenge {db_challenge.id} deactivated in DB")
+    #             challenges_deactivated += 1
+    #
+    #     logger.info(
+    #         f"Synced challenges: {challenges_updated} updated, "
+    #         f"{challenges_created} created, "
+    #         f"{challenges_deactivated} deactivated"
+    #     )
 
     async def get_students_with_challenges(self) -> list[StudentDB]:
         # Получаем всех студентов с их текущими челленджами
@@ -112,7 +145,9 @@ class ChallengeDBHandler:
     async def update_new_student_challenges(self, student: StudentDB) -> tuple[list[ChallengesDB], list[ChallengesDB]]:
         student_stats = json.loads(student.statistics)
         completed_challenges = []
-        active_challenges = await self.get_all_challenges(active_only=True)
+
+        active_challenges = await self.get_all_challenges(active_only=True, profession=student.profession.name)
+        # active_challenges = await self.get_all_challenges(active_only=True)
         total_points_earned = 0
 
         for challenge in active_challenges:
@@ -157,7 +192,17 @@ class ChallengeDBHandler:
 
                 points_to_add = 0
 
-                for challenge in active_challenges:
+                active_challenges_by_profession = [
+                    challenge
+                    for challenge in active_challenges
+                    if challenge.profession in {student.profession.name, "ALL"}
+                ]
+                logger.info(
+                    f"Active challenges for {student.id} with profession {student.profession.value}: "
+                    f"{active_challenges_by_profession if active_challenges_by_profession else 'None'}"
+                )
+
+                for challenge in active_challenges_by_profession:
                     # Check if the student has completed the challenge
                     if challenge.id not in completed_challenges:
                         try:

@@ -27,6 +27,8 @@ async def get_or_create_student(
             raise HTTPException(status_code=500, detail="Failed to retrieve updated student data")
     else:
         completed_challenges = [c.challenge for c in student.student_challenges]
-        active_challenges = await challenges_crud.get_all_challenges(active_only=True)
+        active_challenges = await challenges_crud.get_all_challenges(
+            active_only=True, profession=student.profession.name
+        )
 
     return student, active_challenges, completed_challenges
