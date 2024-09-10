@@ -72,6 +72,10 @@ async def stats(
 
     except NoDataException:
         return RedirectResponse(request.url_for("no_data"), status_code=status.HTTP_302_FOUND)
+
+    except HTTPException as http_ex:
+        raise http_ex
+
     except Exception as e:
         logger.error(f"Failed to get student {student_id} stats: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e

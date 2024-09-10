@@ -50,6 +50,9 @@ async def bonuses(  # noqa: PLR0913
         }
         return add_no_cache_headers(templates.TemplateResponse("bonuses.html", context))
 
+    except HTTPException as http_ex:
+        raise http_ex
+
     except Exception as e:
         logger.error(f"Failed to get student {student_id} challenges: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e
