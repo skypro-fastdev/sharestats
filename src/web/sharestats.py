@@ -106,7 +106,7 @@ async def share(
     achievement = await get_achievement_for_student(crud, student_id, endpoint=request.url.path)
     image_data = await get_image_data(achievement, orientation)
 
-    title = "Для моих друзей бесплатная консультация по смене работы, курс в подарок и скидки до 50 000 в Skypro"
+    title = "Посмотрите мои результаты + пройдите бесплатный тест “Какая IT-профессия идеально подойдет вам”"
 
     if is_social_bot(request):
         return templates.TemplateResponse(
