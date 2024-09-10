@@ -120,28 +120,18 @@
             button.addEventListener('click', function (e) {
                 e.preventDefault();
                 const url = `https://sky.pro/promo/proftest-new-more?utm_source=sharingstats&utm_medium=referral&utm_content=${studentId}&utm_campaign=viral`;
-                window.open(url, '_blank');
+
+                ym(97943495, 'reachGoal', 'guest_follow_proftest', {}, function () {
+                    window.open(url, '_blank');
+                });
             });
         });
     });
-
-    {#document.addEventListener('DOMContentLoaded', function () {#}
-    {#    const studentId = document.getElementById('studentId').value;#}
-    {#    const chooseCourseButton = document.getElementById('get-gifts');#}
-    {#    if (chooseCourseButton) {#}
-    {#        chooseCourseButton.addEventListener('click', function (e) {#}
-    {#            e.preventDefault();#}
-    {#            const url = `https://sky.pro/courses/referral?utm_source=sharingstats&utm_medium=referral&utm_content=${studentId}&utm_campaign=viral`;#}
-    {#            window.open(url, '_blank');#}
-    {#        });#}
-    {#    }#}
-    {# });#}
 
     function adjustFontSize() {
         const element = document.getElementById('top-h1');
         const maxWidth = 360;
         let fontSize = parseFloat(window.getComputedStyle(element).fontSize);
-
         while (element.scrollWidth > maxWidth && fontSize > 1) {
             fontSize -= 1;
             element.style.fontSize = `${fontSize}px`;
