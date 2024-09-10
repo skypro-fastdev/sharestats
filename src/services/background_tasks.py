@@ -24,46 +24,46 @@ async def get_memes_data(data_loader: SheetLoader) -> list:
     return await async_sheet_loader.get_data_from_sheet("memes")
 
 
-async def update_challenges_statistics_periodically(
-    # cafeteria_loader: SheetLoader,
-    data_cache: DataCache,
-    stats_loader: StatsLoader,
-) -> None:
-    while True:
-        try:
-            # logger.info("Updating challenges and products from Google Sheet...")
-            # challenges, products = await get_challenges_and_products_data(cafeteria_loader)
-            # data_cache.update_challenges(challenges)
-            # data_cache.update_products(products)
-
-            async for session in get_async_session():
-                student_crud = StudentDBHandler(session)
-                # Update student stats from Yandex Lambda function to the database
-                await student_crud.update_students_stats(data_cache, stats_loader, batch_size=10)
-                break
-
-                # Sync challenges from Google Sheets to the database
-                # challenge_crud = ChallengeDBHandler(session)
-                # if data_cache.challenges:
-                #     await challenge_crud.sync_challenges(data_cache.challenges)
-
-                # Sync products from Google Sheets to the database
-                # products_crud = ProductDBHandler(session)
-                # if data_cache.products:
-                #     await products_crud.sync_products(data_cache.products)
-
-            async for session in get_async_session():
-                challenge_crud = ChallengeDBHandler(session)
-                # Check if students have completed challenges and add points to them
-                await challenge_crud.update_all_students_challenges()
-                logger.info("Challenges updates for students completed.")
-                break
-
-            # logger.info("Challenges and products updates completed.")
-        except Exception as e:
-            logger.error(f"Error during students challenges update: {e}")
-
-        await asyncio.sleep(20 * 60)  # 20 minutes
+# async def update_challenges_statistics_periodically(
+#     # cafeteria_loader: SheetLoader,
+#     data_cache: DataCache,
+#     stats_loader: StatsLoader,
+# ) -> None:
+#     while True:
+#         try:
+#             # logger.info("Updating challenges and products from Google Sheet...")
+#             # challenges, products = await get_challenges_and_products_data(cafeteria_loader)
+#             # data_cache.update_challenges(challenges)
+#             # data_cache.update_products(products)
+#
+#             async for session in get_async_session():
+#                 student_crud = StudentDBHandler(session)
+#                 # Update student stats from Yandex Lambda function to the database
+#                 await student_crud.update_students_stats(data_cache, stats_loader, batch_size=10)
+#                 break
+#
+#                 # Sync challenges from Google Sheets to the database
+#                 # challenge_crud = ChallengeDBHandler(session)
+#                 # if data_cache.challenges:
+#                 #     await challenge_crud.sync_challenges(data_cache.challenges)
+#
+#                 # Sync products from Google Sheets to the database
+#                 # products_crud = ProductDBHandler(session)
+#                 # if data_cache.products:
+#                 #     await products_crud.sync_products(data_cache.products)
+#
+#             async for session in get_async_session():
+#                 challenge_crud = ChallengeDBHandler(session)
+#                 # Check if students have completed challenges and add points to them
+#                 await challenge_crud.update_all_students_challenges()
+#                 logger.info("Challenges updates for students completed.")
+#                 break
+#
+#             # logger.info("Challenges and products updates completed.")
+#         except Exception as e:
+#             logger.error(f"Error during students challenges update: {e}")
+#
+#         await asyncio.sleep(20 * 60)  # 20 minutes
 
 
 async def update_meme_data_periodically(

@@ -41,6 +41,7 @@ class StudentDBHandler:
         try:
             db_student.first_name = student.first_name
             db_student.last_name = student.last_name
+            db_student.profession = student.profession
             db_student.last_login = datetime.now()
             db_student.statistics = json.dumps(student.statistics, ensure_ascii=False)
             await self.session.commit()
