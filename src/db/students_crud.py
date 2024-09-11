@@ -1,18 +1,15 @@
-import asyncio
 import json
 from datetime import date, datetime
 from typing import Sequence
 
 from fastapi import Depends
-from loguru import logger
+
 from sqlalchemy import Row
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from sqlmodel import desc, func, select
 
-from src.classes.data_cache import DataCache
-from src.classes.stats_loader import StatsLoader
 from src.db.models import AchievementDB, StudentAchievement, StudentChallenge, StudentDB
 from src.db.session import get_async_session
 from src.models import Achievement, Student
@@ -51,44 +48,45 @@ class StudentDBHandler:
             await self.session.rollback()
             return None
 
-    async def update_students_stats(self, data_cache: DataCache, stats_loader: StatsLoader, batch_size: int = 10):
-        offset = 0
-        total_updated = 0
-
-        while True:
-            # 1. Получаем пачку студентов
-            students = await self.get_students_batch(offset, batch_size)
-            if not students:
-                break  # Все студенты обработаны
-
-            # 2. Обновляем статистику для каждого студента в пачке
-            for student in students:
-                try:
-                    if str(student.id).startswith("999"):  # JUST FOR TESTS
-                        new_stats = data_cache.stats.get(student.id, {})  # JUST FOR TESTS
-                    else:
-                        new_stats = await stats_loader.get_stats(student.id)
-
-                    if new_stats:
-                        student.statistics = json.dumps(new_stats, ensure_ascii=False)
-                        total_updated += 1
-                except Exception as e:
-                    logger.error(f"Error updating stats for student {student.id}: {e}")
-
-            # 3. Сохраняем изменения в базе данных
-            try:
-                await self.session.commit()
-                logger.info(f"Updated stats for {len(students)} students. Total updated: {total_updated}")
-            except Exception as e:
-                logger.error(f"Error committing changes: {e}")
-                await self.session.rollback()
-
-            # 4. Переходим к следующей пачке
-            offset += batch_size
-            await asyncio.sleep(0.5)  # Небольшая пауза между пачками
-
-        logger.info(f"Finished updating all students. Total updated: {total_updated}")
-        return total_updated
+    #
+    # async def update_students_stats(self, data_cache: DataCache, stats_loader: StatsLoader, batch_size: int = 10):
+    #     offset = 0
+    #     total_updated = 0
+    #
+    #     while True:
+    #         # 1. Получаем пачку студентов
+    #         students = await self.get_students_batch(offset, batch_size)
+    #         if not students:
+    #             break  # Все студенты обработаны
+    #
+    #         # 2. Обновляем статистику для каждого студента в пачке
+    #         for student in students:
+    #             try:
+    #                 if str(student.id).startswith("999"):  # JUST FOR TESTS
+    #                     new_stats = data_cache.stats.get(student.id, {})  # JUST FOR TESTS
+    #                 else:
+    #                     new_stats = await stats_loader.get_stats(student.id)
+    #
+    #                 if new_stats:
+    #                     student.statistics = json.dumps(new_stats, ensure_ascii=False)
+    #                     total_updated += 1
+    #             except Exception as e:
+    #                 logger.error(f"Error updating stats for student {student.id}: {e}")
+    #
+    #         # 3. Сохраняем изменения в базе данных
+    #         try:
+    #             await self.session.commit()
+    #             logger.info(f"Updated stats for {len(students)} students. Total updated: {total_updated}")
+    #         except Exception as e:
+    #             logger.error(f"Error committing changes: {e}")
+    #             await self.session.rollback()
+    #
+    #         # 4. Переходим к следующей пачке
+    #         offset += batch_size
+    #         await asyncio.sleep(0.5)  # Небольшая пауза между пачками
+    #
+    #     logger.info(f"Finished updating all students. Total updated: {total_updated}")
+    #     return total_updated
 
     async def get_student(self, student_id: int) -> StudentDB | None:
         statement = select(StudentDB).where(StudentDB.id == student_id)
@@ -109,10 +107,10 @@ class StudentDBHandler:
         result = await self.session.execute(statement)
         return result.unique().scalar_one_or_none()
 
-    async def get_students_batch(self, offset: int, limit: int) -> list[StudentDB]:
-        query = select(StudentDB).offset(offset).limit(limit)
-        result = await self.session.execute(query)
-        return list(result.scalars().all())
+    # async def get_students_batch(self, offset: int, limit: int) -> list[StudentDB]:
+    #     query = select(StudentDB).offset(offset).limit(limit)
+    #     result = await self.session.execute(query)
+    #     return list(result.scalars().all())
 
     async def delete(self, student_id: int) -> bool:
         student: StudentDB = await self.get_student(student_id)

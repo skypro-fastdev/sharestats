@@ -9,10 +9,10 @@ from src.models import Challenge, Meme, Product
 class DataCache:
     def __init__(self):
         self.stats: dict[int, dict[str, int | str]] = {}
-        self.skills: dict[int, dict[int, str]] = {}
+        self.skills: dict[int, dict[int, str]] = {}  # DEPRECATED
         self.courses: dict[int, dict[str, int | str]] = {}
-        self.challenges: dict[str, Challenge] = {}
-        self.products: dict[str, Product] = {}
+        self.challenges: dict[str, Challenge] = {}  # DEPRECATED
+        self.products: dict[str, Product] = {}  # DEPRECATED
         self.meme_data: dict[str, Meme] = {}
         self.professions_info: dict[str, str] = {}
         self.skills_details: dict[int, dict[int, dict[str, str]]] = {}
@@ -58,6 +58,7 @@ class DataCache:
     def update_professions_info(self, professions_data: list):
         self.professions_info = {row[0]: row[3] for row in professions_data[1:]}
 
+    # DEPRECATED
     def update_challenges(self, challenges_data: list):
         headers = challenges_data[0]
         self.challenges.clear()
@@ -76,6 +77,7 @@ class DataCache:
 
         logger.info(f"Loaded {len(self.challenges)} challenges")
 
+    # DEPRECATED
     def update_products(self, products_data: list):
         headers = products_data[0]
         self.products.clear()

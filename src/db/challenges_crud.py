@@ -71,17 +71,6 @@ class ChallengeDBHandler:
             await self.session.rollback()
             return None
 
-    async def deactivate_challenge(self, challenge_id: str) -> None:
-        try:
-            await self.session.execute(
-                update(ChallengesDB).where(ChallengesDB.id == challenge_id).values(is_active=False)
-            )
-            await self.session.commit()
-            logger.info(f"Deactivated challenge {challenge_id}")
-        except Exception as e:
-            logger.error(f"Failed to deactivate challenge {challenge_id}: {e}")
-            await self.session.rollback()
-
     async def process_challenges_batch(self, challenges: list[Challenge]) -> dict:
         results = {"created": 0, "updated": 0, "unchanged": 0, "failed": 0}
 
@@ -95,7 +84,12 @@ class ChallengeDBHandler:
                         results["created"] += 1
                     else:
                         results["failed"] += 1
-                elif existing_challenge.is_active != challenge.is_active:
+                elif (
+                    existing_challenge.is_active != challenge.is_active or
+                    existing_challenge.title != challenge.title or
+                    existing_challenge.eval != challenge.eval or
+                    existing_challenge.value != challenge.value
+                ):
                     updated_challenge = await self.update_challenge(challenge)
                     if updated_challenge:
                         results["updated"] += 1
@@ -157,12 +151,12 @@ class ChallengeDBHandler:
     ) -> tuple[list[ChallengesDB], list[ChallengesDB]]:
         student_stats = json.loads(student.statistics)
         completed_challenges_ids = [c.id for c in student_challenges] if student_challenges else []
-        logger.info(f"Challenges collected by student: {completed_challenges_ids}")
+        # logger.info(f"Challenges collected by student: {completed_challenges_ids}")
 
         available_challenges = await self.get_all_challenges(
             active_only=True, profession=student.profession.name, exclude_ids=completed_challenges_ids
         )
-        logger.info(f"Challenges available for student: {[a.id for a in available_challenges]}")
+        # logger.info(f"Challenges available for student: {[a.id for a in available_challenges]}")
         total_points_earned = 0
         new_completed_challenges = []
 
@@ -234,60 +228,60 @@ class ChallengeDBHandler:
     #
     #     return active_challenges, completed_challenges
 
-    async def update_all_students_challenges(self):
-        students = await self.get_students_with_challenges()
-        active_challenges = await self.get_all_challenges(active_only=True)
-
-        try:
-            for student in students:
-                logger.info(f"Processing student {student.id}")
-                student_stats = json.loads(student.statistics)
-                completed_challenges = {sc.challenge_id for sc in student.student_challenges}
-
-                logger.info(
-                    f"Completed challenges for {student.id}: "
-                    f"{completed_challenges if completed_challenges else 'None'}"
-                )
-
-                points_to_add = 0
-
-                active_challenges_by_profession = [
-                    challenge
-                    for challenge in active_challenges
-                    if challenge.profession in {student.profession.name, "ALL"}
-                ]
-                logger.info(
-                    f"Active challenges for {student.id} with profession {student.profession.value}: "
-                    f"{active_challenges_by_profession if active_challenges_by_profession else 'None'}"
-                )
-
-                for challenge in active_challenges_by_profession:
-                    # Check if the student has completed the challenge
-                    if challenge.id not in completed_challenges:
-                        try:
-                            if safe_eval_condition(challenge.eval, student_stats):
-                                # Create a new StudentChallenge instance
-                                new_challenge = StudentChallenge(student_id=student.id, challenge_id=challenge.id)
-                                self.session.add(new_challenge)
-                                points_to_add += challenge.value
-                                logger.info(
-                                    f"Student {student.id} completed challenge {challenge.id} "
-                                    f"and earned {challenge.value} points"
-                                )
-                        except ValueError as e:
-                            logger.error(f"Error evaluating challenge {challenge.id} for student {student.id}: {e}")
-                        except Exception as e:
-                            logger.error(f"Unexpected error for challenge {challenge.id} and student {student.id}: {e}")
-
-                if points_to_add > 0:
-                    student.points += points_to_add
-                    logger.info(f"Add sum of points = {points_to_add} to the student {student.id}")
-
-            await self.session.commit()
-            logger.info("Student challenges and points updated successfully")
-        except Exception as e:
-            logger.error(f"Error updating challenges and points for students: {e}")
-            await self.session.rollback()
+    # async def update_all_students_challenges(self):
+    #     students = await self.get_students_with_challenges()
+    #     active_challenges = await self.get_all_challenges(active_only=True)
+    #
+    #     try:
+    #         for student in students:
+    #             logger.info(f"Processing student {student.id}")
+    #             student_stats = json.loads(student.statistics)
+    #             completed_challenges = {sc.challenge_id for sc in student.student_challenges}
+    #
+    #             logger.info(
+    #                 f"Completed challenges for {student.id}: "
+    #                 f"{completed_challenges if completed_challenges else 'None'}"
+    #             )
+    #
+    #             points_to_add = 0
+    #
+    #             active_challenges_by_profession = [
+    #                 challenge
+    #                 for challenge in active_challenges
+    #                 if challenge.profession in {student.profession.name, "ALL"}
+    #             ]
+    #             logger.info(
+    #                 f"Active challenges for {student.id} with profession {student.profession.value}: "
+    #                 f"{active_challenges_by_profession if active_challenges_by_profession else 'None'}"
+    #             )
+    #
+    #             for challenge in active_challenges_by_profession:
+    #                 # Check if the student has completed the challenge
+    #                 if challenge.id not in completed_challenges:
+    #                     try:
+    #                         if safe_eval_condition(challenge.eval, student_stats):
+    #                             # Create a new StudentChallenge instance
+    #                             new_challenge = StudentChallenge(student_id=student.id, challenge_id=challenge.id)
+    #                             self.session.add(new_challenge)
+    #                             points_to_add += challenge.value
+    #                             logger.info(
+    #                                 f"Student {student.id} completed challenge {challenge.id} "
+    #                                 f"and earned {challenge.value} points"
+    #                             )
+    #                     except ValueError as e:
+    #                         logger.error(f"Error evaluating challenge {challenge.id} for student {student.id}: {e}")
+    #                     except Exception as e:
+    #                         logger.error(f"Unexpected error for challenge {challenge.id} and student {student.id}: {e}")
+    #
+    #             if points_to_add > 0:
+    #                 student.points += points_to_add
+    #                 logger.info(f"Add sum of points = {points_to_add} to the student {student.id}")
+    #
+    #         await self.session.commit()
+    #         logger.info("Student challenges and points updated successfully")
+    #     except Exception as e:
+    #         logger.error(f"Error updating challenges and points for students: {e}")
+    #         await self.session.rollback()
 
 
 async def get_challenge_crud(session: AsyncSession = Depends(get_async_session)) -> ChallengeDBHandler:

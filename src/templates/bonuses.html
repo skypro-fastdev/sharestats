@@ -64,9 +64,14 @@
                                     <span class="product-title">{{ product.title }}</span>
                                     <span class="product-points">КУПИТЬ за {{ product.value }}</span>
                                 </summary>
-                                <p class="product-p">Чтобы купить, перейдите в диалог с вашим куратором и отправьте ему текст. "Хочу
+                                {% if product.description %}
+                                    <p class="product-p">{{ product.description|safe }}<br></p>
+                                {% endif %}
+                                <p class="product-p">Чтобы купить, перейдите в диалог с вашим куратором и отправьте ему
+                                    текст. "Хочу
                                     купить “{{ product.title }}” за {{ product.value }} бонусов, мой Id {{ student_id }}".</p>
-                                <p class="product-p">Куратор обработает заявку в течение 24 часов. Купленный продукт появится ниже.</p>
+                                <p class="product-p">Куратор обработает заявку в течение 24 часов. Купленный продукт
+                                    появится ниже.</p>
                             </details>
                         </li>
                     {% endfor %}
@@ -77,12 +82,15 @@
                 {% endif %}
             </ul>
             <h2>Уже куплено</h2>
-            <ul class="products-list purchased">
-                {% if purchased_products %}
-                    {% for product in purchased_products %}
-                        <li class="product-item">
-                            <span class="product-title">{{ product.title }}</span>
-                            <span class="product-points purchased">- {{ product.value }}</span>
+            <ul class="products-list">
+                {% if purchases %}
+                    {% for purchase in purchases %}
+                        <li class="bonus-item">
+                            <span class="bonus-title">
+                                {{ purchase.product.title }}
+                                <span style="color: #97969A;">[{{ purchase.created_at.strftime('%d-%m-%Y') }}]</span>
+                            </span>
+                            <span class="bonus-points spent">- {{ purchase.product.value }}</span>
                         </li>
                     {% endfor %}
                 {% else %}

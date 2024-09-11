@@ -37,6 +37,7 @@ async def bonuses(  # noqa: PLR0913
         )
 
         available_products = await products_crud.get_all_products()
+        purchased_products = await products_crud.get_purchased_products(student_id)
 
         context = {
             "request": request,
@@ -46,7 +47,7 @@ async def bonuses(  # noqa: PLR0913
             "completed_challenges": completed_challenges,
             "available_challenges": available_challenges,
             "available_products": available_products,
-            "purchased_products": [],
+            "purchases": purchased_products,
         }
         return add_no_cache_headers(templates.TemplateResponse("bonuses.html", context))
 

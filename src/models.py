@@ -167,14 +167,15 @@ class Challenge(BaseModel):
     profession: ProfessionEnumWithAll
     eval: str
     value: int
-    is_active: bool = Annotated[str, AfterValidator(lambda value: value == "TRUE")]
+    is_active: bool
 
 
 class Product(BaseModel):
     id: str
     title: str
+    description: str | None = None
     value: int
-    is_active: bool = Annotated[str, AfterValidator(lambda value: value == "TRUE")]
+    is_active: bool
 
 
 class Meme(BaseModel):
@@ -194,6 +195,7 @@ class Meme(BaseModel):
 class Purchase(BaseModel):
     product_id: str
     student_id: int
+    added_by: str
     created_at: datetime = Field(default_factory=datetime.now)
 
 

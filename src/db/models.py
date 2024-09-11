@@ -109,6 +109,9 @@ class StudentDB(SQLModel, table=True):
 
 class StudentChallenge(SQLModel, table=True):
     __tablename__ = "student_challenges"
+    __table_args__ = (UniqueConstraint("student_id", "challenge_id"),)
+
+
     id: int | None = Field(default=None, primary_key=True)
     student_id: int = Field(foreign_key="students.id")
     challenge_id: str = Field(foreign_key="challenges.id")
@@ -131,9 +134,11 @@ class ChallengesDB(SQLModel, table=True):
 
 class StudentProduct(SQLModel, table=True):
     __tablename__ = "student_products"
+
     id: int | None = Field(default=None, primary_key=True)
     student_id: int = Field(foreign_key="students.id")
     product_id: str = Field(foreign_key="products.id")
+    added_by: str
     created_at: datetime = Field(default_factory=datetime.now, index=True)
 
     student: StudentDB = Relationship(back_populates="student_products")
@@ -144,6 +149,7 @@ class ProductDB(SQLModel, table=True):
     __tablename__ = "products"
     id: str = Field(default=None, primary_key=True)
     title: str
+    description: str | None = None
     value: int
     is_active: bool
 
