@@ -8,7 +8,6 @@ from src.db.challenges_crud import ChallengeDBHandler, get_challenge_crud
 from src.db.products_crud import ProductDBHandler, get_product_crud
 from src.db.students_crud import StudentDBHandler, get_student_crud
 from src.services.challenges import get_or_create_student
-
 from src.web.handlers import StudentHandler, get_student_handler
 from src.web.utils import add_no_cache_headers
 
@@ -39,6 +38,12 @@ async def bonuses(  # noqa: PLR0913
         available_products = await products_crud.get_all_products()
         purchased_products = await products_crud.get_purchased_products(student_id)
 
+        purchased_product_ids = {purchase.product_id for purchase in purchased_products}
+
+        filtered_available_products = [
+            product for product in available_products if product.id not in purchased_product_ids
+        ]
+
         context = {
             "request": request,
             "fullname": f"{student.first_name} {student.last_name}",
@@ -46,7 +51,7 @@ async def bonuses(  # noqa: PLR0913
             "student_id": student_id,
             "completed_challenges": completed_challenges,
             "available_challenges": available_challenges,
-            "available_products": available_products,
+            "available_products": filtered_available_products,
             "purchases": purchased_products,
         }
         return add_no_cache_headers(templates.TemplateResponse("bonuses.html", context))

@@ -1,8 +1,8 @@
 from datetime import date, datetime
 from enum import Enum
-from typing import Annotated, Callable
+from typing import Callable
 
-from pydantic import AfterValidator, BaseModel, Field, computed_field, field_validator
+from pydantic import BaseModel, Field, computed_field, field_validator
 from pydantic_core import ValidationError
 
 
@@ -101,6 +101,7 @@ class Student(BaseModel):
     achievements: list[Achievement] = []
     points: int = 0
     last_login: datetime | None = None
+    bonuses_last_visited: datetime | None = None
 
     @computed_field
     def days_since_start(self) -> str:

@@ -1,16 +1,14 @@
-from fastapi import APIRouter, Depends, Security, status, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Security, status
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.security import APIKeyHeader
-from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import settings
 from src.db.challenges_crud import ChallengeDBHandler, get_challenge_crud
 from src.db.products_crud import ProductDBHandler, get_product_crud
-
 from src.db.session import get_async_session
 from src.db.students_crud import StudentDBHandler, get_student_crud
-from src.models import Challenge, DateQuery, Purchase, Product
+from src.models import Challenge, DateQuery, Product, Purchase
 from src.services.export_csv import generate_csv
 from src.services.purchases import process_purchase
 
@@ -20,7 +18,6 @@ api_key_header = APIKeyHeader(name="X-API-Key")
 async def validate_token(key: str = Security(api_key_header)):
     if key != settings.API_KEY:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-    return None
 
 
 api_router = APIRouter(dependencies=[Depends(validate_token)])
@@ -41,8 +38,7 @@ async def process_challenges(
         )
     except Exception as e:
         return JSONResponse(
-            content={"status": "error", "message": str(e)},
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            content={"status": "error", "message": str(e)}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
@@ -60,8 +56,7 @@ async def process_products(
         )
     except Exception as e:
         return JSONResponse(
-            content={"status": "error", "message": str(e)},
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            content={"status": "error", "message": str(e)}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
@@ -80,8 +75,7 @@ async def process_purchases(
         return JSONResponse(content=e.detail, status_code=e.status_code)
     except Exception as e:
         return JSONResponse(
-            content={"status": "error", "message": str(e)},
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            content={"status": "error", "message": str(e)}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 

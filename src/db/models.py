@@ -65,6 +65,7 @@ class StudentDB(SQLModel, table=True):
     points: int = 0
     meme_stats: str = Field(default="{}")
     last_login: datetime | None = None
+    bonuses_last_visited: datetime | None = None
 
     student_achievements: list["StudentAchievement"] = Relationship(back_populates="student")
     student_challenges: list["StudentChallenge"] = Relationship(back_populates="student")
@@ -87,6 +88,7 @@ class StudentDB(SQLModel, table=True):
                 meme_stats=json.loads(self.meme_stats),
                 points=self.points,
                 last_login=self.last_login,
+                bonuses_last_visited=self.bonuses_last_visited,
             )
         except Exception as e:
             logger.error(f"Failed to convert student data from db to model: {e}")
@@ -104,13 +106,13 @@ class StudentDB(SQLModel, table=True):
             meme_stats=json.dumps(student.meme_stats),
             points=student.points,
             last_login=student.last_login,
+            bonuses_last_visited=student.bonuses_last_visited,
         )
 
 
 class StudentChallenge(SQLModel, table=True):
     __tablename__ = "student_challenges"
     __table_args__ = (UniqueConstraint("student_id", "challenge_id"),)
-
 
     id: int | None = Field(default=None, primary_key=True)
     student_id: int = Field(foreign_key="students.id")

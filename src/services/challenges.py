@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import HTTPException
 from loguru import logger
 
@@ -18,6 +20,7 @@ async def get_or_create_student(
     student = await students_crud.get_student_with_challenges(student_id)
 
     if not student:
+        handler.student.bonuses_last_visited = datetime.now()
         student = await students_crud.create_student(handler.student)
         completed_challenges = []
 
@@ -25,13 +28,14 @@ async def get_or_create_student(
             raise HTTPException(status_code=500, detail="Failed to create a new student in DB")
     else:
         completed_challenges = [student_challenge.challenge for student_challenge in student.student_challenges]
-        student = await students_crud.update_student(handler.student)
+        student = await students_crud.update_student(handler.student, bonuses_visited=True)
 
     available_challenges, student_challenges = await challenges_crud.update_student_challenges(
         student, completed_challenges
     )
 
     return student, available_challenges, student_challenges
+
 
 # async def get_or_create_student(
 #     student_id: int, handler: StudentHandler, students_crud: StudentDBHandler, challenges_crud: ChallengeDBHandler

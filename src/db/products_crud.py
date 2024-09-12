@@ -72,10 +72,10 @@ class ProductDBHandler:
                     else:
                         results["failed"] += 1
                 elif (
-                    existing_product.is_active != product.is_active or
-                    existing_product.title != product.title or
-                    existing_product.description != product.description or
-                    existing_product.value != product.value
+                    existing_product.is_active != product.is_active
+                    or existing_product.title != product.title
+                    or existing_product.description != product.description
+                    or existing_product.value != product.value
                 ):
                     updated_product = await self.update_product(product)
                     if updated_product:
@@ -100,6 +100,7 @@ class ProductDBHandler:
         return list(result.scalars().all())
 
         # async def sync_products(self, data_cache: dict[str, Product]) -> None:
+
     #     db_products = await self.get_all_products()
     #     products_ids = {product.id for product in db_products}
     #

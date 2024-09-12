@@ -3,7 +3,6 @@ from datetime import date, datetime
 from typing import Sequence
 
 from fastapi import Depends
-
 from sqlalchemy import Row
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,7 +29,7 @@ class StudentDBHandler:
             await self.session.rollback()
             return None
 
-    async def update_student(self, student: Student) -> StudentDB | None:
+    async def update_student(self, student: Student, bonuses_visited: bool = False) -> StudentDB | None:
         db_student = await self.get_student(student.id)
         if not db_student:
             return None
@@ -39,8 +38,13 @@ class StudentDBHandler:
             db_student.first_name = student.first_name
             db_student.last_name = student.last_name
             db_student.profession = student.profession
-            db_student.last_login = datetime.now()
             db_student.statistics = json.dumps(student.statistics, ensure_ascii=False)
+
+            if bonuses_visited:
+                db_student.bonuses_last_visited = datetime.now()
+            else:
+                db_student.last_login = datetime.now()
+
             await self.session.commit()
             await self.session.refresh(db_student)
             return db_student

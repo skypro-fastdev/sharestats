@@ -4,7 +4,7 @@ from fastapi import Depends
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
-from sqlmodel import or_, select, update, not_
+from sqlmodel import not_, or_, select
 
 from src.db.models import ChallengesDB, StudentChallenge, StudentDB
 from src.db.session import get_async_session
@@ -21,10 +21,7 @@ class ChallengeDBHandler:
         return result.scalar_one_or_none()
 
     async def get_all_challenges(
-        self,
-        active_only: bool = False,
-        profession: str | None = None,
-        exclude_ids: list = None
+        self, active_only: bool = False, profession: str | None = None, exclude_ids: list = None
     ) -> list[ChallengesDB]:
         query = select(ChallengesDB)
 
@@ -85,10 +82,10 @@ class ChallengeDBHandler:
                     else:
                         results["failed"] += 1
                 elif (
-                    existing_challenge.is_active != challenge.is_active or
-                    existing_challenge.title != challenge.title or
-                    existing_challenge.eval != challenge.eval or
-                    existing_challenge.value != challenge.value
+                    existing_challenge.is_active != challenge.is_active
+                    or existing_challenge.title != challenge.title
+                    or existing_challenge.eval != challenge.eval
+                    or existing_challenge.value != challenge.value
                 ):
                     updated_challenge = await self.update_challenge(challenge)
                     if updated_challenge:
@@ -145,9 +142,7 @@ class ChallengeDBHandler:
         return list(students.unique().scalars().all())
 
     async def update_student_challenges(
-        self,
-        student: StudentDB,
-        student_challenges: list[ChallengesDB]
+        self, student: StudentDB, student_challenges: list[ChallengesDB]
     ) -> tuple[list[ChallengesDB], list[ChallengesDB]]:
         student_stats = json.loads(student.statistics)
         completed_challenges_ids = [c.id for c in student_challenges] if student_challenges else []
@@ -189,8 +184,7 @@ class ChallengeDBHandler:
 
         total_completed_challenges = student_challenges + new_completed_challenges
         updated_available_challenges = [
-            challenge for challenge in available_challenges
-            if challenge not in new_completed_challenges
+            challenge for challenge in available_challenges if challenge not in new_completed_challenges
         ]
 
         return updated_available_challenges, total_completed_challenges
