@@ -69,17 +69,20 @@
             </div>
             <br>
         </div>
-        <img style="margin-top: -20px;" src="{{ url_for('data', path="images/schedule.png") }}" alt=""
-             class="image-class">
-        <div class="stats-container">
-            <p class="stats-header">Мой график</p>
-            <p class="stat-label">{{ homework_morning }} утром</p>
-            <p class="stat-label">{{ homework_night }} ночью</p>
-            <p class="stat-label">{{ homework_weekend }} на выходных</p>
-            <p class="stat-label">{{ homework_last_6 }} в последний момент</p>
-            <p class="stat-label-settings">* Посчитали на основании вашего часового пояса. <a
-                    href="https://student.skyeng.ru/profile?tab=settings" target="_blank">Настроить</a></p>
-        </div>
+
+        <!-- Include schedule stats -->
+        {% include 'schedule_block.html' %}
+{#        <img style="margin-top: -20px;" src="{{ url_for('data', path="images/schedule.png") }}" alt=""#}
+{#             class="image-class">#}
+{#        <div class="stats-container">#}
+{#            <p class="stats-header">Мой график</p>#}
+{#            <p class="stat-label">{{ homework_morning }} утром</p>#}
+{#            <p class="stat-label">{{ homework_night }} ночью</p>#}
+{#            <p class="stat-label">{{ homework_weekend }} на выходных</p>#}
+{#            <p class="stat-label">{{ homework_last_6 }} в последний момент</p>#}
+{#            <p class="stat-label-settings">* Посчитали на основании вашего часового пояса. <a#}
+{#                    href="https://student.skyeng.ru/profile?tab=settings" target="_blank">Настроить</a></p>#}
+{#        </div>#}
         <div class="stats-container">
             <img src="{{ url_for('data', path="images/questions.png") }}" alt="" class="image-class">
             <p class="stat-label">{{ questions_number }} наставникам</p>

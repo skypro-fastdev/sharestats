@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Стиль обучения {{ student_id }}</title>
+    <title>Стиль обучения {{ first_name }} {{ last_name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/intlTelInput.css') }}">
     {% include 'metrica.html' %}
@@ -20,6 +20,7 @@
             <img class="achievement-ref-logo" src="{{ url_for('data', path=achievement_logo) }}" alt="">
         </div>
         <h1 id="top-h1" class="top-h1">{{ first_name.upper() }} {{ last_name.upper() }}</h1>
+        <p class="stat-label-settings">Стиль обучения:<br>{{ achievement_title }}</p>
         <p class="text-percents"><strong>{{ profession|capitalize }}</strong><br>уже на
             <strong>{{ percent_of_lessons_completed }}%</strong></p>
         {% if profession_info %}
@@ -66,17 +67,19 @@
                 <a href="">Узнать больше</a>
             </div>
         </details>
-        <p class="stats-header">Я профи по {{ profession_dative }} уже на {{ percent_of_lessons_completed }}%</p>
         <img src="{{ url_for('data', path="images/calendar.png") }}" alt="" class="image-class">
-        <p class="stats-header">Учусь уже {{ days_since_start }}</p>
+        <p class="stats-header">{{ first_name }} учится уже {{ days_since_start }}</p>
         <p class="stat-lives"><strong>{{ lessons_completed }}</strong> уроков пройдено</p>
         <p class="stat-lives"><strong>{{ courseworks_completed }}</strong> курсовых сдано</p>
+    
+        <!-- Include schedule stats -->
+        {% include 'schedule_block.html' %}
 
         <!-- Include meme stats -->
         {% include 'meme_stats.html' %}
 
         <div class="profession-info-container">
-            <p class="description-prof">За 10 минут подберем вам новую идеальную профессию.</p>
+            <p class="description-prof">А теперь давайте подберем вам новую идеальную профессию<br> за 10 минут?</p>
             <div class="take-test-section">
                 <input type="hidden" id="studentId" value="{{ student_id }}">
                 <button class="take-test-btn-down" id="take-test-bottom">Пройти тест</button>

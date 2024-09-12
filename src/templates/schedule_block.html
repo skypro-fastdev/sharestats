@@ -1,0 +1,14 @@
+<img style="margin-top: -20px;" src="{{ url_for('data', path="images/schedule.png") }}" alt=""
+     class="image-class">
+<div class="stats-container">
+    <p class="stats-header">{{ schedule_title }}</p>
+    <p class="stat-label">{{ homework_morning }} утром</p>
+    <p class="stat-label">{{ homework_night }} ночью</p>
+    <p class="stat-label">{{ homework_weekend }} на выходных</p>
+    <p class="stat-label">{{ homework_last_6 }} в последний момент</p>
+    {% if schedule_title == "Мой график" %}
+    <p class="stat-label-settings">* Посчитали на основании вашего часового пояса.
+        <a href="https://student.skyeng.ru/profile?tab=settings" target="_blank">Настроить</a>
+    </p>
+    {% endif %}
+</div>
