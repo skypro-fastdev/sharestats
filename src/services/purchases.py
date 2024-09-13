@@ -28,6 +28,18 @@ async def process_purchase(session: AsyncSession, data: Purchase) -> StudentProd
                 detail={"status": "error", "message": f"Студент с ID {data.student_id} не найден"},
             )
 
+        # Проверяем, не куплен ли уже этот продукт
+        query = select(StudentProduct).where(
+            StudentProduct.student_id == data.student_id, StudentProduct.product_id == data.product_id
+        )
+        result = await session.execute(query)
+        existing_purchase = result.scalar_one_or_none()
+        if existing_purchase:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"status": "error", "message": f"Студент уже приобрел продукт с ID {data.product_id}"},
+            )
+
         # Проверяем баланс
         if student.points < product.value:
             raise HTTPException(
