@@ -35,7 +35,7 @@ async def bonuses(  # noqa: PLR0913
             student_id, handler, students_crud, challenges_crud
         )
 
-        available_products = await products_crud.get_all_products()
+        available_products = await products_crud.get_all_products(active_only=True)
         purchased_products = await products_crud.get_purchased_products(student_id)
 
         purchased_product_ids = {purchase.product_id for purchase in purchased_products}
