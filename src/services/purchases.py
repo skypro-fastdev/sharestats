@@ -46,7 +46,8 @@ async def process_purchase(session: AsyncSession, data: Purchase) -> StudentProd
                 status_code=status.HTTP_402_PAYMENT_REQUIRED,
                 detail={
                     "status": "error",
-                    "message": f"Недостаточно бонусов для покупки. Требуется: {product.value}, доступно: {student.points}",
+                    "message": f"Недостаточно бонусов для покупки. "
+                               f"Требуется: {product.value}, доступно: {student.points}",
                 },
             )
 

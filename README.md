@@ -6,7 +6,6 @@ ShareStats - web-приложение, разработанное на FastAPI, 
 ## Технологии
 
 - FastAPI
-- Uvicorn
 - S3 Storage
 - Postgres DB
 - Pillow
