@@ -16,7 +16,7 @@ def generate_csv(data: Sequence[Row] | list[StudentProduct], type_: str) -> Stri
 
     match type_:
         case "last_login":
-            writer.writerow(["student_id", "challenges"])
+            writer.writerow(["student_id", "last_login"])
             for student in data:
                 writer.writerow([student.id, student.last_login])
         case "adoption":
