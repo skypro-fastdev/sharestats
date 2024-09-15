@@ -1,11 +1,15 @@
 import asyncio
 import os
+import shlex
 from datetime import datetime, timedelta
 
 from loguru import logger
 
 from src.classes.s3 import S3Client
 from src.config import settings
+
+BACKUP_PREFIX = "db/backup/"
+BACKUP_SUFFIX = "_sharing-stats.sql"
 
 s3_client = S3Client(
     key_id=settings.YANDEX_S3_KEY_ID, secret_key=settings.YANDEX_S3_SECRET_KEY, bucket=settings.YANDEX_S3_BUCKET
@@ -26,40 +30,35 @@ async def run_command(command):
 
 async def create_and_upload_backup():
     try:
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            raise ValueError("DATABASE_URL is not set in environment variables")
+
         # Создаем резервную копию
         logger.info("Creating database backup")
-        await run_command("heroku pg:backups:capture --app sharing-stats")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_filename = f"dump_{timestamp}{BACKUP_SUFFIX}"
+        pg_dump_command = f"pg_dump {shlex.quote(database_url)} > {shlex.quote(backup_filename)}"
+        await run_command(pg_dump_command)
 
-        # Скачиваем резервную копию
-        logger.info("Downloading backup")
-        await run_command("heroku pg:backups:download --app sharing-stats")
-
-        # Проверяем, что файл существует
-        if not os.path.exists("latest.dump"):
-            raise FileNotFoundError("Backup file 'latest.dump' not found")
-
-        # Формируем имя файла резервной копии для S3
-        current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
-        s3_backup_filename = f"{current_time}_sharing-stats.dump"
+        s3_backup_filename = f"{BACKUP_PREFIX}{backup_filename}"
 
         # Загружаем файл в S3
         logger.info(f"Uploading {s3_backup_filename} to S3")
-        upload_success = await s3_client.upload_db_backup("latest.dump", s3_backup_filename)
+        upload_success = await s3_client.upload_db_backup(backup_filename, s3_backup_filename)
 
-        # Удаляем локальный файл
-        os.remove("latest.dump")
+        try:
+            os.remove(backup_filename)
+        except OSError as e:
+            logger.warning(f"Failed to remove local backup file: {str(e)}")
 
         if upload_success:
             logger.info("Backup process completed successfully")
         else:
             logger.error("Failed to upload backup to S3")
 
-    except RuntimeError as e:
-        logger.error(f"Error executing command: {str(e)}")
-    except FileNotFoundError as e:
-        logger.error(str(e))
     except Exception as e:
-        logger.error(f"Unexpected error during backup process: {str(e)}")
+        logger.error(f"Error during backup process: {str(e)}")
 
 
 async def cleanup_old_backups(days_to_keep=10):
@@ -73,10 +72,10 @@ async def cleanup_old_backups(days_to_keep=10):
         files_to_delete = []
         for obj in s3_files.get("Contents", []):
             key = obj["Key"]
-            if key.startswith("db/backup/") and key.endswith("_sharing-stats.dump"):
+            if key.startswith(BACKUP_PREFIX) and key.endswith(BACKUP_SUFFIX):
                 logger.info(f"Checking backup file: {key}")
                 # Извлекаем дату из имени файла
-                file_date_str = key.split("/")[-1].split("_")[0]
+                file_date_str = key.split("/")[-1].split("_")[1]
                 file_date = datetime.strptime(file_date_str, "%Y%m%d")
 
                 if file_date < cutoff_date:

@@ -39,7 +39,7 @@ class S3Client:
                     await s3.upload_fileobj(
                         file_obj,
                         self.__bucket,
-                        f"db/backup/{backup_name}",
+                        backup_name,
                         ExtraArgs={
                             "ContentType": "application/octet-stream",
                         },
