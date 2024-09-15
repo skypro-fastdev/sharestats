@@ -1,5 +1,8 @@
+from typing import Sequence
+
 from fastapi import Depends
 from loguru import logger
+from sqlalchemy import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from sqlmodel import select
@@ -99,39 +102,12 @@ class ProductDBHandler:
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
-        # async def sync_products(self, data_cache: dict[str, Product]) -> None:
-
-    #     db_products = await self.get_all_products()
-    #     products_ids = {product.id for product in db_products}
-    #
-    #     products_created = 0
-    #     products_updated = 0
-    #     products_deactivated = 0
-    #
-    #     for product_id, product in data_cache.items():
-    #         if product_id in products_ids:
-    #             if not data_cache[product_id].is_active:
-    #                 await self.deactivate_product(product_id)
-    #                 products_deactivated += 1
-    #                 continue
-    #             await self.update_product(product)
-    #             products_updated += 1
-    #         elif data_cache[product_id].is_active:
-    #             await self.create_product(product)
-    #             products_created += 1
-    #
-    #     # Deactivate inactive products
-    #     for db_product in db_products:
-    #         if db_product.id not in data_cache and db_product.is_active:
-    #             await self.deactivate_product(db_product.id)
-    #             logger.info(f"Product {db_product.id} deactivated in DB")
-    #             products_deactivated += 1
-    #
-    #     logger.info(
-    #         f"Synced products: {products_updated} updated, "
-    #         f"{products_created} created, "
-    #         f"{products_deactivated} deactivated"
-    #     )
+    async def get_all_purchased_products(self) -> Sequence[Row]:
+        query = select(
+            StudentProduct.student_id, StudentProduct.product_id, StudentProduct.created_at, StudentProduct.added_by
+        )
+        result = await self.session.execute(query)
+        return result.all()
 
 
 async def get_product_crud(session: AsyncSession = Depends(get_async_session)) -> ProductDBHandler:

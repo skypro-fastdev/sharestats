@@ -10,7 +10,7 @@ from src.db.session import get_async_session
 from src.db.students_crud import StudentDBHandler, get_student_crud
 from src.models import Challenge, DateQuery, Product, Purchase
 from src.services.export_csv import generate_csv
-from src.services.purchases import process_purchase
+from src.services.purchases import get_purchased_products_and_challenges, process_purchase
 
 api_key_header = APIKeyHeader(name="X-API-Key")
 
@@ -79,7 +79,7 @@ async def process_purchases(
         )
 
 
-@api_router.post("/export/csv", name="export_csv")
+@api_router.get("/export/csv", name="export_csv")
 async def get_last_login_csv(
     date_query: DateQuery = Depends(),
     crud: StudentDBHandler = Depends(get_student_crud),
@@ -87,7 +87,33 @@ async def get_last_login_csv(
     students = await crud.get_students_with_last_login(date_query.search_date)
 
     return StreamingResponse(
-        iter([generate_csv(students).getvalue()]),
+        iter([generate_csv(students, "last_login").getvalue()]),
         media_type="text/csv",
         headers={"Content-Disposition": f"attachment; filename=students_last_login_{date_query.formatted_date}.csv"},
+    )
+
+
+@api_router.get("/bonuses/adoption", name="adoption")
+async def get_adoption_csv(
+    session: AsyncSession = Depends(get_async_session),
+):
+    data = await get_purchased_products_and_challenges(session)
+
+    return StreamingResponse(
+        iter([generate_csv(data, "adoption").getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=adoption.csv"},
+    )
+
+
+@api_router.get("/bonuses/csv", name="export_bonuses_csv")
+async def get_purchases_csv(
+    crud: ProductDBHandler = Depends(get_product_crud),
+):
+    data = await crud.get_all_purchased_products()
+
+    return StreamingResponse(
+        iter([generate_csv(data, "purchases").getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=purchases.csv"},
     )

@@ -18,7 +18,7 @@ templates = Jinja2Templates(directory="src/templates")
 HOST_URL = "https://sky.pro/share" if IS_HEROKU else "http://127.0.0.1:8000/share"
 
 
-@router.get("/bonuses/{student_id}", name="bonuses")
+@router.get("/bonuses/{student_id:int}", name="bonuses")
 async def bonuses(  # noqa: PLR0913
     request: Request,
     student_id: int,
