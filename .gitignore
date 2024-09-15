@@ -41,6 +41,7 @@ node_modules/
 *.bak
 *.log
 *.sqlite3
+*.dump
 *.tmp
 *old_*
 credentials.json

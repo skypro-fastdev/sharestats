@@ -1,6 +1,7 @@
 from io import BytesIO
 
 import aioboto3
+import aiofiles
 from botocore.exceptions import ClientError
 from loguru import logger
 
@@ -30,6 +31,24 @@ class S3Client:
                     },
                 )
             return self.get_public_url(name)
+
+    async def upload_db_backup(self, file_path: str, backup_name: str):
+        async with self.__session.client("s3", endpoint_url=self.url) as s3:
+            try:
+                async with aiofiles.open(file_path, "rb") as file_obj:
+                    await s3.upload_fileobj(
+                        file_obj,
+                        self.__bucket,
+                        f"db/backup/{backup_name}",
+                        ExtraArgs={
+                            "ContentType": "application/octet-stream",
+                        },
+                    )
+                logger.info(f"Successfully uploaded {backup_name} to S3")
+                return True
+            except Exception as e:
+                logger.error(f"Failed to upload {backup_name} to S3: {str(e)}")
+                return False
 
     async def check_file_exists(self, name: str) -> bool:
         async with self.__session.client("s3", endpoint_url=self.url) as s3:

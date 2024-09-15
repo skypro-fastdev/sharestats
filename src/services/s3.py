@@ -9,6 +9,14 @@ s3_client = S3Client(
 )
 
 
+async def print_db_dumps():
+    files = await s3_client.get_list_of_files()
+
+    for file in files.get("Contents", []):
+        if file["Key"].endswith(".dump"):
+            print(file["Key"])  # noqa T201
+
+
 async def clear_s3_images():
     files = await s3_client.get_list_of_files()
 
@@ -30,4 +38,5 @@ async def clear_s3_images():
 
 
 if __name__ == "__main__":
-    asyncio.run(clear_s3_images())
+    asyncio.run(print_db_dumps())
+    # asyncio.run(clear_s3_images())
