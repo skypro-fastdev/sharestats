@@ -23,8 +23,18 @@ async def validate_token(key: str = Security(api_key_header)):
 api_router = APIRouter(dependencies=[Depends(validate_token)])
 
 
-@api_router.post("/bonuses/challenges", name="challenges")
-@api_router.put("/bonuses/challenges", name="challenges_update")
+@api_router.post(
+    "/bonuses/challenges",
+    name="challenges",
+    summary="Добавить новые челленджи",
+    description="Создаёт новые записи о челленджах и возвращает результаты",
+)
+@api_router.put(
+    "/bonuses/challenges",
+    name="challenges_update",
+    summary="Обновить существующие челленджи",
+    description="Обрабатывает список существующих челленджей и возвращает результаты",
+)
 async def process_challenges(
     data: list[Challenge],
     crud: ChallengeDBHandler = Depends(get_challenge_crud),
@@ -42,8 +52,18 @@ async def process_challenges(
         )
 
 
-@api_router.put("/bonuses/products", name="products")
-@api_router.post("/bonuses/products", name="products_update")
+@api_router.put(
+    "/bonuses/products",
+    name="products",
+    summary="Обновить существующие продукты",
+    description="Обновляет список существующих продуктов и возвращает результаты.",
+)
+@api_router.post(
+    "/bonuses/products",
+    name="products_update",
+    summary="Создать новые продукты",
+    description="Создаёт новые записи о продуктах и возвращает результаты.",
+)
 async def process_products(
     data: list[Product],
     crud: ProductDBHandler = Depends(get_product_crud),
@@ -60,7 +80,12 @@ async def process_products(
         )
 
 
-@api_router.post("/bonuses/purchases", name="purchases")
+@api_router.post(
+    "/bonuses/purchases",
+    name="purchases",
+    summary="Добавить новую покупку",
+    description="Создаёт новую запись о покупке и возвращает результаты",
+)
 async def process_purchases(
     data: Purchase,
     session: AsyncSession = Depends(get_async_session),
@@ -79,7 +104,13 @@ async def process_purchases(
         )
 
 
-@api_router.get("/export/csv", name="export_csv")
+@api_router.get(
+    "/export/csv",
+    name="export_csv",
+    summary="Экспорт CSV с последними входами пользователей в sharestats",
+    description="Формирует CSV-файл с пользователями, которые заходили на страницы со статистикой. "
+    "Файл содержит информацию о последнем входе пользователей на указанную дату.",
+)
 async def get_last_login_csv(
     date_query: DateQuery = Depends(),
     crud: StudentDBHandler = Depends(get_student_crud),
@@ -87,33 +118,55 @@ async def get_last_login_csv(
     students = await crud.get_students_with_last_login(date_query.search_date)
 
     return StreamingResponse(
-        iter([generate_csv(students, "last_login").getvalue()]),
+        iter([generate_csv(students, "last_login").getvalue().encode("utf-8-sig")]),
         media_type="text/csv",
-        headers={"Content-Disposition": f"attachment; filename=students_last_login_{date_query.formatted_date}.csv"},
+        headers={
+            "Content-Disposition": f"attachment; filename=students_last_login_{date_query.formatted_date}.csv",
+            "Content-Type": "text/csv; charset=utf-8-sig",
+        },
     )
 
 
-@api_router.get("/bonuses/adoption", name="adoption")
+@api_router.get(
+    "/bonuses/adoption",
+    name="adoption",
+    summary="Экспорт CSV с данными о выполнении челленджей и покупке продуктов",
+    description="Формирует CSV-файл с пользователями, которые хотя бы раз заходили на страницу с бонусами. "
+    "Файл содержит информацию о количествах приобретённых продуктов и выполненных челленджах.",
+)
 async def get_adoption_csv(
     session: AsyncSession = Depends(get_async_session),
 ):
     data = await get_purchased_products_and_challenges(session)
 
     return StreamingResponse(
-        iter([generate_csv(data, "adoption").getvalue()]),
+        iter([generate_csv(data, "adoption").getvalue().encode("utf-8-sig")]),
         media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=adoption.csv"},
+        headers={
+            "Content-Disposition": "attachment; filename=adoption.csv",
+            "Content-Type": "text/csv; charset=utf-8-sig",
+        },
     )
 
 
-@api_router.get("/bonuses/csv", name="export_bonuses_csv")
+@api_router.get(
+    "/bonuses/csv",
+    name="export_bonuses_csv",
+    summary="Экспорт CSV с данными о покупках",
+    description="Формирует CSV-файл с покупками. Файл содержит информацию о покупках, "
+    "включая ID студента, ID продукта, дату создания и информацию о том, "
+    "кем была добавлена покупка для студента.",
+)
 async def get_purchases_csv(
     crud: ProductDBHandler = Depends(get_product_crud),
 ):
     data = await crud.get_all_purchased_products()
 
     return StreamingResponse(
-        iter([generate_csv(data, "purchases").getvalue()]),
+        iter([generate_csv(data, "purchases").getvalue().encode("utf-8-sig")]),
         media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=purchases.csv"},
+        headers={
+            "Content-Disposition": "attachment; filename=purchases.csv",
+            "Content-Type": "text/csv; charset=utf-8-sig",
+        },
     )

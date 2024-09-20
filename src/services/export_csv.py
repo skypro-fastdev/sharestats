@@ -1,3 +1,4 @@
+import codecs
 import csv
 from io import StringIO
 from typing import Sequence
@@ -9,6 +10,7 @@ from src.db.models import StudentProduct
 
 def generate_csv(data: Sequence[Row] | list[StudentProduct], type_: str) -> StringIO:
     buffer = StringIO()
+    buffer.write(codecs.BOM_UTF8.decode("utf-8"))
     writer = csv.writer(buffer)
 
     if not data:

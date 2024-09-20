@@ -43,9 +43,9 @@ setup_middlewares(app)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/data", StaticFiles(directory="data"), name="data")
 
-app.include_router(sharestats_router, prefix="/share")
-app.include_router(bonuses_router, prefix="/share")
-app.include_router(api_router, prefix="/share")
+app.include_router(sharestats_router, prefix="/share", include_in_schema=False)
+app.include_router(bonuses_router, prefix="/share", include_in_schema=False)
+app.include_router(api_router, prefix="/share", tags=["api"], include_in_schema=True)
 
 
 @app.exception_handler(HTTPException)
