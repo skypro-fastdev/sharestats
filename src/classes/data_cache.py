@@ -9,13 +9,13 @@ from src.models import Challenge, Meme, Product
 class DataCache:
     def __init__(self):
         self.stats: dict[int, dict[str, int | str]] = {}
-        self.skills: dict[int, dict[int, str]] = {}  # DEPRECATED
         self.courses: dict[int, dict[str, int | str]] = {}
-        self.challenges: dict[str, Challenge] = {}  # DEPRECATED
-        self.products: dict[str, Product] = {}  # DEPRECATED
         self.meme_data: dict[str, Meme] = {}
         self.professions_info: dict[str, str] = {}
         self.skills_details: dict[int, dict[int, dict[str, str]]] = {}
+        self.skills: dict[int, dict[int, str]] = {}  # DEPRECATED
+        self.challenges: dict[str, Challenge] = {}  # DEPRECATED
+        self.products: dict[str, Product] = {}  # DEPRECATED
 
     def update_stats(self, mock_data: list):
         headers = mock_data[0]

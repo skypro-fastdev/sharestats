@@ -22,11 +22,6 @@ async def _lifespan(app: FastAPI):
     await bot.delete_webhook(drop_pending_updates=True)
     logger.info("Bot has been started.")
 
-    # Start periodic task for updating challenges
-    # task = asyncio.create_task(
-    #     update_challenges_statistics_periodically(data_cache, stats_loader)
-    # )
-
     # Start periodic task for updating memes
     update_memes_task = asyncio.create_task(update_meme_data_periodically(mock_data_loader, data_cache))
 
@@ -37,12 +32,6 @@ async def _lifespan(app: FastAPI):
         await update_memes_task
     except asyncio.CancelledError:
         logger.info("Background task for updating memes was cancelled")
-
-    # task.cancel()
-    # try:
-    #     await task
-    # except asyncio.CancelledError:
-    #     logger.info("Background task for updating challenges was cancelled")
 
     await bot.session.close()
     logger.info("Bot has been stopped.")

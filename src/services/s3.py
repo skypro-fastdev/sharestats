@@ -13,7 +13,7 @@ async def print_db_dumps():
     files = await s3_client.get_list_of_files()
 
     for file in files.get("Contents", []):
-        if file["Key"].endswith(".dump"):
+        if file["Key"].endswith(".sql"):
             print(file["Key"])  # noqa T201
 
 
