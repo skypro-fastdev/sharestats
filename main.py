@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from loguru import logger
 from starlette.exceptions import HTTPException
 
-from src.api.routes import api_router
+from src.api.routes import api_router, open_api_router
 from src.bot.client import bot
 from src.config import settings, setup_middlewares
 from src.dependencies import data_cache, load_cache, mock_data_loader
@@ -45,7 +45,8 @@ app.mount("/data", StaticFiles(directory="data"), name="data")
 
 app.include_router(sharestats_router, prefix="/share", include_in_schema=False)
 app.include_router(bonuses_router, prefix="/share", include_in_schema=False)
-app.include_router(api_router, prefix="/share", tags=["api"], include_in_schema=True)
+app.include_router(api_router, prefix="/share", include_in_schema=True)
+app.include_router(open_api_router, prefix="/share", include_in_schema=True)
 
 
 @app.exception_handler(HTTPException)

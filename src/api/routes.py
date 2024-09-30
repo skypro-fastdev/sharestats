@@ -21,6 +21,7 @@ async def validate_token(key: str = Security(api_key_header)):
 
 
 api_router = APIRouter(dependencies=[Depends(validate_token)])
+open_api_router = APIRouter()
 
 
 @api_router.post(
@@ -127,7 +128,7 @@ async def get_last_login_csv(
     )
 
 
-@api_router.get(
+@open_api_router.get(
     "/bonuses/adoption",
     name="adoption",
     summary="Экспорт CSV с данными о выполнении челленджей и покупке продуктов",
