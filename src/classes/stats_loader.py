@@ -13,7 +13,8 @@ class StatsLoader:
 
     async def get_stats(self, student_id: int) -> dict[str, int | str]:
         try:
-            async with aiohttp.ClientSession() as session:
+            timeout = aiohttp.ClientTimeout(total=25)
+            async with aiohttp.ClientSession(timeout=timeout) as session:
                 async with session.get(
                     self.__url, params={"student_id": student_id}, headers={"X-Authorization-Token": self.__token}
                 ) as response:
@@ -34,6 +35,12 @@ class StatsLoader:
                         )
                         raise HTTPException(status_code=response.status, detail=response.reason)
                     return {}
+        except aiohttp.ServerTimeoutError as e:
+            await tg_logger.log(
+                "ERROR",
+                f"Timeout error while getting stats for student_id {student_id}: {e}",
+            )
+            return {}
         except aiohttp.ClientError as e:
             await tg_logger.log(
                 "ERROR",
