@@ -1,4 +1,4 @@
-import traceback
+import asyncio.exceptions
 from json import JSONDecodeError
 
 import aiohttp
@@ -37,7 +37,7 @@ class StatsLoader:
                         )
                         raise HTTPException(status_code=response.status, detail=response.reason)
                     return {}
-        except aiohttp.ServerTimeoutError as e:
+        except asyncio.exceptions.TimeoutError as e:
             await tg_logger.log(
                 "ERROR",
                 f"Timeout error while getting stats for student_id {student_id}: {e}",
@@ -50,11 +50,7 @@ class StatsLoader:
             )
             return {}
         except Exception as e:
-            error_trace = traceback.format_exc()
             await tg_logger.log(
-                "ERROR",
-                f"Unexpected error while getting stats from Yandex API for student_id {student_id}\n"
-                f"Error: {e}\n"
-                f"Traceback:\n{error_trace[:3500]} ...",
+                "ERROR", f"Unexpected error while getting stats from Yandex API for student_id {student_id}\n{e}"
             )
             return {}
