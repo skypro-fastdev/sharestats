@@ -11,6 +11,7 @@ from src.bot.client import bot
 from src.config import settings, setup_middlewares
 from src.dependencies import data_cache, load_cache, mock_data_loader
 from src.services.background_tasks import update_meme_data_periodically
+from src.web.badges import router as badges_router
 from src.web.bonuses import router as bonuses_router
 from src.web.sharestats import router as sharestats_router
 
@@ -45,6 +46,8 @@ app.mount("/data", StaticFiles(directory="data"), name="data")
 
 app.include_router(sharestats_router, prefix="/share", include_in_schema=False)
 app.include_router(bonuses_router, prefix="/share", include_in_schema=False)
+
+app.include_router(badges_router, prefix="/share", include_in_schema=False)
 app.include_router(api_router, prefix="/share", include_in_schema=True)
 app.include_router(open_api_router, prefix="/share", include_in_schema=True)
 

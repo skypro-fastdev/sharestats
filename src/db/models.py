@@ -156,3 +156,14 @@ class ProductDB(SQLModel, table=True):
     is_active: bool
 
     student_products: list["StudentProduct"] = Relationship(back_populates="product")
+
+
+class BadgeDB(SQLModel, table=True):
+    __tablename__ = "badges"
+
+    id: int | None = Field(default=None, primary_key=True)
+    badge_type: str
+    student_id: int
+    student_name: str
+    title: str
+    description: str

@@ -200,6 +200,15 @@ class Purchase(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
 
 
+class Badge(BaseModel):
+    id: int
+    badge_type: str
+    student_id: int
+    student_name: str
+    title: str
+    description: str
+
+
 class DateQuery(BaseModel):
     search_date: date | None = Field(
         None, validation_alias="date", description="Date for which to fetch login data (YYYY-MM-DD)"

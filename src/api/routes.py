@@ -4,11 +4,12 @@ from fastapi.security import APIKeyHeader
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import settings
+from src.db.badges_crud import BadgeDBHandler, get_badges_crud
 from src.db.challenges_crud import ChallengeDBHandler, get_challenge_crud
 from src.db.products_crud import ProductDBHandler, get_product_crud
 from src.db.session import get_async_session
 from src.db.students_crud import StudentDBHandler, get_student_crud
-from src.models import Challenge, DateQuery, Product, Purchase
+from src.models import Badge, Challenge, DateQuery, Product, Purchase
 from src.services.export_csv import generate_csv
 from src.services.purchases import get_purchased_products_and_challenges, process_purchase
 
@@ -171,3 +172,25 @@ async def get_purchases_csv(
             "Content-Type": "text/csv; charset=utf-8-sig",
         },
     )
+
+
+@api_router.post(
+    "/badges",
+    name="badges",
+    summary="Добавить новые бейджи",
+    description="Стирает таблицу с бейджами и создаёт новые записи с бейджами в БД",
+)
+async def process_badges(
+    data: list[Badge],
+    crud: BadgeDBHandler = Depends(get_badges_crud),
+):
+    try:
+        await crud.process_badges_batch(data)
+        return JSONResponse(
+            {"status": "OK", "message": "Badges processed"},
+            status_code=status.HTTP_200_OK,
+        )
+    except Exception as e:
+        return JSONResponse(
+            content={"status": "error", "message": str(e)}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
