@@ -1,3 +1,4 @@
+import traceback
 from json import JSONDecodeError
 
 import aiohttp
@@ -14,10 +15,11 @@ class StatsLoader:
     async def get_stats(self, student_id: int) -> dict[str, int | str]:
         try:
             timeout = aiohttp.ClientTimeout(total=25)
+            params = {"student_id": student_id}
+            headers = {"X-Authorization-Token": self.__token}
+
             async with aiohttp.ClientSession(timeout=timeout) as session:
-                async with session.get(
-                    self.__url, params={"student_id": student_id}, headers={"X-Authorization-Token": self.__token}
-                ) as response:
+                async with session.get(self.__url, params=params, headers=headers) as response:
                     if response.status == 200:
                         try:
                             return await response.json()
@@ -48,8 +50,11 @@ class StatsLoader:
             )
             return {}
         except Exception as e:
+            error_trace = traceback.format_exc()
             await tg_logger.log(
                 "ERROR",
-                f"Unexpected error in while getting stats from Yandex API for student_id {student_id}\n{e}",
+                f"Unexpected error while getting stats from Yandex API for student_id {student_id}\n"
+                f"Error: {e}\n"
+                f"Traceback:\n{error_trace[:3500]} ...",
             )
             return {}
