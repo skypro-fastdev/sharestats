@@ -72,33 +72,33 @@ def get_images_params(orientation: str = "horizontal") -> dict:
             "size": (1200, 630),
             "template": "template_badge_1200x630.png",
             "prefix": "vk",
-            "title_font_size": 74,
-            "title_box_max_width": 680,
+            "title_font_size": 70,
+            "title_box_max_width": 640,
             "x_title": 45,
-            "y_title": 150,
+            "y_title": 160,
             "desc_font_size": 41,
             "x_desc": 47,
-            "y_desc": 220,
+            "y_desc": 340,
             "desc_box_max_width": 630,
-            "logo_height": 250,
-            "x_logo": 900,
-            "y_logo": 0,
+            "logo_height": 380,
+            "x_logo": 660,
+            "y_logo": 115,
         },
         "tg_badge": {
             "size": (1080, 1920),
             "template": "template_badge_1080x1920.png",
             "prefix": "tg",
             "title_font_size": 104,
-            "title_box_max_width": 1000,
-            "x_title": 540,
-            "y_title": 1120,
+            "title_box_max_width": 950,
+            "x_title": 65,
+            "y_title": 330,
             "desc_font_size": 68,
             "x_desc": 65,
-            "y_desc": 1260,
+            "y_desc": 1320,
             "desc_box_max_width": 950,
-            "logo_height": 250,
-            "x_logo": 140,
-            "y_logo": 200,
+            "logo_height": 500,
+            "x_logo": 190,
+            "y_logo": 700,
         },
     }
     return properties[orientation]
@@ -191,15 +191,12 @@ async def open_image(path: str | Path, rgba: bool = False) -> Image.Image:
         return Image.open(BytesIO(image_data))
 
 
-async def upload_to_s3(image: Image.Image, image_name: str) -> dict | None:
+async def upload_to_s3(image: Image.Image, image_name: str) -> str:
+    """Возращает ссылку на изображение в S3"""
     with BytesIO() as img_byte_arr:
         image.save(img_byte_arr, format="PNG", optimize=False, compress_level=0)
         image_bytes = img_byte_arr.getvalue()
-
-        url = await s3_client.upload_file(image_bytes, image_name)  # Загружаем изображение в S3
-        if url:
-            return url
-    return None
+        return await s3_client.upload_file(image_bytes, image_name)  # Загружаем изображение в S3
 
 
 async def find_or_generate_image(obj: Achievement | Badge, orientation: str) -> dict | None:
@@ -217,26 +214,14 @@ async def find_or_generate_image(obj: Achievement | Badge, orientation: str) -> 
         image_exist = await check_s3_file_exists(image_name, params)
         if image_exist:
             return image_exist
-        # if await s3_client.check_file_exists(image_name):
-        #     return {
-        #         "url": s3_client.get_public_url(image_name),
-        #         "width": params["size"][0],
-        #         "height": params["size"][1],
-        #     }
-        # print(f'path: {IMAGES_PATH / params["template"]}')
+
+        # Если нет, то генерируем его
         base_image = await open_image(IMAGES_PATH / params["template"])
         if isinstance(obj, Achievement):
             logo_img = await open_image(IMAGES_PATH / f"logo_{obj.picture}", rgba=True)
         else:
             logo_img = await open_image(IMAGES_PATH / "badges" / f"{obj.badge_type}.png", rgba=True)
-        #
-        # async with aiofiles.open(IMAGES_PATH / params["template"], mode="rb") as f:
-        #     base_image_data = await f.read()
-        #     base_image = Image.open(BytesIO(base_image_data))
-        #
-        # async with aiofiles.open(IMAGES_PATH / f"logo_{achievement.picture}", mode="rb") as f:
-        #     achievement_img_data = await f.read()
-        #     achievement_img = Image.open(BytesIO(achievement_img_data)).convert("RGBA")
+
     except Exception:
         return None
 
@@ -253,15 +238,29 @@ async def find_or_generate_image(obj: Achievement | Badge, orientation: str) -> 
     width, height = params["size"]
 
     # Рассчитываем размеры для шрифта title чтобы влезал на картинку
-    font_title = get_fitting_font(
-        draw, obj.title, FONT_TITLE_PATH, params["title_font_size"], params["title_box_max_width"]
-    )
+    if isinstance(obj, Achievement):
+        font_title = get_fitting_font(
+            draw, obj.title, FONT_TITLE_PATH, params["title_font_size"], params["title_box_max_width"]
+        )
+    else:
+        font_title = ImageFont.truetype(FONT_TITLE_PATH, params["title_font_size"])
 
-    if params["size"] == (1080, 1920):
+    if params["size"] == (1080, 1920) and isinstance(obj, Achievement):
         params["x_title"] = get_centered_x(draw, obj.title, font_title, width)
 
     # Рисуем title на изображении
-    draw.text((params["x_title"], params["y_title"]), obj.title, fill="#FFFFFF", font=font_title, align="center")
+    if isinstance(obj, Achievement):
+        draw.text((params["x_title"], params["y_title"]), obj.title, fill="#FFFFFF", font=font_title, align="center")
+    else:
+        draw_wrapped_text(
+            draw,
+            obj.title,
+            font_title,
+            params["title_box_max_width"],
+            params["x_title"],
+            params["y_title"],
+            align="center" if params["size"] == (1080, 1920) else "left",
+        )
 
     align_text = "center" if params["size"] == (1080, 1920) else "left"
 
@@ -277,13 +276,13 @@ async def find_or_generate_image(obj: Achievement | Badge, orientation: str) -> 
     )
 
     try:
-        if isinstance(obj, Badge):
-            # async with aiofiles.open(IMAGES_PATH / "badges" / f"saved_{obj.badge_type}.png", mode="wb") as f:
-            #     with BytesIO() as img_byte_arr:
-            #         base_image.save(img_byte_arr, format="PNG", optimize=False, compress_level=1)
-            #         image_bytes = img_byte_arr.getvalue()
-            #         await f.write(image_bytes)
-            return {"url": f"badges/saved_{obj.badge_type}.png", "width": width, "height": height}
+        # if isinstance(obj, Badge):
+        #     async with aiofiles.open(IMAGES_PATH / "badges" / f"saved_{obj.badge_type}.png", mode="wb") as f:
+        #         with BytesIO() as img_byte_arr:
+        #             base_image.save(img_byte_arr, format="PNG", optimize=False, compress_level=9)
+        #             image_bytes = img_byte_arr.getvalue()
+        #             await f.write(image_bytes)
+        #     return {"url": f"badges/saved_{obj.badge_type}.png", "width": width, "height": height}
 
         url = await upload_to_s3(base_image, image_name)
         return {"url": url, "width": width, "height": height}
