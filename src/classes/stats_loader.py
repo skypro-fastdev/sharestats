@@ -3,6 +3,7 @@ from json import JSONDecodeError
 
 import aiohttp
 from fastapi import HTTPException
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from src.bot.logger import tg_logger
 
@@ -12,9 +13,14 @@ class StatsLoader:
         self.__url = url
         self.__token = token
 
+    @retry(
+        stop=stop_after_attempt(5),  # Максимум 5 попыток
+        wait=wait_exponential(multiplier=1, min=5, max=10),  # Ждём от 1 до 10 секунд между попытками
+        retry=retry_if_exception_type(asyncio.exceptions.TimeoutError),  # Повторяем только при таймаутах
+    )
     async def get_stats(self, student_id: int) -> dict[str, int | str]:
         try:
-            timeout = aiohttp.ClientTimeout(total=25)
+            timeout = aiohttp.ClientTimeout(total=5)
             params = {"student_id": student_id}
             headers = {"X-Authorization-Token": self.__token}
 
@@ -37,12 +43,6 @@ class StatsLoader:
                         )
                         raise HTTPException(status_code=response.status, detail=response.reason)
                     return {}
-        except asyncio.exceptions.TimeoutError as e:
-            await tg_logger.log(
-                "ERROR",
-                f"Timeout error while getting stats for student_id {student_id}: {e}",
-            )
-            return {}
         except aiohttp.ClientError as e:
             await tg_logger.log(
                 "ERROR",
