@@ -10,6 +10,10 @@ def add_no_cache_headers(response: Response) -> Response:
 
 
 def get_orientation(request: Request) -> str:
+    if "/vk/b/" in request.url.path:
+        return "vk_badge"
+    if "/tg/b/" in request.url.path:
+        return "tg_badge"
     if "/vk/" in request.url.path:
         return "vk_post"
     if "/h/" in request.url.path:

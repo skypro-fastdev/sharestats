@@ -10,7 +10,7 @@ from loguru import logger
 from PIL import Image, ImageDraw, ImageFont
 
 from src.dependencies import s3_client
-from src.models import Achievement
+from src.models import Achievement, Badge
 
 BASE_PATH = Path(__file__).parent.parent.parent
 IMAGES_PATH = BASE_PATH / "data" / "images"
@@ -67,6 +67,38 @@ def get_images_params(orientation: str = "horizontal") -> dict:
             "logo_height": 600,
             "x_logo": 650,
             "y_logo": 0,
+        },
+        "vk_badge": {
+            "size": (1200, 630),
+            "template": "template_badge_1200x630.png",
+            "prefix": "vk",
+            "title_font_size": 74,
+            "title_box_max_width": 680,
+            "x_title": 45,
+            "y_title": 150,
+            "desc_font_size": 41,
+            "x_desc": 47,
+            "y_desc": 220,
+            "desc_box_max_width": 630,
+            "logo_height": 250,
+            "x_logo": 900,
+            "y_logo": 0,
+        },
+        "tg_badge": {
+            "size": (1080, 1920),
+            "template": "template_badge_1080x1920.png",
+            "prefix": "tg",
+            "title_font_size": 104,
+            "title_box_max_width": 1000,
+            "x_title": 540,
+            "y_title": 1120,
+            "desc_font_size": 68,
+            "x_desc": 65,
+            "y_desc": 1260,
+            "desc_box_max_width": 950,
+            "logo_height": 250,
+            "x_logo": 140,
+            "y_logo": 200,
         },
     }
     return properties[orientation]
@@ -141,37 +173,78 @@ def remove_tags(text: str) -> str:
     return re.sub(r"<[^>]+>", "", text)
 
 
-async def find_or_generate_image(achievement: Achievement, orientation: str) -> dict | None:
+async def check_s3_file_exists(image_name: str, params: dict) -> dict | None:
+    if await s3_client.check_file_exists(image_name):
+        return {
+            "url": s3_client.get_public_url(image_name),
+            "width": params["size"][0],
+            "height": params["size"][1],
+        }
+    return None
+
+
+async def open_image(path: str | Path, rgba: bool = False) -> Image.Image:
+    async with aiofiles.open(path, mode="rb") as f:
+        image_data = await f.read()
+        if rgba:
+            return Image.open(BytesIO(image_data)).convert("RGBA")
+        return Image.open(BytesIO(image_data))
+
+
+async def upload_to_s3(image: Image.Image, image_name: str) -> dict | None:
+    with BytesIO() as img_byte_arr:
+        image.save(img_byte_arr, format="PNG", optimize=False, compress_level=0)
+        image_bytes = img_byte_arr.getvalue()
+
+        url = await s3_client.upload_file(image_bytes, image_name)  # Загружаем изображение в S3
+        if url:
+            return url
+    return None
+
+
+async def find_or_generate_image(obj: Achievement | Badge, orientation: str) -> dict | None:
     """Ищем или генерируем изображение для данного достижения"""
     params = get_images_params(orientation)
     prefix = params["prefix"]
 
-    image_name = f"{prefix}/{achievement.profession}/{achievement.type.value}.png"
+    if isinstance(obj, Achievement):
+        image_name = f"{prefix}/{obj.profession}/{obj.type.value}.png"
+    else:
+        image_name = f"badges/{prefix}/{obj.badge_type}.png"
 
     try:
         # Проверяем, существует ли файл в S3
-        if await s3_client.check_file_exists(image_name):
-            return {
-                "url": s3_client.get_public_url(image_name),
-                "width": params["size"][0],
-                "height": params["size"][1],
-            }
-
-        async with aiofiles.open(IMAGES_PATH / params["template"], mode="rb") as f:
-            base_image_data = await f.read()
-            base_image = Image.open(BytesIO(base_image_data))
-
-        async with aiofiles.open(IMAGES_PATH / f"logo_{achievement.picture}", mode="rb") as f:
-            achievement_img_data = await f.read()
-            achievement_img = Image.open(BytesIO(achievement_img_data)).convert("RGBA")
+        image_exist = await check_s3_file_exists(image_name, params)
+        if image_exist:
+            return image_exist
+        # if await s3_client.check_file_exists(image_name):
+        #     return {
+        #         "url": s3_client.get_public_url(image_name),
+        #         "width": params["size"][0],
+        #         "height": params["size"][1],
+        #     }
+        # print(f'path: {IMAGES_PATH / params["template"]}')
+        base_image = await open_image(IMAGES_PATH / params["template"])
+        if isinstance(obj, Achievement):
+            logo_img = await open_image(IMAGES_PATH / f"logo_{obj.picture}", rgba=True)
+        else:
+            logo_img = await open_image(IMAGES_PATH / "badges" / f"{obj.badge_type}.png", rgba=True)
+        #
+        # async with aiofiles.open(IMAGES_PATH / params["template"], mode="rb") as f:
+        #     base_image_data = await f.read()
+        #     base_image = Image.open(BytesIO(base_image_data))
+        #
+        # async with aiofiles.open(IMAGES_PATH / f"logo_{achievement.picture}", mode="rb") as f:
+        #     achievement_img_data = await f.read()
+        #     achievement_img = Image.open(BytesIO(achievement_img_data)).convert("RGBA")
     except Exception:
         return None
 
-    achievement_img = resize_image(achievement_img, params["logo_height"])
+    logo_resized = resize_image(logo_img, params["logo_height"])
     achievement_x, achievement_y = params["x_logo"], params["y_logo"]
 
-    # Вставляем лого achievement на изображении
-    base_image.paste(achievement_img, (achievement_x, achievement_y), achievement_img)
+    # Вставляем лого на изображении
+    base_image.paste(logo_resized, (achievement_x, achievement_y), logo_resized)
 
     font_description = ImageFont.truetype(FONT_DESCR_PATH, params["desc_font_size"])
 
@@ -181,23 +254,21 @@ async def find_or_generate_image(achievement: Achievement, orientation: str) -> 
 
     # Рассчитываем размеры для шрифта title чтобы влезал на картинку
     font_title = get_fitting_font(
-        draw, achievement.title, FONT_TITLE_PATH, params["title_font_size"], params["title_box_max_width"]
+        draw, obj.title, FONT_TITLE_PATH, params["title_font_size"], params["title_box_max_width"]
     )
 
     if params["size"] == (1080, 1920):
-        params["x_title"] = get_centered_x(draw, achievement.title, font_title, width)
+        params["x_title"] = get_centered_x(draw, obj.title, font_title, width)
 
     # Рисуем title на изображении
-    draw.text(
-        (params["x_title"], params["y_title"]), achievement.title, fill="#FFFFFF", font=font_title, align="center"
-    )
+    draw.text((params["x_title"], params["y_title"]), obj.title, fill="#FFFFFF", font=font_title, align="center")
 
     align_text = "center" if params["size"] == (1080, 1920) else "left"
 
     # Рисуем description на изображении
     draw_wrapped_text(
         draw,
-        remove_tags(achievement.description),
+        remove_tags(obj.description),
         font_description,
         params["desc_box_max_width"],
         params["x_desc"],
@@ -206,14 +277,15 @@ async def find_or_generate_image(achievement: Achievement, orientation: str) -> 
     )
 
     try:
-        # Сохраняем изображение в байтовый объект
-        with BytesIO() as img_byte_arr:
-            base_image.save(img_byte_arr, format="PNG", optimize=False, compress_level=0)
-            image_bytes = img_byte_arr.getvalue()
+        if isinstance(obj, Badge):
+            # async with aiofiles.open(IMAGES_PATH / "badges" / f"saved_{obj.badge_type}.png", mode="wb") as f:
+            #     with BytesIO() as img_byte_arr:
+            #         base_image.save(img_byte_arr, format="PNG", optimize=False, compress_level=1)
+            #         image_bytes = img_byte_arr.getvalue()
+            #         await f.write(image_bytes)
+            return {"url": f"badges/saved_{obj.badge_type}.png", "width": width, "height": height}
 
-            # Загружаем изображение в S3
-            url = await s3_client.upload_file(image_bytes, image_name)
-
+        url = await upload_to_s3(base_image, image_name)
         return {"url": url, "width": width, "height": height}
     except Exception:
         return None

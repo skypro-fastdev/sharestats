@@ -4,7 +4,7 @@ from datetime import date, datetime
 from loguru import logger
 from sqlmodel import Field, Relationship, SQLModel, UniqueConstraint
 
-from src.models import Achievement, AchievementType, ProfessionEnum, ProfessionEnumWithAll, Student, plural_text
+from src.models import Achievement, AchievementType, Badge, ProfessionEnum, ProfessionEnumWithAll, Student, plural_text
 
 
 class StudentAchievement(SQLModel, table=True):
@@ -167,3 +167,13 @@ class BadgeDB(SQLModel, table=True):
     student_name: str
     title: str
     description: str
+
+    def to_badge_model(self) -> Badge:
+        return Badge(
+            id=self.id,
+            badge_type=self.badge_type,
+            student_id=self.student_id,
+            student_name=self.student_name,
+            title=self.title,
+            description=self.description,
+        )

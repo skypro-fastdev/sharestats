@@ -6,7 +6,8 @@ from loguru import logger
 
 from src.config import IS_HEROKU
 from src.db.badges_crud import BadgeDBHandler, get_badges_crud
-from src.web.utils import add_no_cache_headers
+from src.services.images import find_or_generate_image
+from src.web.utils import add_no_cache_headers, get_orientation
 
 router = APIRouter()
 
@@ -49,7 +50,14 @@ async def badges(
 
 @router.get("/vk/b/{badge_id:int}", name="vk_badge")
 @router.get("/tg/b/{badge_id:int}", name="tg_badge")
-async def vk_badge(request: Request, badge_id: int):
+async def vk_badge(
+    request: Request,
+    badge_id: int,
+    badges_crud: BadgeDBHandler = Depends(get_badges_crud),
+):
+    orientation = get_orientation(request)
+    badge = await badges_crud.get_badge_by_id(badge_id)
+    await find_or_generate_image(badge.to_badge_model(), orientation)
     # if is_social_bot(request):
     #     return templates.TemplateResponse(
     #         "share.html",
