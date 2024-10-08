@@ -1,4 +1,4 @@
-import asyncio.exceptions
+from asyncio.exceptions import TimeoutError
 from json import JSONDecodeError
 
 import aiohttp
@@ -13,10 +13,19 @@ class StatsLoader:
         self.__url = url
         self.__token = token
 
+    @staticmethod
+    async def on_retry_error(retry_state):
+        student_id = retry_state.args[1]
+        await tg_logger.log(
+            "ERROR",
+            f"All retry attempts failed for student_id {student_id}.\n" f"Stats: {retry_state.retry_object.statistics}",
+        )
+
     @retry(
-        stop=stop_after_attempt(5),  # Максимум 5 попыток
-        wait=wait_exponential(multiplier=1, min=5, max=10),  # Ждём от 1 до 10 секунд между попытками
-        retry=retry_if_exception_type(asyncio.exceptions.TimeoutError),  # Повторяем только при таймаутах
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=2, min=5, max=10),
+        retry=retry_if_exception_type(TimeoutError),
+        retry_error_callback=on_retry_error,
     )
     async def get_stats(self, student_id: int) -> dict[str, int | str]:
         try:
@@ -43,6 +52,8 @@ class StatsLoader:
                         )
                         raise HTTPException(status_code=response.status, detail=response.reason)
                     return {}
+        except TimeoutError:
+            raise
         except aiohttp.ClientError as e:
             await tg_logger.log(
                 "ERROR",
