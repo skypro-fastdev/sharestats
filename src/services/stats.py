@@ -1,4 +1,3 @@
-from asyncio.exceptions import TimeoutError
 from typing import Any, Sequence
 
 from loguru import logger
@@ -16,8 +15,8 @@ async def get_user_stats(student_id: int) -> dict[str, Any]:
             return data_cache.stats.get(student_id, {})
         stats = await stats_loader.get_stats(student_id)
         return {k: v for k, v in stats.items() if v is not None}
-    except TimeoutError:
-        await tg_logger.log("ERROR", f"Timeout error while getting stats for student_id {student_id}")
+    except Exception:
+        await tg_logger.log("ERROR", f"Error while getting stats for student_id {student_id}")
         return {}
 
 
