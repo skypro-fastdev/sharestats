@@ -1,3 +1,4 @@
+import traceback
 from asyncio.exceptions import TimeoutError
 from json import JSONDecodeError
 
@@ -22,14 +23,14 @@ class StatsLoader:
         )
 
     @retry(
-        stop=stop_after_attempt(5),
-        wait=wait_exponential(multiplier=2, min=5, max=10),
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=2, min=10, max=10),
         retry=retry_if_exception_type(TimeoutError),
         retry_error_callback=on_retry_error,
     )
     async def get_stats(self, student_id: int) -> dict[str, int | str]:
         try:
-            timeout = aiohttp.ClientTimeout(total=5)
+            timeout = aiohttp.ClientTimeout(total=10)
             params = {"student_id": student_id}
             headers = {"X-Authorization-Token": self.__token}
 
@@ -58,8 +59,11 @@ class StatsLoader:
                 f"Network error while getting stats for student_id {student_id}: {e}",
             )
             return {}
-        except Exception as e:
+        except Exception:
+            exception_traceback = traceback.format_exc()
             await tg_logger.log(
-                "ERROR", f"Unexpected error while getting stats from Yandex API for student_id {student_id}\n{e}"
+                "ERROR",
+                f"Unexpected error while getting stats from Yandex API for student_id {student_id}\n"
+                f"Traceback: {exception_traceback[:3700]} ...",
             )
             return {}
