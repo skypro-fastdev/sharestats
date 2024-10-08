@@ -52,8 +52,6 @@ class StatsLoader:
                         )
                         raise HTTPException(status_code=response.status, detail=response.reason)
                     return {}
-        except TimeoutError:
-            raise
         except aiohttp.ClientError as e:
             await tg_logger.log(
                 "ERROR",
