@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.requests import Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -20,6 +20,7 @@ HOST_URL = "https://sky.pro/share" if IS_HEROKU else "http://127.0.0.1:8000/shar
 async def badges(
     request: Request,
     badge_id: int,
+    is_friend: bool = Query(False),
     badges_crud: BadgeDBHandler = Depends(get_badges_crud),
 ):
     try:
@@ -37,6 +38,7 @@ async def badges(
             "title": badge.title,
             "description": badge.description,
             "base_url": HOST_URL,
+            "is_friend": is_friend,
         }
         return add_no_cache_headers(templates.TemplateResponse("badge.html", context))
 
@@ -74,6 +76,6 @@ async def vk_badge(
             },
         )
 
-    return add_no_cache_headers(
-        RedirectResponse(request.url_for("badges", badge_id=badge_id), status_code=status.HTTP_302_FOUND)
-    )
+    redirect_url = request.url_for("badges", badge_id=badge_id)
+    redirect_url = str(redirect_url) + "?is_friend=true"
+    return add_no_cache_headers(RedirectResponse(redirect_url, status_code=status.HTTP_302_FOUND))

@@ -25,6 +25,16 @@
             <img class="badge-logo" src="{{ url_for('data', path='images/badges/' + picture) }}" alt="">
         </div>
         <p class="description">{{ description }}</p>
+        {% if is_friend %}
+            <div class="unlock-section">
+                <div class="unlock-content">
+                    <img src="{{ url_for('data', path='images/lock.png') }}" alt="Unlock" class="unlock-icon">
+                    <p class="unlock-text">Разблокирована скидка 55% и бесплатная карьерная консультация для друзей</p>
+                </div>
+                <a href="https://sky.pro/courses/referral?utm_source=sharingbadge&utm_medium=referral&utm_content={{ student_id }}&utm_campaign=viral"
+                   class="friend-button" target="_blank">Я друг, хочу забрать!</a>
+            </div>
+        {% endif %}
         <div style="text-align: center">
             <div class="share-section">
                 <a href="https://vk.com/share.php?url={{ base_url | urlencode }}/vk/b/{{ badge_id }}"
