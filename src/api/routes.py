@@ -11,6 +11,7 @@ from src.db.session import get_async_session
 from src.db.students_crud import StudentDBHandler, get_student_crud
 from src.models import Badge, Challenge, DateQuery, Product, Purchase
 from src.services.export_csv import generate_csv
+from src.services.images import find_or_generate_image
 from src.services.purchases import get_purchased_products_and_challenges, process_purchase
 
 api_key_header = APIKeyHeader(name="X-API-Key")
@@ -190,6 +191,26 @@ async def process_badges(
             {"status": "OK", "message": "Badges processed"},
             status_code=status.HTTP_200_OK,
         )
+    except Exception as e:
+        return JSONResponse(
+            content={"status": "error", "message": str(e)}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@open_api_router.get(
+    "/api/badges/{badge_id}",
+    name="badges",
+    summary="Получить информацию о бейдже",
+    description="Возвращает информацию о бейдже",
+)
+async def get_badges(badge_id: int, crud: BadgeDBHandler = Depends(get_badges_crud)):
+    try:
+        badge = await crud.get_badge_by_id(badge_id)
+        badge = badge.to_badge_model()
+        image_data = await find_or_generate_image(badge, "tg_badge")
+        data = badge.model_dump()
+        data.update({"sharing_card_url": image_data["url"]})
+        return data
     except Exception as e:
         return JSONResponse(
             content={"status": "error", "message": str(e)}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
