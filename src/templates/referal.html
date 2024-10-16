@@ -26,17 +26,11 @@
         {% if profession_info %}
             <div class="profession-info-container">
                 <p class="description-prof">{{ profession_info }}</p>
-{#                <div class="career-change-section">#}
-{#                    <p><strong>Думаете о смене работы?</strong><br>#}
-{#                        За 10 минут подберём вам новую идеальную профессию.</p>#}
-{#                    <button class="take-test-btn" id="take-test-top">Пройти тест</button>#}
-{#                </div>#}
             </div>
         {% else %}
             <p></p>
         {% endif %}
         {% if skills %}
-            {#            <img src="{{ url_for('data', path="images/check.png") }}" alt="" class="image-class">#}
             <div class="stats-container">
                 <p class="stats-header">{{ first_name }} учится в Skypro и уже умеет:</p>
                 <ul class="skills-list">
@@ -78,58 +72,46 @@
         <!-- Include meme stats -->
         {% include 'meme_stats.html' %}
 
-        <div class="profession-info-container">
-            <p class="description-prof">А теперь давайте подберем вам новую идеальную профессию<br> за 10 минут?</p>
-            <div class="take-test-section">
-                <input type="hidden" id="studentId" value="{{ student_id }}">
-                <button class="take-test-btn-down" id="take-test-bottom">Пройти тест</button>
+
+        <div class="unlock-section">
+            <div class="unlock-content">
+                <img src="{{ url_for('data', path='images/lock.png') }}" alt="Unlock" class="unlock-icon">
+                <p class="unlock-text">Разблокирована скидка 55% и бесплатная карьерная консультация для друзей</p>
+            </div>
+            <a href="https://sky.pro/courses/referral?utm_source=sharingbadge&utm_medium=referral&utm_content={{ student_id }}&utm_campaign=viral"
+               class="friend-button" target="_blank">Я друг, хочу забрать!</a>
+        </div>
+
+        <div style="text-align: center">
+            <div class="share-section">
+                <a href="https://vk.com/share.php?url={{ base_url | urlencode }}/vk/{{ student_id }}"
+                   class="share-button" target="_blank">Поделиться в ВК</a>
+            </div>
+            <div class="share-section">
+                <a href="https://t.me/share/url?url={{ base_url | urlencode }}/h/{{ student_id }}&text=Уже {{ months_since_start }} я учусь новой профессии, пока всё нравится. Вот мои первые результаты и статистика"
+                   class="share-button" target="_blank">Поделиться в Telegram</a>
             </div>
         </div>
 
-
-        {#        <div class="info-box">#}
-        {#            <p>#}
-        {#                Для друзей {{ first_name }} {{ last_name }}#}
-        {#            </p>#}
-        {#            <h1 class="info-h1">Мы приготовили три подарка:</h1>#}
-        {#            <div class="gift-list">#}
-        {#                <div class="gift-item"></div>#}
-        {#                <div class="gift-text">30-минутная карьерная консультация по смене работы и карьерному росту (за 0 руб)#}
-        {#                </div>#}
-        {#                <div class="gift-item"></div>#}
-        {#                <div class="gift-text">Бесплатный курс по личным качествам: как разруливать конфликты на работе, всё#}
-        {#                    успевать, не уставать, быстро учиться и всем нравиться (за 0 руб)#}
-        {#                </div>#}
-        {#                <div class="gift-item"></div>#}
-        {#                <div class="gift-text">Скидка до 50 000 (20% от цены любого курса) для вас, если вы придете учиться.#}
-        {#                    Потому, что друзья наших учеников – наши друзья. А для друзей у нас лучшие условия!#}
-        {#                </div>#}
-        {#            </div>#}
-        {#            <form>#}
-        {#                <input type="hidden" id="studentId" value="{{ student_id }}">#}
-        {#                <div class="input-group">#}
-        {#                    <button type="submit" class="go-button" id="get-gifts">Забрать все три подарка</button>#}
-        {#                </div>#}
-        {#            </form>#}
-        {#        </div>#}
     </main>
 </div>
 <script defer>
-    document.addEventListener('DOMContentLoaded', function () {
-        const studentId = document.getElementById('studentId').value;
-        const testButtons = document.querySelectorAll('#take-test-top, #take-test-bottom');
-
-        testButtons.forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.preventDefault();
-                const url = `https://sky.pro/promo/proftest-new-more?utm_source=sharingstats&utm_medium=referral&utm_content=${studentId}&utm_campaign=viral`;
-
-                ym(97943495, 'reachGoal', 'guest_follow_proftest', {}, function () {
-                    window.open(url, '_blank');
-                });
-            });
-        });
-    });
+{#    #}
+{#    document.addEventListener('DOMContentLoaded', function () {#}
+{#        const studentId = document.getElementById('studentId').value;#}
+{#        const testButtons = document.querySelectorAll('#take-test-top, #take-test-bottom');#}
+{##}
+{#        testButtons.forEach(button => {#}
+{#            button.addEventListener('click', function (e) {#}
+{#                e.preventDefault();#}
+{#                const url = `https://sky.pro/promo/proftest-new-more?utm_source=sharingstats&utm_medium=referral&utm_content=${studentId}&utm_campaign=viral`;#}
+{##}
+{#                ym(97943495, 'reachGoal', 'guest_follow_proftest', {}, function () {#}
+{#                    window.open(url, '_blank');#}
+{#                });#}
+{#            });#}
+{#        });#}
+{#    });#}
 
     function adjustFontSize() {
         const element = document.getElementById('top-h1');
