@@ -39,19 +39,6 @@
         safeAddEventListener('sharing-options', 'click', () => ym(97943495, 'reachGoal', 'stats_expand_sharing_options'));
         safeAddEventListener('expand-skypro', 'click', () => ym(97943495, 'reachGoal', 'guest_expand_skypro'));
 
-        {#safeAddEventListener('expand-consultation', 'click', () => ym(97943495, 'reachGoal', 'guest_expand_consultation'));#}
-        {#safeAddEventListener('expand-minicourse', 'click', () => ym(97943495, 'reachGoal', 'guest_expand_minicourse'));#}
-        {#safeAddEventListener('expand-discount', 'click', () => ym(97943495, 'reachGoal', 'guest_expand_discount'));#}
-
-        safeAddEventListener('type-link', 'change', createInputHandler('stats_type_link'));
-
-        ['type-link'].forEach(id => {
-            safeAddEventListener(id, 'focus', function () {
-                if (this.value.trim() === '') {
-                    this.dataset.eventSent = 'false';
-                }
-            });
-        });
     });
 </script>
 <!-- End Yandex Metrika -->

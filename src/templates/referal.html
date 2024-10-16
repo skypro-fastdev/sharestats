@@ -78,8 +78,9 @@
                 <img src="{{ url_for('data', path='images/lock.png') }}" alt="Unlock" class="unlock-icon">
                 <p class="unlock-text">Разблокирована скидка 55% и бесплатная карьерная консультация для друзей</p>
             </div>
+            <input type="hidden" id="studentId" value="{{ student_id }}">
             <a href="https://sky.pro/courses/referral?utm_source=sharingbadge&utm_medium=referral&utm_content={{ student_id }}&utm_campaign=viral"
-               class="friend-button" target="_blank">Я друг, хочу забрать!</a>
+               class="friend-button" target="_blank" id="friend-button">Я друг, хочу забрать!</a>
         </div>
 
         <div style="text-align: center">
@@ -96,22 +97,20 @@
     </main>
 </div>
 <script defer>
-{#    #}
-{#    document.addEventListener('DOMContentLoaded', function () {#}
-{#        const studentId = document.getElementById('studentId').value;#}
-{#        const testButtons = document.querySelectorAll('#take-test-top, #take-test-bottom');#}
-{##}
-{#        testButtons.forEach(button => {#}
-{#            button.addEventListener('click', function (e) {#}
-{#                e.preventDefault();#}
-{#                const url = `https://sky.pro/promo/proftest-new-more?utm_source=sharingstats&utm_medium=referral&utm_content=${studentId}&utm_campaign=viral`;#}
-{##}
-{#                ym(97943495, 'reachGoal', 'guest_follow_proftest', {}, function () {#}
-{#                    window.open(url, '_blank');#}
-{#                });#}
-{#            });#}
-{#        });#}
-{#    });#}
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const studentId = document.getElementById('studentId').value;
+        const friendButton = document.getElementById('friend-button');
+
+        friendButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            const url = `https://sky.pro/promo/proftest-new-more?utm_source=sharingstats&utm_medium=referral&utm_content=${studentId}&utm_campaign=viral`;
+
+            ym(97943495, 'reachGoal', 'guest_follow_proftest', {}, function () {
+                window.open(url, '_blank');
+            });
+        });
+    });
 
     function adjustFontSize() {
         const element = document.getElementById('top-h1');
