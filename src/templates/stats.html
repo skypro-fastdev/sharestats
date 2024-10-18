@@ -76,6 +76,16 @@
         <!-- Include meme stats -->
         {% include 'meme_stats.html' %}
 
+        <div class="unlock-section">
+            <div class="unlock-content">
+                <img src="{{ url_for('data', path='images/lock.png') }}" alt="Unlock" class="unlock-icon">
+                <p class="unlock-text">Разблокирована скидка 55% и бесплатная карьерная консультация для друзей</p>
+            </div>
+            <input type="hidden" id="studentId" value="{{ student_id }}">
+            <a href="https://sky.pro/courses/referral?utm_source=sharingbadge&utm_medium=referral&utm_content={{ student_id }}&utm_campaign=viral"
+               class="friend-button" target="_blank" id="friend-button">Я друг, хочу забрать!</a>
+        </div>
+
         <div style="text-align: center">
             <div class="share-section">
                 <a href="https://vk.com/share.php?url={{ base_url | urlencode }}/vk/{{ student_id }}"
