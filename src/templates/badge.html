@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skypro - Достижение</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles_badges.css') }}">
+    {% include 'metrica.html' %}
+    {% include 'gtm_head.html' %}
+</head>
+<body>
+{% include 'gtm_body.html' %}
+<div class="container">
+    <header>
+        <div class="logo-container">
+            <img src="{{ url_for('data', path='images/skypro.png') }}" alt="Skypro logo" class="logo">
+            <img src="{{ url_for('data', path='images/skypro.png') }}" alt="Skypro logo" class="logo">
+            <img src="{{ url_for('data', path='images/skypro.png') }}" alt="Skypro logo" class="logo">
+        </div>
+    </header>
+    <main>
+        <p class="name">{{ student_name }}</p>
+        <h1 class="title">{{ title }}</h1>
+        <div class="badge">
+            <img class="badge-logo" src="{{ url_for('data', path='images/badges/' + picture) }}" alt="">
+        </div>
+        <p class="description">{{ description }}</p>
+        {% if is_friend %}
+            <div class="unlock-section">
+                <div class="unlock-content">
+                    <img src="{{ url_for('data', path='images/lock.png') }}" alt="Unlock" class="unlock-icon">
+                    <p class="unlock-text">Разблокирована скидка 55% и бесплатная карьерная консультация для друзей</p>
+                </div>
+                <a href="https://sky.pro/courses/referral?utm_source=sharingbadge&utm_medium=referral&utm_content={{ student_id }}&utm_campaign=viral"
+                   class="friend-button" target="_blank">Я друг, хочу забрать!</a>
+            </div>
+        {% endif %}
+        <div style="text-align: center">
+            <div class="share-section">
+                <a href="https://vk.com/share.php?url={{ base_url | urlencode }}/vk/b/{{ badge_id }}"
+                   class="share-button" target="_blank">Поделиться в ВК</a>
+            </div>
+            <div class="share-section">
+                <a href="https://t.me/share/url?url={{ base_url | urlencode }}/vk/b/{{ badge_id }}"
+                   class="share-button" target="_blank">Поделиться в Telegram</a>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

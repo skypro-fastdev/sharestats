@@ -4,7 +4,7 @@ from datetime import date, datetime
 from loguru import logger
 from sqlmodel import Field, Relationship, SQLModel, UniqueConstraint
 
-from src.models import Achievement, AchievementType, ProfessionEnum, ProfessionEnumWithAll, Student, plural_text
+from src.models import Achievement, AchievementType, Badge, ProfessionEnum, ProfessionEnumWithAll, Student, plural_text
 
 
 class StudentAchievement(SQLModel, table=True):
@@ -156,3 +156,24 @@ class ProductDB(SQLModel, table=True):
     is_active: bool
 
     student_products: list["StudentProduct"] = Relationship(back_populates="product")
+
+
+class BadgeDB(SQLModel, table=True):
+    __tablename__ = "badges"
+
+    id: int | None = Field(default=None, primary_key=True)
+    badge_type: str
+    student_id: int
+    student_name: str
+    title: str
+    description: str
+
+    def to_badge_model(self) -> Badge:
+        return Badge(
+            id=self.id,
+            badge_type=self.badge_type,
+            student_id=self.student_id,
+            student_name=self.student_name,
+            title=self.title,
+            description=self.description,
+        )

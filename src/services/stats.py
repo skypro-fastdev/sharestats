@@ -3,16 +3,21 @@ from typing import Any, Sequence
 from loguru import logger
 from sqlalchemy import Row
 
+from src.bot.logger import tg_logger
 from src.dependencies import achievements, data_cache, stats_loader
 from src.models import Achievement, Student
 
 
 async def get_user_stats(student_id: int) -> dict[str, Any]:
     """Получаем статистику студента"""
-    if str(student_id).startswith("999"):  # моковые данные для тестов
-        return data_cache.stats.get(student_id, {})
-    stats = await stats_loader.get_stats(student_id)
-    return {k: v for k, v in stats.items() if v is not None}
+    try:
+        if str(student_id).startswith("999"):  # моковые данные для тестов
+            return data_cache.stats.get(student_id, {})
+        stats = await stats_loader.get_stats(student_id)
+        return {k: v for k, v in stats.items() if v is not None}
+    except Exception:
+        await tg_logger.log("ERROR", f"Error while getting stats for student_id {student_id}")
+        return {}
 
 
 def check_achievements(student: Student) -> list[Achievement]:

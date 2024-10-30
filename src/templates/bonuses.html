@@ -63,7 +63,7 @@
                     {% for product in available_products %}
                         <li class="product-item">
                             <details>
-                                <summary class="product-summary">
+                                <summary class="product-summary" id="product-summary-{{ loop.index }}">
                                     <span class="product-title">{{ product.title }}</span>
                                     <span class="product-points">КУПИТЬ за {{ product.value }}</span>
                                 </summary>

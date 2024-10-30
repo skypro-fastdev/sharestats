@@ -1,7 +1,10 @@
+import traceback
+from asyncio.exceptions import TimeoutError
 from json import JSONDecodeError
 
 import aiohttp
 from fastapi import HTTPException
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from src.bot.logger import tg_logger
 
@@ -11,12 +14,28 @@ class StatsLoader:
         self.__url = url
         self.__token = token
 
+    @staticmethod
+    async def on_retry_error(retry_state):
+        student_id = retry_state.args[1]
+        await tg_logger.log(
+            "ERROR",
+            f"All retry attempts failed for student_id {student_id}.\n" f"Stats: {retry_state.retry_object.statistics}",
+        )
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=2, min=10, max=10),
+        retry=(retry_if_exception_type(TimeoutError) | retry_if_exception_type(aiohttp.ClientError)),
+        retry_error_callback=on_retry_error,
+    )
     async def get_stats(self, student_id: int) -> dict[str, int | str]:
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    self.__url, params={"student_id": student_id}, headers={"X-Authorization-Token": self.__token}
-                ) as response:
+            timeout = aiohttp.ClientTimeout(total=10)
+            params = {"student_id": student_id}
+            headers = {"X-Authorization-Token": self.__token}
+
+            async with aiohttp.ClientSession(timeout=timeout) as session:
+                async with session.get(self.__url, params=params, headers=headers) as response:
                     if response.status == 200:
                         try:
                             return await response.json()
@@ -34,15 +53,13 @@ class StatsLoader:
                         )
                         raise HTTPException(status_code=response.status, detail=response.reason)
                     return {}
-        except aiohttp.ClientError as e:
+        except (TimeoutError, aiohttp.ClientError):
+            raise
+        except Exception:
+            exception_traceback = traceback.format_exc()
             await tg_logger.log(
                 "ERROR",
-                f"Network error while getting stats for student_id {student_id}: {e}",
+                f"Unexpected error while getting stats from Yandex API for student_id {student_id}\n"
+                f"Traceback: {exception_traceback[:3700]} ...",
             )
-            return {}
-        except Exception as e:
-            await tg_logger.log(
-                "ERROR",
-                f"Unexpected error in while getting stats from Yandex API for student_id {student_id}\n{e}",
-            )
-            return {}
+            raise

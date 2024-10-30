@@ -20,12 +20,6 @@
             <img class="achievement-logo" src="{{ url_for('data', path=achievement_logo) }}" alt="">
         </div>
         <p class="description">{{ description|safe }}</p>
-        <div class="button-block">
-            <button class="share-button" onclick="location.href='#share'">
-                Хочу поделиться статистикой<br>
-                <span class="smaller-text">и получить + 1 консультацию с наставником и 15900 ₽</span>
-            </button>
-        </div>
         <p class="text-percents">Я {{ profession }} уже на</p>
         <p class="percents">{{ percent_of_lessons_completed }}%</p>
         <img src="{{ url_for('data', path="images/calendar.png") }}" alt="" class="image-class">
@@ -72,17 +66,7 @@
 
         <!-- Include schedule stats -->
         {% include 'schedule_block.html' %}
-{#        <img style="margin-top: -20px;" src="{{ url_for('data', path="images/schedule.png") }}" alt=""#}
-{#             class="image-class">#}
-{#        <div class="stats-container">#}
-{#            <p class="stats-header">Мой график</p>#}
-{#            <p class="stat-label">{{ homework_morning }} утром</p>#}
-{#            <p class="stat-label">{{ homework_night }} ночью</p>#}
-{#            <p class="stat-label">{{ homework_weekend }} на выходных</p>#}
-{#            <p class="stat-label">{{ homework_last_6 }} в последний момент</p>#}
-{#            <p class="stat-label-settings">* Посчитали на основании вашего часового пояса. <a#}
-{#                    href="https://student.skyeng.ru/profile?tab=settings" target="_blank">Настроить</a></p>#}
-{#        </div>#}
+
         <div class="stats-container">
             <img src="{{ url_for('data', path="images/questions.png") }}" alt="" class="image-class">
             <p class="stat-label">{{ questions_number }} наставникам</p>
@@ -92,135 +76,27 @@
         <!-- Include meme stats -->
         {% include 'meme_stats.html' %}
 
-        <div class="get-container">
-            <p style="margin-top: 5px; font-size: 18px;"><strong>Вы – просто супер!</strong><br><br>Поделитесь
-                красивой<br>статистикой в
-                соцсетях, получите +1 индивидуальную консультацию с наставником. И <strong>15 900 ₽ за каждого
-                    друга</strong>, который придет к нам учиться.</p>
-            <details>
-                <summary class="how-to-get" id="learn-how-summary">Узнать, как всё получить</summary>
-                <p style="font-size: 18px; margin-top: 10px;">Опубликуйте статистику в своей соцсети, пришлите нам
-                    ссылку на профиль или пост и мы гарантированно начислим консультацию с наставником. .<br><br>
-                    Если друзья придут учиться, перейдя по вашей ссылке, вы получите<br>15 900 ₽ за каждого.</p>
-            </details>
-            <details id="share">
-                <summary class="share-summary" id="sharing-options">Поделиться в соцсетях</summary>
-                <div class="share-options">
-                    <details class="share-item" onclick="changeStyle(event)">
-                        <summary class="details">Пост в ВК</summary>
-                        <div class="share-content">
-                            <p class="recommend">Рекомендуемый текст поста:</p>
-                            <p>Уже {{ months_since_start }} я учусь новой профессии, пока всё нравится. Вот мои первые
-                                результаты и статистика
-                                <span class="copy-icon"
-                                      onclick="copyToClipboard('Уже {{ months_since_start }} я учусь новой профессии, пока всё нравится. Вот мои первые результаты и статистика')">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                             fill="currentColor"
-                                             class="bi bi-copy" viewBox="0 0 16 16">
-                                          <path fill-rule="evenodd"
-                                                d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
-                                        </svg>
-                                    </span>
-                            </p>
-                            <a href="https://vk.com/share.php?url={{ base_url | urlencode }}/vk/{{ student_id }}"
-                               class="telegram-share-button" target="_blank">Поделиться</a>
-                        </div>
-                    </details>
-
-                    <details class="share-item" onclick="changeStyle(event)">
-                        <summary class="details">Истории в ВК</summary>
-                        <div class="share-content">
-                            <p>Сохраните карточку с итогами</p>
-                            <a href="{{ url_for('get_image', student_id=student_id) }}"
-                               class="save-button" download>Сохранить</a>
-                            <p>Сделайте новую историю и загрузите карточку. Добавьте
-                                ссылку {{ base_url }}/s/{{ student_id }}
-                                <span class="copy-icon"
-                                      onclick="copyToClipboard('{{ base_url }}/s/{{ student_id }}')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                         class="bi bi-copy" viewBox="0 0 16 16">
-                                      <path fill-rule="evenodd"
-                                            d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
-                                    </svg>
-                                </span>
-                            </p>
-                        </div>
-                    </details>
-
-                    <details class="share-item" onclick="changeStyle(event)">
-                        <summary class="details">Телеграм: канал или беседа</summary>
-                        <div class="share-content">
-                            <a href="https://t.me/share/url?url={{ base_url | urlencode }}/h/{{ student_id }}&text=Уже {{ months_since_start }} я учусь новой профессии, пока всё нравится. Вот мои первые результаты и статистика"
-                               class="telegram-share-button" target="_blank">Поделиться</a>
-                        </div>
-                    </details>
-
-                    <details class="share-item" onclick="changeStyle(event)">
-                        <summary class="details">История в Нельзяграме</summary>
-                        <div class="share-content">
-                            <p>Сохраните карточку с итогами</p>
-                            <a href="{{ url_for('get_image', student_id=student_id) }}"
-                               class="save-button" download>Сохранить</a>
-                            <p>Создайте новую историю</p>
-                            <p>Добавьте наклейку-ссылку {{ base_url }}/s/{{ student_id }}
-                                <span class="copy-icon"
-                                      onclick="copyToClipboard('{{ base_url }}/s/{{ student_id }}')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                         class="bi bi-copy" viewBox="0 0 16 16">
-                                      <path fill-rule="evenodd"
-                                            d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
-                                    </svg>
-                                </span>
-                            </p>
-                        </div>
-                    </details>
-
-                    <details class="share-item" onclick="changeStyle(event)">
-                        <summary class="details">Телеграм сторис (нужен премиум)</summary>
-                        <div class="share-content">
-                            <p>Перейдите по <a href="{{ base_url }}/tg/{{ student_id }}">этой ссылке</a> в
-                                канал, где опубликована история с вашей статистикой. Репостните её</p>
-                        </div>
-                    </details>
-                </div>
-            </details>
+        <div class="unlock-section">
+            <div class="unlock-content">
+                <img src="{{ url_for('data', path='images/lock.png') }}" alt="Unlock" class="unlock-icon">
+                <p class="unlock-text">Разблокирована скидка 55% и бесплатная карьерная консультация для друзей</p>
+            </div>
+            <input type="hidden" id="studentId" value="{{ student_id }}">
+            <a href="https://sky.pro/courses/referral?utm_source=sharingbadge&utm_medium=referral&utm_content={{ student_id }}&utm_campaign=viral"
+               class="friend-button" target="_blank" id="friend-button">Я друг, хочу забрать!</a>
         </div>
-        <div class="stats-container">
-            <p class="share-text">Пришлите ссылку на <strong>ваш пост или историю</strong> и получите консультацию:</p>
-            <form id="urlForm">
-                <input type="hidden" id="studentId" value="{{ student_id }}">
-                <input type="hidden" id="studentName" value="{{ student_name }}">
-                <input type="hidden" id="studentProfession" value="{{ profession }}">
-                <div class="input-group-url">
-                    <input type="text" placeholder="Ссылка на vk, telegram, нельзяграм" id="type-link" required>
-                </div>
-                <button type="submit" class="send-url-button" id="send-link">Забрать +1 консультацию</button>
-            </form>
-        </div>
-        <div id="successPopup" class="popup">
-            <div class="popup-content">
-                <img src="{{ url_for('data', path="images/check_mark.png") }}" alt="">
-                <h2>Готово!</h2>
-                <p>Мы получили вашу ссылку<br> и скоро отправим подарок!</p>
+
+        <div style="text-align: center">
+            <div class="share-section">
+                <a href="https://vk.com/share.php?url={{ base_url | urlencode }}/vk/{{ student_id }}"
+                   class="share-button" target="_blank">Поделиться в ВК</a>
+            </div>
+            <div class="share-section">
+                <a href="https://t.me/share/url?url={{ base_url | urlencode }}/h/{{ student_id }}&text=Уже {{ months_since_start }} я учусь новой профессии, пока всё нравится. Вот мои первые результаты и статистика"
+                   class="share-button" target="_blank">Поделиться в Telegram</a>
             </div>
         </div>
     </main>
 </div>
-<script src="{{ url_for('static', path='js/submit_url.js') }}" defer></script>
-<script>
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(function () {
-            alert('Текст скопирован!');
-        }, function (err) {
-            console.error('Не удалось скопировать текст: ', err);
-        });
-    }
-
-    function changeStyle(event) {
-        if (event.target.tagName.toLowerCase() === 'summary') {
-            event.target.classList.toggle('rotate');
-        }
-    }
-</script>
 </body>
 </html>

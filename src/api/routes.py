@@ -4,12 +4,14 @@ from fastapi.security import APIKeyHeader
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import settings
+from src.db.badges_crud import BadgeDBHandler, get_badges_crud
 from src.db.challenges_crud import ChallengeDBHandler, get_challenge_crud
 from src.db.products_crud import ProductDBHandler, get_product_crud
 from src.db.session import get_async_session
 from src.db.students_crud import StudentDBHandler, get_student_crud
-from src.models import Challenge, DateQuery, Product, Purchase
+from src.models import Badge, Challenge, DateQuery, Product, Purchase
 from src.services.export_csv import generate_csv
+from src.services.images import find_or_generate_image
 from src.services.purchases import get_purchased_products_and_challenges, process_purchase
 
 api_key_header = APIKeyHeader(name="X-API-Key")
@@ -21,6 +23,7 @@ async def validate_token(key: str = Security(api_key_header)):
 
 
 api_router = APIRouter(dependencies=[Depends(validate_token)])
+open_api_router = APIRouter()
 
 
 @api_router.post(
@@ -127,7 +130,7 @@ async def get_last_login_csv(
     )
 
 
-@api_router.get(
+@open_api_router.get(
     "/bonuses/adoption",
     name="adoption",
     summary="Экспорт CSV с данными о выполнении челленджей и покупке продуктов",
@@ -170,3 +173,45 @@ async def get_purchases_csv(
             "Content-Type": "text/csv; charset=utf-8-sig",
         },
     )
+
+
+@api_router.post(
+    "/badges",
+    name="badges",
+    summary="Добавить новые бейджи",
+    description="Стирает таблицу с бейджами и создаёт новые записи с бейджами в БД",
+)
+async def process_badges(
+    data: list[Badge],
+    crud: BadgeDBHandler = Depends(get_badges_crud),
+):
+    try:
+        await crud.process_badges_batch(data)
+        return JSONResponse(
+            {"status": "OK", "message": "Badges processed"},
+            status_code=status.HTTP_200_OK,
+        )
+    except Exception as e:
+        return JSONResponse(
+            content={"status": "error", "message": str(e)}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@open_api_router.get(
+    "/api/badges/{badge_id}",
+    name="badges",
+    summary="Получить информацию о бейдже",
+    description="Возвращает информацию о бейдже",
+)
+async def get_badges(badge_id: int, crud: BadgeDBHandler = Depends(get_badges_crud)):
+    try:
+        badge = await crud.get_badge_by_id(badge_id)
+        badge = badge.to_badge_model()
+        image_data = await find_or_generate_image(badge, "tg_badge")
+        data = badge.model_dump()
+        data.update({"sharing_card_url": image_data["url"]})
+        return data
+    except Exception as e:
+        return JSONResponse(
+            content={"status": "error", "message": str(e)}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
