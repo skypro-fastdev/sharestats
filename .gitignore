@@ -38,6 +38,7 @@ node_modules/
 *.pyc
 
 # Miscellaneous
+/temp
 *.bak
 *.log
 *.sqlite3
